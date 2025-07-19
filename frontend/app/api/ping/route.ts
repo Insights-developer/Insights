@@ -1,19 +1,19 @@
 import { Client } from "pg";
 
 export async function GET() {
-  const connectionString = process.env.POSTGRES_URL;
+  const connectionString = process.env.POSTGRES_URL + '&sslaccept=accept_invalid_certs';
   const client = new Client({ connectionString });
   try {
     await client.connect();
     const result = await client.query('SELECT NOW();');
     await client.end();
     return new Response(
-      JSON.stringify({ connected: true, time: result.rows[0].now, used: connectionString }),
+      JSON.stringify({ connected: true, time: result.rows[0].now }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error: any) {
     return new Response(
-      JSON.stringify({ connected: false, error: error.message, used: connectionString }),
+      JSON.stringify({ connected: false, error: error.message }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

@@ -1,6 +1,5 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 import { Client } from "pg";
-...
 
 import { Client } from "pg";
 

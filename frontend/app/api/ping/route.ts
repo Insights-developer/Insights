@@ -1,24 +1,19 @@
-import { NextRequest } from "next/server";
+import { Client } from "pg";
 
-// Import pg
-const { Client } = require("pg");
-
-// WARNING: For debugging only. Never hardcode secrets long-term.
-const connectionString = 'postgres://postgres.sjluumboshqxhmnroqxg:GBxSzM6RIcnEouU9@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true';
-
-export async function GET(req: NextRequest) {
+export async function GET() {
+  const connectionString = process.env.POSTGRES_URL;
   const client = new Client({ connectionString });
   try {
     await client.connect();
     const result = await client.query('SELECT NOW();');
     await client.end();
     return new Response(
-      JSON.stringify({ connected: true, time: result.rows[0].now }),
+      JSON.stringify({ connected: true, time: result.rows[0].now, used: connectionString }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error: any) {
     return new Response(
-      JSON.stringify({ connected: false, error: error.message }),
+      JSON.stringify({ connected: false, error: error.message, used: connectionString }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

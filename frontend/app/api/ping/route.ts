@@ -1,6 +1,6 @@
 import { sql } from '@vercel/postgres';
 
-export async function GET() {
+export async function GET() { 
   try {
     const result = await sql`SELECT NOW() as time;`;
     return new Response(

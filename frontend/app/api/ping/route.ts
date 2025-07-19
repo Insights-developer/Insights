@@ -1,9 +1,8 @@
 import { Client } from "pg";
 
 export async function GET() {
-  const connectionString = process.env.POSTGRES_URL;
   const client = new Client({
-    connectionString,
+    connectionString: process.env.POSTGRES_URL,
     ssl: { rejectUnauthorized: false }
   });
   try {

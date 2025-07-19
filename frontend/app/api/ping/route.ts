@@ -1,8 +1,11 @@
 import { Client } from "pg";
 
 export async function GET() {
-  const connectionString = process.env.POSTGRES_URL + '&sslaccept=accept_invalid_certs';
-  const client = new Client({ connectionString });
+  const connectionString = process.env.POSTGRES_URL;
+  const client = new Client({
+    connectionString,
+    ssl: { rejectUnauthorized: false }
+  });
   try {
     await client.connect();
     const result = await client.query('SELECT NOW();');

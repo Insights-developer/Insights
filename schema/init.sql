@@ -1,32 +1,23 @@
+-- schema/init.sql
 -- ====================================================
--- SCHEMA MIGRATION: Align users table with Supabase Auth
--- Date: 2025-07-19
+-- Main Database Schema for Insights Lottery App
+-- Updated: 2025-07-19 8:02 PM EDT
+-- 
+-- Changes:
+-- * users table uses UUID PK matching auth.users
+-- * removed hashed_password (Supabase Auth handles this)
+-- * user_id FKs updated to UUID
+-- * trigger keeps users table synced with Supabase Auth
 
--- 1. Drop dependent tables to avoid FK conflicts
-DROP TABLE IF EXISTS uploads, notifications, user_access_groups, access_groups, draws, games, insight_templates, users CASCADE;
-
--- 2. Recreate USERS table with UUID PK, no hashed_password
+-- === USERS TABLE ===
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY,  -- Supabase Auth user id, assigned from auth.users.id
+    id UUID PRIMARY KEY,                 -- Matches auth.users.id
     email VARCHAR(255) UNIQUE NOT NULL,
     role VARCHAR(50) DEFAULT 'member',
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- 3. Recreate ACCESS GROUPS tables
-CREATE TABLE IF NOT EXISTS access_groups (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    description TEXT
-);
-
-CREATE TABLE IF NOT EXISTS user_access_groups (
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    group_id INTEGER REFERENCES access_groups(id) ON DELETE CASCADE,
-    PRIMARY KEY (user_id, group_id)
-);
-
--- 4. Recreate GAMES
+-- === GAMES TABLE ===
 CREATE TABLE IF NOT EXISTS games (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -35,7 +26,7 @@ CREATE TABLE IF NOT EXISTS games (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- 5. Recreate DRAWS
+-- === DRAWS TABLE ===
 CREATE TABLE IF NOT EXISTS draws (
     id SERIAL PRIMARY KEY,
     game_id INTEGER REFERENCES games(id) ON DELETE CASCADE,
@@ -46,7 +37,7 @@ CREATE TABLE IF NOT EXISTS draws (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- 6. INSIGHT TEMPLATES
+-- === INSIGHT TEMPLATES TABLE ===
 CREATE TABLE IF NOT EXISTS insight_templates (
     id SERIAL PRIMARY KEY,
     template_name VARCHAR(100) NOT NULL,
@@ -55,7 +46,21 @@ CREATE TABLE IF NOT EXISTS insight_templates (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- 7. NOTIFICATIONS
+-- === ACCESS GROUPS (RBAC) ===
+CREATE TABLE IF NOT EXISTS access_groups (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description TEXT
+);
+
+-- === USER <-> ACCESS GROUPS LINK TABLE ===
+CREATE TABLE IF NOT EXISTS user_access_groups (
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES access_groups(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, group_id)
+);
+
+-- === NOTIFICATIONS TABLE ===
 CREATE TABLE IF NOT EXISTS notifications (
     id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -65,7 +70,7 @@ CREATE TABLE IF NOT EXISTS notifications (
     read_at TIMESTAMP
 );
 
--- 8. FILE UPLOADS TRACKING
+-- === FILE UPLOADS TRACKING TABLE ===
 CREATE TABLE IF NOT EXISTS uploads (
     id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES users(id),
@@ -74,5 +79,21 @@ CREATE TABLE IF NOT EXISTS uploads (
     uploaded_at TIMESTAMP DEFAULT NOW()
 );
 
--- Versioning comment
--- 2025-07-19: Schema migrated for Supabase Auth compatibility, uuid PKs for users, FKs updated.
+-- === AUTH SYNC TRIGGER ===
+-- Automatically insert new user into users table when created in auth.users
+CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
+RETURNS trigger AS $$
+BEGIN
+    INSERT INTO public.users (id, email)
+    VALUES (NEW.id, NEW.email)
+    ON CONFLICT (id) DO NOTHING;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW EXECUTE PROCEDURE public.handle_new_auth_user();
+
+-- === Version Control Comment ===
+-- 2025-07-19: Schema migrated for Supabase Auth UUID PK, FKs updated, trigger added for sync.

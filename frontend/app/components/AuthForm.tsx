@@ -5,7 +5,7 @@ import { supabase } from '@/utils/supabase/browser';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function AuthPage() {
+export default function AuthForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,26 +23,31 @@ export default function AuthPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       authResult = { error };
     } else {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: 'https://insights-orpin-xi.vercel.app/auth/callback'
+        }
+      });
       authResult = { error };
     }
 
     if (authResult.error) {
       setError(authResult.error.message || 'Authentication error');
     } else {
-      router.push('/');
+      // Successful login or sign up (if auto-confirmed)
+      router.push('/dashboard');
     }
     setLoading(false);
   }
 
-  // Helper detects errors about unconfirmed email
-  const isUnconfirmed = error && (
-    error.toLowerCase().includes('confirm') ||
-    error.toLowerCase().includes('email not confirmed')
-  );
+  const isUnconfirmed =
+    error?.toLowerCase().includes('confirm') ||
+    error?.toLowerCase().includes('email not confirmed');
 
   return (
-    <main style={{ maxWidth: 320, margin: '3rem auto', padding: 20, border: '1px solid #eee' }}>
+    <div>
       <h2>{mode === 'sign-in' ? 'Sign In' : 'Sign Up'}</h2>
       <form onSubmit={handleSubmit}>
         <div>
@@ -91,6 +96,6 @@ export default function AuthPage() {
           ? "Need an account? Sign Up"
           : "Already have an account? Sign In"}
       </button>
-    </main>
+    </div>
   );
 }

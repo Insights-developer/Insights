@@ -29,7 +29,7 @@ export default function DashboardPage() {
       const resp = await fetch('/api/user/features');
       const { features } = await resp.json();
 
-      // Require dashboard_page feature (uncomment to strictly gate dashboard)
+      // Require dashboard_page feature
       if (!features?.includes('dashboard_page')) {
         setForbidden(true);
         setLoading(false);
@@ -76,9 +76,11 @@ export default function DashboardPage() {
               <a href="/admin">Admin Panel</a>
             </li>
           )}
-          <li>
-            <a href="/profile">Profile</a>
-          </li>
+          {has('profile_page') && (
+            <li>
+              <a href="/profile">Profile</a>
+            </li>
+          )}
         </ul>
       </nav>
       <section style={{ display: 'flex', gap: 32, justifyContent: 'center', marginTop: 32 }}>

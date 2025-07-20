@@ -2,93 +2,135 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { getUserFeatures } from '@/utils/rbac';
 
-// GET: Return a list of all users for admin UI
+// === GET: Return all users WITH their group memberships ===
 export async function GET(req: NextRequest) {
   const supabase = createClient();
 
-  // Admin RBAC: allow only users with 'admin_dashboard' feature
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const features = await getUserFeatures(user.id);
-  if (!features.includes('admin_dashboard')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  // Select all users from the app users table (not from auth.users directly)
-  const { data: users, error } = await supabase.from('users').select('*');
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ users });
-}
-
-// PATCH: Edit user info—email, role, username, phone
-// Body: { userId: string, email?: string, role?: string, username?: string, phone?: string }
-export async function PATCH(req: NextRequest) {
-  const supabase = createClient();
-
-  // Admin RBAC - require 'admin_dashboard' permission
+  // RBAC: admin_dashboard only
   const { data: auth } = await supabase.auth.getUser();
   const user = auth?.user;
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const features = await getUserFeatures(user.id);
-  if (!features.includes('admin_dashboard')) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (!features.includes('admin_dashboard'))
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { userId, email, role: newRole, username, phone } = await req.json();
-  if (!userId) {
-    return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+  // 1. Get all users
+  const { data: users, error: usersError } = await supabase.from('users').select('*');
+  if (usersError) {
+    return NextResponse.json({ error: usersError.message }, { status: 500 });
   }
 
+  if (!users.length)
+    return NextResponse.json({ users: [] });
+
+  const userIds = users.map(u => u.id);
+
+  // 2. Get all user<->groups in one call
+  const { data: userGroups, error: ugErr } = await supabase
+    .from('user_access_groups')
+    .select('user_id, group_id');
+  if (ugErr)
+    return NextResponse.json({ error: ugErr.message }, { status: 500 });
+
+  // 3. Get all group info
+  const { data: allGroups, error: agError } = await supabase
+    .from('access_groups')
+    .select('id, name');
+  if (agError)
+    return NextResponse.json({ error: agError.message }, { status: 500 });
+
+  // Map group id to name
+  const groupMap = Object.fromEntries(
+    (allGroups || []).map(g => [g.id, { id: g.id, name: g.name }])
+  );
+
+  // Build per-user group arrays
+  const userToGroups: Record<string, { id: number, name: string }[]> = {};
+  (userGroups || []).forEach(ug => {
+    if (!userToGroups[ug.user_id]) userToGroups[ug.user_id] = [];
+    if (groupMap[ug.group_id])
+      userToGroups[ug.user_id].push(groupMap[ug.group_id]);
+  });
+
+  // Final users array: add `groups` property
+  const usersWithGroups = users.map(u => ({
+    ...u,
+    groups: userToGroups[u.id] || []
+  }));
+
+  return NextResponse.json({ users: usersWithGroups });
+}
+
+// === PATCH: Edit user profile and group memberships ===
+export async function PATCH(req: NextRequest) {
+  const supabase = createClient();
+
+  // RBAC: admin_dashboard only
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth?.user;
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const features = await getUserFeatures(user.id);
+  if (!features.includes('admin_dashboard'))
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const { userId, email, username, phone, groupIds } = await req.json();
+  if (!userId)
+    return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+
+  // 1. Update user profile fields
   const updatePayload: any = {};
   if (email) updatePayload.email = email;
-  if (newRole) updatePayload.role = newRole;
   if (username !== undefined) updatePayload.username = username;
   if (phone !== undefined) updatePayload.phone = phone;
 
-  if (Object.keys(updatePayload).length === 0) {
-    return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
+  if (Object.keys(updatePayload).length > 0) {
+    const { error } = await supabase.from('users').update(updatePayload).eq('id', userId);
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  const { error } = await supabase.from('users').update(updatePayload).eq('id', userId);
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
+  // 2. Update group memberships, if requested:
+  if (Array.isArray(groupIds)) {
+    // Remove all of the user's current groups
+    await supabase.from('user_access_groups').delete().eq('user_id', userId);
 
-  // Optionally update Auth user as well
-  // if (email) {
-  //   await supabase.auth.admin.updateUserById(userId, { email });
-  // }
+    // Insert new group memberships (skip if empty)
+    if (groupIds.length > 0) {
+      const inserts = groupIds.map((groupId: number) => ({
+        user_id: userId,
+        group_id: groupId
+      }));
+      const { error: insertError } = await supabase.from('user_access_groups').insert(inserts);
+      if (insertError)
+        return NextResponse.json({ error: insertError.message }, { status: 400 });
+    }
+  }
 
   return NextResponse.json({ success: true });
 }
 
-// DELETE: Remove a user from the database (by id)
+// === DELETE: Remove a user (and all their group memberships) ===
 export async function DELETE(req: NextRequest) {
   const supabase = createClient();
 
-  // Admin RBAC - require 'admin_dashboard' permission
+  // RBAC: admin_dashboard only
   const { data: auth } = await supabase.auth.getUser();
   const user = auth?.user;
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const features = await getUserFeatures(user.id);
-  if (!features.includes('admin_dashboard')) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (!features.includes('admin_dashboard'))
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { userId } = await req.json();
-  if (!userId) {
+  if (!userId)
     return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
-  }
 
-  // Delete from your app users table (cascades to user_access_groups via FK if set)
+  // Deletes from users (should cascade to user_access_groups)
   const { error } = await supabase.from('users').delete().eq('id', userId);
-  if (error) {
+  if (error)
     return NextResponse.json({ error: error.message }, { status: 400 });
-  }
 
-  // Optionally also delete from Supabase Auth users (use with care!)
+  // Optionally: Delete from Supabase Auth users as well (disabled for safety)
   // await supabase.auth.admin.deleteUser(userId);
 
   return NextResponse.json({ success: true });

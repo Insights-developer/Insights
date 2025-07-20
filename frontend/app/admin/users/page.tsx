@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from 'react';
 
+// --- Types ---
+type Group = {
+  id: number;
+  name: string;
+};
+
 type User = {
   id: string;
   email: string;
-  role: string;
   username: string | null;
   phone: string | null;
   created_at: string;
+  groups: Group[]; // Now required in user object!
 };
 
 export default function AdminUsersPage() {
@@ -18,11 +24,14 @@ export default function AdminUsersPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [edit, setEdit] = useState<Partial<User>>({});
   const [actionError, setActionError] = useState<string | null>(null);
+  const [allGroups, setAllGroups] = useState<Group[]>([]);
+  const [groupsLoading, setGroupsLoading] = useState(true);
 
   function formatPhone(input: string) {
     return input.replace(/[^\d]/g, '');
   }
 
+  // --- Fetch all users with their groups ---
   function fetchUsers() {
     setLoading(true);
     setError(null);
@@ -36,16 +45,26 @@ export default function AdminUsersPage() {
       .finally(() => setLoading(false));
   }
 
+  // --- Fetch all access groups ---
+  function fetchGroups() {
+    setGroupsLoading(true);
+    fetch('/api/admin/groups')
+      .then(res => res.json())
+      .then(data => setAllGroups(data.groups || []))
+      .finally(() => setGroupsLoading(false));
+  }
+
   useEffect(fetchUsers, []);
+  useEffect(fetchGroups, []);
 
   async function startEdit(u: User) {
     setEditId(u.id);
     setEdit({
       id: u.id,
       email: u.email,
-      role: u.role,
       username: u.username ?? '',
-      phone: u.phone ?? ''
+      phone: u.phone ?? '',
+      groups: u.groups || [],
     });
     setActionError(null);
   }
@@ -61,9 +80,11 @@ export default function AdminUsersPage() {
     const payload: Record<string, any> = {
       userId: u.id,
       email: edit.email,
-      role: edit.role,
       username: edit.username?.trim() || null,
-      phone: edit.phone ? formatPhone(edit.phone) : null
+      phone: edit.phone ? formatPhone(edit.phone) : null,
+      groupIds: Array.isArray(edit.groups)
+        ? edit.groups.map((g: Group) => g.id)
+        : [],
     };
     try {
       const res = await fetch('/api/admin/users', {
@@ -106,10 +127,17 @@ export default function AdminUsersPage() {
   return (
     <main style={{ maxWidth: 800, margin: '2rem auto', padding: 20 }}>
       <h2>Admin: Users Management</h2>
+      <p>
+        <small>
+          <b>Access is now determined by group memberships only.</b>
+          {` `}
+          The legacy <code>role</code> field is not used; use groups to manage permissions.
+        </small>
+      </p>
       {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
       {actionError && <div style={{ color: 'red', marginBottom: 12 }}>{actionError}</div>}
-      {loading ? (
-        <div>Loading users…</div>
+      {(loading || groupsLoading) ? (
+        <div>Loading…</div>
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
@@ -117,7 +145,7 @@ export default function AdminUsersPage() {
               <th>Email</th>
               <th>Username</th>
               <th>Phone</th>
-              <th>Role</th>
+              <th>Groups</th>
               <th>Created</th>
               <th>Action</th>
             </tr>
@@ -161,18 +189,30 @@ export default function AdminUsersPage() {
                     />
                   ) : (u.phone || <em>(none)</em>)}
                 </td>
-                {/* ROLE */}
+                {/* GROUPS */}
                 <td>
                   {editId === u.id ? (
                     <select
-                      value={edit.role ?? ''}
-                      onChange={e => setEdit(edit => ({ ...edit, role: e.target.value }))}
+                      multiple
+                      style={{ width: '95%' }}
+                      value={Array.isArray(edit.groups) ? edit.groups.map(g => String(g.id)) : []}
+                      onChange={e => {
+                        const selectedIds = Array.from(e.target.selectedOptions, opt => Number(opt.value));
+                        setEdit(edit => ({
+                          ...edit,
+                          groups: allGroups.filter(g => selectedIds.includes(g.id))
+                        }));
+                      }}
                     >
-                      <option value="user">user</option>
-                      <option value="admin">admin</option>
-                      {/* Add other roles if needed */}
+                      {allGroups.map(g => (
+                        <option key={g.id} value={g.id}>
+                          {g.name}
+                        </option>
+                      ))}
                     </select>
-                  ) : u.role}
+                  ) : (
+                    u.groups.map(g => g.name).join(', ') || <em>(none)</em>
+                  )}
                 </td>
                 {/* CREATED AT */}
                 <td>{new Date(u.created_at).toLocaleString()}</td>

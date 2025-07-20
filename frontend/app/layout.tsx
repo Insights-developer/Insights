@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        {/* ONLY show navigation if the user is authenticated */}
+        {/* ONLY show navigation if the user is authenticated and logged in*/}
         {isAuthenticated && <Navbar />}
         {children}
       </body>

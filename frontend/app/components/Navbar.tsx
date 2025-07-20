@@ -14,7 +14,7 @@ export default function Navbar() {
   useEffect(() => {
     let mounted = true;
 
-    // Get session, then fetch user role from your "users" table
+    // Get session, then fetch user role from your "users" table and then some. 
     supabase.auth.getUser().then(async ({ data }) => {
       if (data?.user) {
         const { data: userMeta, error } = await supabase

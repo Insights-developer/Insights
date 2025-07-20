@@ -24,7 +24,10 @@ export default function GroupsPage() {
       .then(data => {
         if (Array.isArray(data.groups)) {
           setGroups(data.groups);
-          if (!selectedGroup || !data.groups.some(g => g.id === selectedGroup.id)) {
+          if (
+  !selectedGroup ||
+  !data.groups.some((g: AccessGroup) => g.id === selectedGroup.id)
+) {
             setSelectedGroup(data.groups[0] || null);
           }
           setError(null);

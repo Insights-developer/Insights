@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/utils/supabase/browser';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -17,15 +18,28 @@ export default function AuthPage() {
     setLoading(true);
     setError(null);
 
-    const action = mode === 'sign-in'
-      ? supabase.auth.signInWithPassword({ email, password })
-      : supabase.auth.signUp({ email, password });
+    let authResult;
+    if (mode === 'sign-in') {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      authResult = { error };
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password });
+      authResult = { error };
+    }
 
-    const { error } = await action;
-    if (error) setError(error.message);
-    else router.push('/');
+    if (authResult.error) {
+      setError(authResult.error.message || 'Authentication error');
+    } else {
+      router.push('/');
+    }
     setLoading(false);
   }
+
+  // Helper detects errors about unconfirmed email
+  const isUnconfirmed = error && (
+    error.toLowerCase().includes('confirm') ||
+    error.toLowerCase().includes('email not confirmed')
+  );
 
   return (
     <main style={{ maxWidth: 320, margin: '3rem auto', padding: 20, border: '1px solid #eee' }}>
@@ -56,7 +70,17 @@ export default function AuthPage() {
         <button type="submit" disabled={loading} style={{ width: '100%' }}>
           {loading ? 'Processing…' : mode === 'sign-in' ? 'Sign In' : 'Sign Up'}
         </button>
-        {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
+        {error && (
+          <div style={{ color: 'red', marginTop: 8 }}>
+            {error}
+            {isUnconfirmed && (
+              <div style={{ marginTop: 8 }}>
+                Didn&apos;t get a confirmation email?{' '}
+                <Link href="/auth/resend-confirmation">Resend confirmation</Link>
+              </div>
+            )}
+          </div>
+        )}
       </form>
       <button
         type="button"

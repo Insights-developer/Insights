@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import GroupsManager from '@/components/admin/GroupsManager';
 import GroupFeatureManager from '@/components/admin/GroupFeatureManager';
-import FeaturesManager from '@/components/admin/FeaturesManager';  // Import added here
+import FeaturesManager from '@/components/admin/FeaturesManager';
+import GroupMemberManager from '@/components/admin/GroupMemberManager'; // NEW: for user/group assignments
 
 type AccessGroup = {
   id: number;
@@ -25,9 +26,9 @@ export default function GroupsPage() {
         if (Array.isArray(data.groups)) {
           setGroups(data.groups);
           if (
-  !selectedGroup ||
-  !data.groups.some((g: AccessGroup) => g.id === selectedGroup.id)
-) {
+            !selectedGroup ||
+            !data.groups.some((g: AccessGroup) => g.id === selectedGroup.id)
+          ) {
             setSelectedGroup(data.groups[0] || null);
           }
           setError(null);
@@ -42,14 +43,20 @@ export default function GroupsPage() {
   useEffect(fetchGroups, []);
 
   return (
-    <main style={{ maxWidth: 800, margin: '2rem auto', padding: 20 }}>
+    <main style={{ maxWidth: 900, margin: '2rem auto', padding: 20 }}>
       <h2>Manage Groups & Features</h2>
       {error && <div style={{ color: 'red' }}>{error}</div>}
 
       {/* Group CRUD component */}
       <GroupsManager />
 
-      {/* Feature-Per-Group Manager */}
+      {/* Assign users to groups */}
+      <section style={{ marginTop: 40 }}>
+        <h3>Assign Users to Groups</h3>
+        <GroupMemberManager />
+      </section>
+
+      {/* Assign features to groups */}
       <section style={{ marginTop: 40 }}>
         <h3>Set Feature Permissions for a Group</h3>
         {loading && <div>Loading groups…</div>}
@@ -60,7 +67,7 @@ export default function GroupsPage() {
               <strong>Select group: </strong>
               <select
                 value={selectedGroup?.id ?? ''}
-                onChange={(e) => {
+                onChange={e => {
                   const id = Number(e.target.value);
                   setSelectedGroup(groups.find(g => g.id === id) ?? null);
                 }}
@@ -75,14 +82,14 @@ export default function GroupsPage() {
 
             {selectedGroup && (
               <div style={{ marginTop: 24 }}>
-                <GroupFeatureManager group={selectedGroup} allFeatures={groups.length > 0 ? [] : [] /* You can replace with static or dynamic list */} />
+                <GroupFeatureManager group={selectedGroup} allFeatures={[]} />
               </div>
             )}
           </>
         )}
       </section>
 
-      {/* Global Features Manager — Added here */}
+      {/* Global Features Manager */}
       <section style={{ marginTop: 60 }}>
         <FeaturesManager />
       </section>

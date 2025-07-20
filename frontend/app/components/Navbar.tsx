@@ -3,34 +3,33 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/utils/supabase/browser';
-
-type UserMeta = { email: string; role: string };
+import { supabase } from '../../utils/supabase/browser';
 
 export default function Navbar() {
   const router = useRouter();
-  const [user, setUser] = useState<UserMeta | null>(null);
+  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [features, setFeatures] = useState<string[]>([]);
 
   useEffect(() => {
     let mounted = true;
-
-    // Get session, then fetch user role from your "users" table and then some. 
-    supabase.auth.getUser().then(async ({ data }) => {
+    (async () => {
+      const { data } = await supabase.auth.getUser();
       if (data?.user) {
-        const { data: userMeta, error } = await supabase
-          .from('users')
-          .select('email, role')
-          .eq('id', data.user.id)
-          .single();
-
-        if (mounted && userMeta) setUser(userMeta);
+        if (mounted) setUser({ email: data.user.email ?? '' }); // <-- FIX applied here
+        // Fetch features
+        const resp = await fetch('/api/user/features');
+        const { features } = await resp.json();
+        if (mounted) setFeatures(features || []);
       }
-    });
-
+    })();
     return () => { mounted = false; };
   }, []);
 
-  if (!user) return null; // Or a skeleton if you wish
+  if (!user) return null;
+
+  function has(feature: string) {
+    return features.includes(feature);
+  }
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -49,12 +48,34 @@ export default function Navbar() {
       }}
     >
       <div>
-        <Link href="/dashboard" style={{ marginRight: 16 }}>
-          Dashboard
-        </Link>
-        {user.role === 'admin' && (
+        {has('dashboard_page') && (
+          <Link href="/dashboard" style={{ marginRight: 16 }}>
+            Dashboard
+          </Link>
+        )}
+        {has('games_page') && (
+          <Link href="/games" style={{ marginRight: 16 }}>
+            Games
+          </Link>
+        )}
+        {has('insights_page') && (
+          <Link href="/insights" style={{ marginRight: 16 }}>
+            Insights
+          </Link>
+        )}
+        {has('results_page') && (
+          <Link href="/results" style={{ marginRight: 16 }}>
+            Results
+          </Link>
+        )}
+        {has('admin_dashboard') && (
           <Link href="/admin" style={{ marginRight: 16 }}>
-            Admin Dashboard
+            Admin Panel
+          </Link>
+        )}
+        {has('profile_page') && (
+          <Link href="/profile" style={{ marginRight: 16 }}>
+            Profile
           </Link>
         )}
       </div>

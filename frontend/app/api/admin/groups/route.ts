@@ -31,15 +31,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Explicit insert object type
-  const insertObj: { name: string; description?: string | null } = {
-    name,
-    description: typeof description === 'string' ? description : null,
-  };
-
+  // ←───────────── The fix: as any on the insert call
   const { error } = await supabase
     .from('access_groups')
-    .insert([insertObj]);
+    .insert([{ name, description: description ?? null }] as any);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });

@@ -2,34 +2,41 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { supabase } from '../../utils/supabase/browser';
+import { useRouter, usePathname } from 'next/navigation';
+import { supabase } from '@/utils/supabase/browser';
+
+type NavItem = {
+  key: string;
+  label: string;
+  url: string;
+  icon: string | null;
+  order: number;
+};
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<{ email: string } | null>(null);
-  const [features, setFeatures] = useState<string[]>([]);
+  const [navLinks, setNavLinks] = useState<NavItem[]>([]);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       const { data } = await supabase.auth.getUser();
       if (data?.user) {
-        if (mounted) setUser({ email: data.user.email ?? '' }); // <-- FIX applied here
-        // Fetch features
-        const resp = await fetch('/api/user/features');
-        const { features } = await resp.json();
-        if (mounted) setFeatures(features || []);
+        if (mounted) setUser({ email: data.user.email ?? '' });
+        // Fetch navigation links from API
+        const resp = await fetch('/api/user/nav');
+        const navRes = await resp.json();
+        if (mounted) setNavLinks(Array.isArray(navRes.nav) ? navRes.nav : []);
       }
     })();
-    return () => { mounted = false; };
-  }, []);
+    return () => {
+      mounted = false;
+    };
+  }, [pathname]);
 
   if (!user) return null;
-
-  function has(feature: string) {
-    return features.includes(feature);
-  }
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -48,36 +55,18 @@ export default function Navbar() {
       }}
     >
       <div>
-        {has('dashboard_page') && (
-          <Link href="/dashboard" style={{ marginRight: 16 }}>
-            Dashboard
+        {navLinks.map(link => (
+          <Link href={link.url} key={link.key} style={{ marginRight: 16, display: 'inline-flex', alignItems: 'center' }}>
+            {link.icon && (
+              <img
+                src={link.icon}
+                alt={`${link.label} icon`}
+                style={{ width: 20, height: 20, marginRight: 6, objectFit: 'contain', verticalAlign: 'middle' }}
+              />
+            )}
+            {link.label}
           </Link>
-        )}
-        {has('games_page') && (
-          <Link href="/games" style={{ marginRight: 16 }}>
-            Games
-          </Link>
-        )}
-        {has('insights_page') && (
-          <Link href="/insights" style={{ marginRight: 16 }}>
-            Insights
-          </Link>
-        )}
-        {has('results_page') && (
-          <Link href="/results" style={{ marginRight: 16 }}>
-            Results
-          </Link>
-        )}
-        {has('admin_dashboard') && (
-          <Link href="/admin" style={{ marginRight: 16 }}>
-            Admin Panel
-          </Link>
-        )}
-        {has('profile_page') && (
-          <Link href="/profile" style={{ marginRight: 16 }}>
-            Profile
-          </Link>
-        )}
+        ))}
       </div>
       <div>
         <span style={{ fontSize: 14, color: '#333', marginRight: 16 }}>

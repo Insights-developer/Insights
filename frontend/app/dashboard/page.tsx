@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '../../utils/supabase/browser';
 import Forbidden from '../components/Forbidden';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<{ email: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [forbidden, setForbidden] = useState(false);
@@ -17,7 +18,6 @@ export default function DashboardPage() {
       setLoading(true);
       setForbidden(false);
 
-      // Authenticate
       const { data } = await supabase.auth.getUser();
       if (!data?.user) {
         router.replace('/');
@@ -25,11 +25,10 @@ export default function DashboardPage() {
       }
       setUser({ email: data.user.email ?? '' });
 
-      // Fetch feature keys for nav and widgets
+      // Always re-fetch features when pathname changes!
       const resp = await fetch('/api/user/features');
       const { features } = await resp.json();
 
-      // Require dashboard_page feature
       if (!features?.includes('dashboard_page')) {
         setForbidden(true);
         setLoading(false);
@@ -39,11 +38,11 @@ export default function DashboardPage() {
       setFeatures(features || []);
       setLoading(false);
     })();
-  }, [router]);
+  }, [router, pathname]); // <-- Reacts to route changes!
 
   if (loading) return <div>Loading dashboard…</div>;
   if (forbidden) return <Forbidden />;
-  if (!user) return null; // Defensive: will already redirect
+  if (!user) return null;
 
   const has = (feature: string) => features.includes(feature);
 
@@ -56,31 +55,11 @@ export default function DashboardPage() {
       </p>
       <nav style={{ margin: '2rem 0' }}>
         <ul style={{ display: 'flex', gap: 24, listStyle: 'none', padding: 0, justifyContent: 'center' }}>
-          {has('games_page') && (
-            <li>
-              <a href="/games">Games</a>
-            </li>
-          )}
-          {has('insights_page') && (
-            <li>
-              <a href="/insights">Insights</a>
-            </li>
-          )}
-          {has('results_page') && (
-            <li>
-              <a href="/results">Results</a>
-            </li>
-          )}
-          {has('admin_dashboard') && (
-            <li>
-              <a href="/admin">Admin Panel</a>
-            </li>
-          )}
-          {has('profile_page') && (
-            <li>
-              <a href="/profile">Profile</a>
-            </li>
-          )}
+          {has('games_page') && <li><a href="/games">Games</a></li>}
+          {has('insights_page') && <li><a href="/insights">Insights</a></li>}
+          {has('results_page') && <li><a href="/results">Results</a></li>}
+          {has('admin_dashboard') && <li><a href="/admin">Admin Panel</a></li>}
+          {has('profile_page') && <li><a href="/profile">Profile</a></li>}
         </ul>
       </nav>
       <section style={{ display: 'flex', gap: 32, justifyContent: 'center', marginTop: 32 }}>

@@ -4,10 +4,11 @@ import { getUserFeatures } from '@/utils/rbac';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-// Read (GET) all games
+// GET: Fetch all results (draws) for the results page
 export async function GET(req: Request) {
   const supabase = createClient();
-  // 1. Get auth
+
+  // 1. Authenticate user
   const { data: auth } = await supabase.auth.getUser();
   const user = auth?.user;
   if (!user) {
@@ -17,26 +18,26 @@ export async function GET(req: Request) {
     );
   }
 
-  // 2. RBAC: Must have games_page feature
+  // 2. RBAC: Must have 'results_page' permission
   const features = await getUserFeatures(user.id);
-  if (!features.includes("games_page")) {
+  if (!features.includes("results_page")) {
     return new Response(
       JSON.stringify({ error: "Forbidden" }),
       { status: 403, headers: { "Content-Type": "application/json" } }
     );
   }
 
-  // 3. Proceed if allowed
+  // 3. Query draws table for results
   const client = new Client({
     connectionString: process.env.POSTGRES_URL,
     ssl: { rejectUnauthorized: false }
   });
   try {
     await client.connect();
-    const result = await client.query('SELECT * FROM games ORDER BY created_at DESC;');
+    const result = await client.query('SELECT * FROM draws ORDER BY draw_date DESC;');
     await client.end();
     return new Response(
-      JSON.stringify({ games: result.rows }),
+      JSON.stringify({ results: result.rows }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error: any) {
@@ -45,12 +46,4 @@ export async function GET(req: Request) {
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-}
-
-// Placeholder for POST (with similar check once implemented)
-export async function POST() {
-  return new Response(
-    JSON.stringify({ error: "POST (game creation) not implemented yet." }),
-    { status: 501, headers: { "Content-Type": "application/json" } }
-  );
 }

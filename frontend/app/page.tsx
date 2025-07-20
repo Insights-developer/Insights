@@ -10,8 +10,15 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (data?.user) {
+        // After login, attempt to promote from Guest to Member if newly verified.
+        // Safe: if already member or not verified, does nothing/bails quietly.
+        try {
+          await fetch('/api/user/promote-if-verified', { method: 'POST' });
+        } catch {
+          // No action needed if promotion API fails silently
+        }
         router.replace('/dashboard');
       } else {
         setLoading(false);

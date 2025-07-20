@@ -1,8 +1,32 @@
 import { Client } from "pg";
+import { createClient } from '@/utils/supabase/server';
+import { getUserFeatures } from '@/utils/rbac';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-// Read (GET) all draws
-export async function GET() {
+// Read (GET) all draws (insights)
+export async function GET(req: Request) {
+  const supabase = createClient();
+
+  // 1. Require auth
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth?.user;
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized" }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // 2. RBAC check: must have 'insights_page' permission
+  const features = await getUserFeatures(user.id);
+  if (!features.includes("insights_page")) {
+    return new Response(
+      JSON.stringify({ error: "Forbidden" }),
+      { status: 403, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // 3. Serve insights (draws)
   const client = new Client({
     connectionString: process.env.POSTGRES_URL,
     ssl: { rejectUnauthorized: false }

@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { getUserRole } from '@/utils/rbac';
+import { getUserFeatures } from '@/utils/rbac';
 
 // GET: List all user/group memberships
 export async function GET(req: NextRequest) {
   const supabase = createClient();
   const { data } = await supabase.auth.getUser();
   if (!data?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const role = await getUserRole(data.user.id);
-  if (role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const features = await getUserFeatures(data.user.id);
+  if (!features.includes('admin_dashboard')) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { data: memberships, error } = await supabase.from('user_access_groups').select('*');
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -20,8 +21,9 @@ export async function POST(req: NextRequest) {
   const supabase = createClient();
   const { data } = await supabase.auth.getUser();
   if (!data?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const role = await getUserRole(data.user.id);
-  if (role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const features = await getUserFeatures(data.user.id);
+  if (!features.includes('admin_dashboard')) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
     const { userId, groupId } = await req.json();
@@ -43,8 +45,9 @@ export async function DELETE(req: NextRequest) {
   const supabase = createClient();
   const { data } = await supabase.auth.getUser();
   if (!data?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const role = await getUserRole(data.user.id);
-  if (role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const features = await getUserFeatures(data.user.id);
+  if (!features.includes('admin_dashboard')) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
     const { userId, groupId } = await req.json();

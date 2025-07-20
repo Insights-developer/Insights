@@ -4,31 +4,55 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/browser';
 
+type UserMeta = {
+  email: string;
+  features: string[];
+};
+
 export default function AdminPage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ email: string; role: string } | null>(null);
+  const [user, setUser] = useState<UserMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data?.user) {
-        router.replace('/'); // If not logged in, force to login (home)
-        return;
-      }
-      // Query the user's role from your `users` table (use an API route or Supabase client)
-      const { data: userData, error } = await supabase
-        .from('users')
-        .select('email, role')
-        .eq('id', data.user.id)
-        .single();
-
-      if (!userData || error || userData.role !== 'admin') {
-        // If not admin, redirect or show forbidden
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth?.user) {
         router.replace('/');
         return;
       }
-      setUser({ email: userData.email, role: userData.role });
+
+      // You can fetch features via your own API (recommended, supports future RBAC complexity):
+      // Example: /api/admin/user-features?userId=auth.user.id
+      // Here, we'll fetch email and features from users+join tables directly:
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('email, user_access_groups: user_access_groups (access_group: access_groups (access_group_features: access_group_features (feature)))')
+        .eq('id', auth.user.id)
+        .single();
+
+      if (!userData || error) {
+        router.replace('/');
+        return;
+      }
+
+      // Flatten all features assigned via group membership
+      const features = Array.from(
+        new Set(
+          (userData.user_access_groups || [])
+            .flatMap((uag: any) =>
+              uag.access_group?.access_group_features?.map((f: any) => f.feature) || []
+            )
+        )
+      );
+
+      if (!features.includes('admin_dashboard')) {
+        // Not an admin by RBAC permissions
+        router.replace('/');
+        return;
+      }
+
+      setUser({ email: userData.email, features });
       setLoading(false);
     })();
   }, [router]);

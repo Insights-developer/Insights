@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { getUserRole } from '@/utils/rbac';
+// import { getUserRole } from '@/utils/rbac';
+import { getUserFeatures } from '@/utils/rbac';
 
-// GET: List all features
+// GET: List all features (public for UI, optional gate)
 export async function GET() {
   const supabase = createClient();
   const { data, error } = await supabase.from('features').select('*');
@@ -10,13 +11,16 @@ export async function GET() {
   return NextResponse.json({ features: data });
 }
 
-// POST: Add a new feature
+// POST: Add a new feature (admin permission required)
 export async function POST(req: NextRequest) {
   const supabase = createClient();
   const { data } = await supabase.auth.getUser();
   if (!data?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const role = await getUserRole(data.user.id);
-  if (role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  // RBAC by features (group permissions)
+  const features = await getUserFeatures(data.user.id);
+  if (!features.includes('admin_dashboard'))
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { key, name, description } = await req.json();
   if (!key || !name) {
@@ -32,8 +36,11 @@ export async function PATCH(req: NextRequest) {
   const supabase = createClient();
   const { data } = await supabase.auth.getUser();
   if (!data?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const role = await getUserRole(data.user.id);
-  if (role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  // RBAC by features
+  const features = await getUserFeatures(data.user.id);
+  if (!features.includes('admin_dashboard'))
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { key, name, description } = await req.json();
   if (!key) return NextResponse.json({ error: 'Feature key is required.' }, { status: 400 });
@@ -52,8 +59,11 @@ export async function DELETE(req: NextRequest) {
   const supabase = createClient();
   const { data } = await supabase.auth.getUser();
   if (!data?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const role = await getUserRole(data.user.id);
-  if (role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  // RBAC by features
+  const features = await getUserFeatures(data.user.id);
+  if (!features.includes('admin_dashboard'))
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { key } = await req.json();
   if (!key) return NextResponse.json({ error: 'Feature key is required.' }, { status: 400 });

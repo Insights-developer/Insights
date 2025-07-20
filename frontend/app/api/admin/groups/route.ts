@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { getUserRole } from '@/utils/rbac';
+import { getUserFeatures } from '@/utils/rbac';
 
 export async function GET(req: NextRequest) {
   const supabase = createClient();
@@ -17,8 +17,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const role = await getUserRole(user.id);
-  if (role !== 'admin') {
+  // RBAC: Check for admin feature permission
+  const features = await getUserFeatures(user.id);
+  if (!features.includes('admin_dashboard')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -31,7 +32,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ←───────────── The fix: as any on the insert call
   const { error } = await supabase
     .from('access_groups')
     .insert([{ name, description: description ?? null }] as any);

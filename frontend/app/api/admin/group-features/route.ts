@@ -1,8 +1,6 @@
-// /frontend/app/api/admin/group-features/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { getUserRole } from '@/utils/rbac';
+import { getUserFeatures } from '@/utils/rbac';
 
 // GET: List all features for a given group
 export async function GET(req: NextRequest) {
@@ -28,8 +26,8 @@ export async function POST(req: NextRequest) {
   if (!data?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  const role = await getUserRole(data.user.id);
-  if (role !== 'admin') {
+  const features = await getUserFeatures(data.user.id);
+  if (!features.includes('admin_dashboard')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -59,8 +57,8 @@ export async function DELETE(req: NextRequest) {
   if (!data?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  const role = await getUserRole(data.user.id);
-  if (role !== 'admin') {
+  const features = await getUserFeatures(data.user.id);
+  if (!features.includes('admin_dashboard')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

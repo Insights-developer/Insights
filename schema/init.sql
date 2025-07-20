@@ -1,19 +1,19 @@
 -- schema/init.sql
 -- ====================================================
 -- Main Database Schema for Insights Lottery App
--- Updated: 2025-07-19 8:02 PM EDT
--- 
--- Changes:
--- * users table uses UUID PK matching auth.users
--- * removed hashed_password (Supabase Auth handles this)
--- * user_id FKs updated to UUID
--- * trigger keeps users table synced with Supabase Auth
+-- Updated: 2025-07-20
+
+-- RBAC & Profile Updates:
+-- + Added features and access_group_features tables for RBAC
+-- + Added phone and username to users table
 
 -- === USERS TABLE ===
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY,                 -- Matches auth.users.id
+    id UUID PRIMARY KEY,                            -- Matches auth.users.id
     email VARCHAR(255) UNIQUE NOT NULL,
-    role VARCHAR(50) DEFAULT 'member',
+    role VARCHAR(50) DEFAULT 'member',              -- Legacy, use RBAC instead
+    username VARCHAR(100),                          -- new
+    phone VARCHAR(30),                              -- new
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -60,6 +60,22 @@ CREATE TABLE IF NOT EXISTS user_access_groups (
     PRIMARY KEY (user_id, group_id)
 );
 
+-- === FEATURES TABLE (RBAC) ===
+CREATE TABLE IF NOT EXISTS features (
+    id SERIAL PRIMARY KEY,
+    key VARCHAR(60) NOT NULL UNIQUE,         -- e.g., 'admin_dashboard', 'games_page'
+    name VARCHAR(80) NOT NULL,               -- Human-friendly label
+    description TEXT
+);
+
+-- === ACCESS GROUP <-> FEATURES LINK TABLE (RBAC) ===
+CREATE TABLE IF NOT EXISTS access_group_features (
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER REFERENCES access_groups(id) ON DELETE CASCADE,
+    feature VARCHAR(60) REFERENCES features(key) ON DELETE CASCADE,
+    UNIQUE (group_id, feature)
+);
+
 -- === NOTIFICATIONS TABLE ===
 CREATE TABLE IF NOT EXISTS notifications (
     id SERIAL PRIMARY KEY,
@@ -96,4 +112,4 @@ AFTER INSERT ON auth.users
 FOR EACH ROW EXECUTE PROCEDURE public.handle_new_auth_user();
 
 -- === Version Control Comment ===
--- 2025-07-19: Schema migrated for Supabase Auth UUID PK, FKs updated, trigger added for sync.
+-- 2025-07-20: RBAC migration; users now have username & phone; features/group-features tables and usage.

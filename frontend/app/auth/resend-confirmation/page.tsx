@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { supabase } from '@/utils/supabase/browser';
+import Link from 'next/link';
 
 export default function ResendConfirmation() {
   const [email, setEmail] = useState('');
@@ -16,7 +17,7 @@ export default function ResendConfirmation() {
       type: 'signup',
       email,
       options: {
-        emailRedirectTo: 'https://insights-orpin-xi.vercel.app/auth/callback' // Update this as needed
+        emailRedirectTo: 'https://insights-orpin-xi.vercel.app/auth/callback'
       }
     });
     if (error) {
@@ -52,7 +53,7 @@ export default function ResendConfirmation() {
         )}
       </form>
       <div style={{ marginTop: 16 }}>
-        <a href="/auth">Back to login</a>
+        <Link href="/auth">Back to login</Link>
       </div>
     </main>
   );

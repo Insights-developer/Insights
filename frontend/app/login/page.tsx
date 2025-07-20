@@ -1,8 +1,13 @@
-export default function LoginPage() {
+export default function HomePage() {
   return (
-    <main>
-      <h2>Login / Sign Up</h2>
-      {/* Insert login/signup form component or logic here */}
+    <main style={{ maxWidth: 400, margin: '3rem auto', textAlign: 'center' }}>
+      <h1>Welcome to Insights App</h1>
+      <p>This is the public home page.</p>
+      <p>
+        <a href="/auth">Sign In / Sign Up</a>
+        {' | '}
+        <a href="/admin">Admin Dashboard</a>
+      </p>
     </main>
   );
 }

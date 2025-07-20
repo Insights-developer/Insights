@@ -1,38 +1,31 @@
+// /app/login/actions.ts
+
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 
-export async function login(formData: FormData) {
-  const supabase = createClient(cookies());
+// Example action for handling login
+export async function login({ email, password }: { email: string; password: string }) {
+  const supabase = createClient();
 
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
+  // Example: Get the cookies for this request scope (no arguments!)
+  const cookieStore = cookies();
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-  if (error) {
-    redirect('/error');
-  }
-
-  revalidatePath('/', 'layout');
-  redirect('/account');
-}
-
-export async function signup(formData: FormData) {
-  const supabase = createClient(cookies());
-
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-
-  const { error } = await supabase.auth.signUp({ email, password });
+  // Example: Call Supabase Auth API
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
   if (error) {
-    redirect('/error');
+    // Optionally set an error cookie or handle error
+    // cookieStore.set('login_error', error.message, { path: '/' });
+    return { success: false, message: error.message };
   }
 
-  revalidatePath('/', 'layout');
-  redirect('/account');
+  // Optionally set a token or session cookie
+  // cookieStore.set('session_id', data.session?.access_token || '', { path: '/' });
+
+  return { success: true };
 }

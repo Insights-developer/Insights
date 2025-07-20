@@ -1,12 +1,13 @@
-import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
-import { Database } from '../types';
+// /utils/supabase/server.ts
 
-// ONLY works in server files/components!
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import type { Database } from '@/utils/types';
+
 export function createClient() {
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: cookies() }
-  );
+  const cookieStore = cookies(); // sync, works in App Router
+
+  return createServerComponentClient<Database>({
+    cookies: () => cookieStore,
+  });
 }

@@ -25,20 +25,14 @@ export default function GroupFeatureManager({ group, allFeatures }: GroupFeature
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  // Fetch the current assignment for the selected group
   const fetchAssignments = async () => {
     setLoading(true);
     setErr(null);
     try {
-      const res = await fetch(`/api/admin/group-features?group_id=${group.id}`);
+      const res = await fetch(`/api/admin/group-features?groupId=${group.id}`);
       const data = await res.json();
-      if (Array.isArray(data.featureKeys)) {
-        setAssignedFeatureKeys(data.featureKeys);
-      } else if (Array.isArray(data.features)) {
-        // Accept fallback under earlier APIs
-        setAssignedFeatureKeys(
-          data.features.map((f: any) => typeof f === 'string' ? f : f.key)
-        );
+      if (Array.isArray(data.features)) {
+        setAssignedFeatureKeys(data.features);
       } else {
         setAssignedFeatureKeys([]);
       }
@@ -52,29 +46,40 @@ export default function GroupFeatureManager({ group, allFeatures }: GroupFeature
     if (group?.id) {
       fetchAssignments();
     }
-    // eslint-disable-next-line
   }, [group?.id]);
 
-  // Assign feature
   async function addFeature(key: string) {
     setLoading(true);
-    await fetch('/api/admin/group-features', {
+    const resp = await fetch('/api/admin/group-features', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ groupId: group.id, featureKey: key }),
+      body: JSON.stringify({ groupId: group.id, feature: key }),
     });
-    await fetchAssignments();
+    if (!resp.ok) {
+      const errorData = await resp.json();
+      setErr(errorData.error || 'Failed to add feature');
+    } else {
+      setErr(null);
+      await fetchAssignments();
+    }
+    setLoading(false);
   }
 
-  // Remove feature from group
   async function removeFeature(key: string) {
     setLoading(true);
-    await fetch('/api/admin/group-features', {
+    const resp = await fetch('/api/admin/group-features', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ groupId: group.id, featureKey: key }),
+      body: JSON.stringify({ groupId: group.id, feature: key }),
     });
-    await fetchAssignments();
+    if (!resp.ok) {
+      const errorData = await resp.json();
+      setErr(errorData.error || 'Failed to remove feature');
+    } else {
+      setErr(null);
+      await fetchAssignments();
+    }
+    setLoading(false);
   }
 
   const notAssigned = allFeatures.filter(f => !assignedFeatureKeys.includes(f.key));
@@ -88,7 +93,6 @@ export default function GroupFeatureManager({ group, allFeatures }: GroupFeature
       {err && <div style={{ color: 'red' }}>{err}</div>}
       {loading && <div>Loading features…</div>}
 
-      {/* Assigned features */}
       <table style={{ width: '100%', marginTop: 16 }}>
         <thead>
           <tr>
@@ -121,7 +125,6 @@ export default function GroupFeatureManager({ group, allFeatures }: GroupFeature
         </tbody>
       </table>
 
-      {/* Features that can be added */}
       <div style={{ marginTop: 24 }}>
         <h5>Add feature to group:</h5>
         <select

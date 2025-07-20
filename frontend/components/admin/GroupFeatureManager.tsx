@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 type AccessGroup = {
   id: number;
@@ -8,83 +8,139 @@ type AccessGroup = {
   description: string | null;
 };
 
-type FeatureState = {
-  [feature: string]: boolean;
+type Feature = {
+  id: number;
+  key: string;
+  name: string;
+  description: string | null;
 };
 
-type Props = {
+type GroupFeatureManagerProps = {
   group: AccessGroup;
-  allFeatures: string[];  // List of all possible features in your system
+  allFeatures: Feature[];
 };
 
-export default function GroupFeatureManager({ group, allFeatures }: Props) {
-  const [features, setFeatures] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export default function GroupFeatureManager({ group, allFeatures }: GroupFeatureManagerProps) {
+  const [assignedFeatureKeys, setAssignedFeatureKeys] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
 
-  // Load assigned features on mount & when group changes
-  useEffect(() => {
-    let aborted = false;
+  // Fetch the current assignment for the selected group
+  const fetchAssignments = async () => {
     setLoading(true);
-    fetch(`/api/admin/group-features?groupId=${group.id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (!aborted) {
-          setFeatures(Array.isArray(data.features) ? data.features : []);
-          setError(null);
-        }
-      })
-      .catch((e) => setError('Failed to load features'))
-      .finally(() => setLoading(false));
-    return () => { aborted = true; };
-  }, [group.id]);
-
-  const handleToggle = async (feature: string) => {
-    setLoading(true);
-    setError(null);
-    const enabled = features.includes(feature);
-    const method = enabled ? 'DELETE' : 'POST';
-    const body = JSON.stringify({ groupId: group.id, feature });
+    setErr(null);
     try {
-      const res = await fetch('/api/admin/group-features', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body,
-      });
-      if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.error || 'Request failed');
+      const res = await fetch(`/api/admin/group-features?group_id=${group.id}`);
+      const data = await res.json();
+      if (Array.isArray(data.featureKeys)) {
+        setAssignedFeatureKeys(data.featureKeys);
+      } else if (Array.isArray(data.features)) {
+        // Accept fallback under earlier APIs
+        setAssignedFeatureKeys(
+          data.features.map((f: any) => typeof f === 'string' ? f : f.key)
+        );
+      } else {
+        setAssignedFeatureKeys([]);
       }
-      setFeatures((prev) =>
-        enabled ? prev.filter((f) => f !== feature) : [...prev, feature]
-      );
-    } catch (e: any) {
-      setError(e.message || 'Request failed');
-    } finally {
-      setLoading(false);
+    } catch {
+      setErr('Failed to load group features.');
     }
+    setLoading(false);
   };
+
+  useEffect(() => {
+    if (group?.id) {
+      fetchAssignments();
+    }
+    // eslint-disable-next-line
+  }, [group?.id]);
+
+  // Assign feature
+  async function addFeature(key: string) {
+    setLoading(true);
+    await fetch('/api/admin/group-features', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ groupId: group.id, featureKey: key }),
+    });
+    await fetchAssignments();
+  }
+
+  // Remove feature from group
+  async function removeFeature(key: string) {
+    setLoading(true);
+    await fetch('/api/admin/group-features', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ groupId: group.id, featureKey: key }),
+    });
+    await fetchAssignments();
+  }
+
+  const notAssigned = allFeatures.filter(f => !assignedFeatureKeys.includes(f.key));
+  const assigned = allFeatures.filter(f => assignedFeatureKeys.includes(f.key));
 
   return (
     <div>
-      <h3>Feature Permissions for {group.name}</h3>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
-      <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-        {allFeatures.map((feature) => (
-          <li key={feature}>
-            <label>
-              <input
-                type="checkbox"
-                checked={features.includes(feature)}
-                disabled={loading}
-                onChange={() => handleToggle(feature)}
-              />
-              {feature}
-            </label>
-          </li>
-        ))}
-      </ul>
-      {loading && <div>Saving…</div>}
+      <h4>
+        Features for <em>{group.name}</em>
+      </h4>
+      {err && <div style={{ color: 'red' }}>{err}</div>}
+      {loading && <div>Loading features…</div>}
+
+      {/* Assigned features */}
+      <table style={{ width: '100%', marginTop: 16 }}>
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {assigned.length === 0 && (
+            <tr>
+              <td colSpan={4}>
+                <em>No features assigned to this group.</em>
+              </td>
+            </tr>
+          )}
+          {assigned.map(f => (
+            <tr key={f.key}>
+              <td>{f.key}</td>
+              <td>{f.name}</td>
+              <td>{f.description}</td>
+              <td>
+                <button onClick={() => removeFeature(f.key)} disabled={loading}>
+                  Remove
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Features that can be added */}
+      <div style={{ marginTop: 24 }}>
+        <h5>Add feature to group:</h5>
+        <select
+          disabled={notAssigned.length === 0 || loading}
+          defaultValue=""
+          onChange={e => {
+            const k = e.target.value;
+            if (k) addFeature(k);
+            e.target.value = '';
+          }}
+        >
+          <option value="">Select feature…</option>
+          {notAssigned.map(f => (
+            <option key={f.key} value={f.key}>
+              {f.name} ({f.key})
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

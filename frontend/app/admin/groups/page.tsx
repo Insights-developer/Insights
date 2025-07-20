@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import GroupsManager from '@/components/admin/GroupsManager';
 import GroupFeatureManager from '@/components/admin/GroupFeatureManager';
 import FeaturesManager from '@/components/admin/FeaturesManager';
-import GroupMemberManager from '@/components/admin/GroupMemberManager'; // NEW: for user/group assignments
+import GroupMemberManager from '@/components/admin/GroupMemberManager';
 
 type AccessGroup = {
   id: number;
@@ -12,12 +12,21 @@ type AccessGroup = {
   description: string | null;
 };
 
+type Feature = {
+  id: number;
+  key: string;
+  name: string;
+  description: string | null;
+};
+
 export default function GroupsPage() {
   const [groups, setGroups] = useState<AccessGroup[]>([]);
+  const [features, setFeatures] = useState<Feature[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<AccessGroup | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Fetch all groups
   const fetchGroups = () => {
     setLoading(true);
     fetch('/api/admin/groups')
@@ -40,7 +49,17 @@ export default function GroupsPage() {
       .finally(() => setLoading(false));
   };
 
+  // Fetch all features
+  const fetchFeatures = () => {
+    fetch('/api/admin/features')
+      .then(res => res.json())
+      .then(data => {
+        setFeatures(Array.isArray(data.features) ? data.features : []);
+      });
+  };
+
   useEffect(fetchGroups, []);
+  useEffect(fetchFeatures, []);
 
   return (
     <main style={{ maxWidth: 900, margin: '2rem auto', padding: 20 }}>
@@ -82,7 +101,7 @@ export default function GroupsPage() {
 
             {selectedGroup && (
               <div style={{ marginTop: 24 }}>
-                <GroupFeatureManager group={selectedGroup} allFeatures={[]} />
+                <GroupFeatureManager group={selectedGroup} allFeatures={features} />
               </div>
             )}
           </>

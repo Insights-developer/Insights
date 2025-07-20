@@ -1,5 +1,6 @@
 // /frontend/utils/types.ts
 
+// === User Profile Type ===
 export type UserProfile = {
   id: string;
   email: string;
@@ -7,15 +8,31 @@ export type UserProfile = {
   created_at: string;
 };
 
+// === Access Groups ===
 export type AccessGroup = {
   id: number;
   name: string;
   description: string | null;
 };
 
+// === User to Access Group Linking ===
 export type UserAccessGroup = {
   user_id: string;
   group_id: number;
+};
+
+// === System Features Table (Global Feature Catalog) ===
+export type Feature = {
+  id: number;
+  key: string;              // e.g., 'manage_users'
+  name: string;             // Human-friendly label
+  description: string | null;
+};
+
+// === Access Group Feature Assignments ===
+export type AccessGroupFeature = {
+  group_id: number;
+  feature: string;           // references Feature.key
 };
 
 export type Database = {
@@ -56,7 +73,30 @@ export type Database = {
           group_id?: number;
         };
       };
-      // Add more tables here as needed
+      features: {
+        Row: Feature;
+        Insert: {
+          key: string;
+          name: string;
+          description?: string | null;
+        };
+        Update: {
+          key?: string;
+          name?: string;
+          description?: string | null;
+        };
+      };
+      access_group_features: {
+        Row: AccessGroupFeature;
+        Insert: {
+          group_id: number;
+          feature: string;
+        };
+        Update: {
+          group_id?: number;
+          feature?: string;
+        };
+      };
     };
   };
 };

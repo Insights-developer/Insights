@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/browser';
 
-// For icon links:
 type FeatureCardLink = {
   key: string;
   label: string;
@@ -30,15 +29,9 @@ export default function AdminPage() {
         router.replace('/');
         return;
       }
-
-      // Optionally you can still fetch the user's features here if you want.
-      // But now we rely on /api/user/cards RBAC endpoint for the cards listing.
-
-      // 1. Get user email for the UI
       setUser({ email: auth.user.email ?? '' });
 
-      // 2. Fetch RBAC-allowed cards (type='card') for this user.
-      // You'll need to create /api/user/cards or adapt the dynamic nav API as below.
+      // Fetch dynamic admin cards/features
       const resp = await fetch('/api/user/cards');
       const cardsData = await resp.json();
       setCardLinks(Array.isArray(cardsData.cards) ? cardsData.cards : []);
@@ -101,15 +94,6 @@ export default function AdminPage() {
           </ul>
         </section>
       )}
-
-      <ul style={{ lineHeight: 2, fontSize: 18 }}>
-        <li>
-          <a href="/admin/users">Manage Users</a>
-        </li>
-        <li>
-          <a href="/admin/groups">Manage Groups &amp; Features</a>
-        </li>
-      </ul>
     </main>
   );
 }

@@ -9,12 +9,16 @@
 
 -- === USERS TABLE ===
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY,                            -- Matches auth.users.id
+    id UUID PRIMARY KEY,                             -- Matches auth.users.id
     email VARCHAR(255) UNIQUE NOT NULL,
-    role VARCHAR(50) DEFAULT 'member',              -- Legacy, use RBAC instead
-    username VARCHAR(100),                          -- new
-    phone VARCHAR(30),                              -- new
-    created_at TIMESTAMP DEFAULT NOW()
+    role VARCHAR(50) DEFAULT 'member',               -- Legacy, use RBAC instead
+    username VARCHAR(100),                           -- new
+    phone VARCHAR(30),                               -- new
+    name VARCHAR(100),
+    avatar_url TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    last_login_at TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 -- === GAMES TABLE ===
@@ -49,7 +53,7 @@ CREATE TABLE IF NOT EXISTS insight_templates (
 -- === ACCESS GROUPS (RBAC) ===
 CREATE TABLE IF NOT EXISTS access_groups (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL UNIQUE,
     description TEXT
 );
 
@@ -63,17 +67,23 @@ CREATE TABLE IF NOT EXISTS user_access_groups (
 -- === FEATURES TABLE (RBAC) ===
 CREATE TABLE IF NOT EXISTS features (
     id SERIAL PRIMARY KEY,
-    key VARCHAR(60) NOT NULL UNIQUE,         -- e.g., 'admin_dashboard', 'games_page'
-    name VARCHAR(80) NOT NULL,               -- Human-friendly label
-    description TEXT
+    key VARCHAR(60) NOT NULL UNIQUE,        -- e.g., 'admin_dashboard', 'games_page'
+    name VARCHAR(80) NOT NULL,              -- Human-friendly label
+    nav_name VARCHAR(80),                   -- Label for nav cards/widgets (optional)
+    description TEXT,
+    url VARCHAR(255),                       -- Optional; if not set, defaults to /key
+    icon_url VARCHAR(255),                  -- Animated/static icon URL (optional)
+    order INTEGER DEFAULT 0,                -- Order for nav/cards
+    type VARCHAR(32) DEFAULT 'feature',     -- 'page', 'card', 'widget', etc.
+    active BOOLEAN DEFAULT TRUE
 );
 
 -- === ACCESS GROUP <-> FEATURES LINK TABLE (RBAC) ===
 CREATE TABLE IF NOT EXISTS access_group_features (
     id SERIAL PRIMARY KEY,
     group_id INTEGER REFERENCES access_groups(id) ON DELETE CASCADE,
-    feature VARCHAR(60) REFERENCES features(key) ON DELETE CASCADE,
-    UNIQUE (group_id, feature)
+    feature_id INTEGER REFERENCES features(id) ON DELETE CASCADE,
+    UNIQUE (group_id, feature_id)
 );
 
 -- === NOTIFICATIONS TABLE ===
@@ -95,6 +105,16 @@ CREATE TABLE IF NOT EXISTS uploads (
     uploaded_at TIMESTAMP DEFAULT NOW()
 );
 
+-- === CONTACT FORM MESSAGES TABLE ===
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id SERIAL PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    name VARCHAR(100),
+    email VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    submitted_at TIMESTAMP DEFAULT NOW()
+);
+
 -- === AUTH SYNC TRIGGER ===
 -- Automatically insert new user into users table when created in auth.users
 CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
@@ -112,4 +132,5 @@ AFTER INSERT ON auth.users
 FOR EACH ROW EXECUTE PROCEDURE public.handle_new_auth_user();
 
 -- === Version Control Comment ===
--- 2025-07-20: RBAC migration; users now have username & phone; features/group-features tables and usage.
+-- 2025-07-21: Design system, feature metadata expansion (nav/card/widgets), icon_url, order/type/active for features, contact_messages, last_login_at, is_active, full admin RBAC infrastructure.
+

@@ -9,6 +9,8 @@ import Card from '../components/ui/Cards';
 
 type Tab = 'login' | 'register' | 'forgot';
 
+<div>hello this is a test</div>
+
 export default function LoginPage() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('login');

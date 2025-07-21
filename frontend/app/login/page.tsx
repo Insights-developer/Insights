@@ -1,1 +1,5 @@
-export default function LoginPage() { return <div>LOGIN DEBUG 9284</div>; }
+import AuthForm from '../components/AuthForm';
+
+export default function LoginPage() {
+  return <AuthForm />;
+}

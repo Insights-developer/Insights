@@ -4,14 +4,23 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/browser';
 
+// For icon links:
+type FeatureCardLink = {
+  key: string;
+  label: string;
+  url: string;
+  icon: string | null;
+  order: number;
+};
+
 type UserMeta = {
   email: string;
-  features: string[];
 };
 
 export default function AdminPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserMeta | null>(null);
+  const [cardLinks, setCardLinks] = useState<FeatureCardLink[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,43 +31,24 @@ export default function AdminPage() {
         return;
       }
 
-      // You can fetch features via your own API (recommended, supports future RBAC complexity):
-      // Example: /api/admin/user-features?userId=auth.user.id
-      // Here, we'll fetch email and features from users+join tables directly:
-      const { data: userData, error } = await supabase
-        .from('users')
-        .select('email, user_access_groups: user_access_groups (access_group: access_groups (access_group_features: access_group_features (feature)))')
-        .eq('id', auth.user.id)
-        .single();
+      // Optionally you can still fetch the user's features here if you want.
+      // But now we rely on /api/user/cards RBAC endpoint for the cards listing.
 
-      if (!userData || error) {
-        router.replace('/');
-        return;
-      }
+      // 1. Get user email for the UI
+      setUser({ email: auth.user.email ?? '' });
 
-      // Flatten all features assigned via group membership
-      const features = Array.from(
-        new Set(
-          (userData.user_access_groups || [])
-            .flatMap((uag: any) =>
-              uag.access_group?.access_group_features?.map((f: any) => f.feature) || []
-            )
-        )
-      );
+      // 2. Fetch RBAC-allowed cards (type='card') for this user.
+      // You'll need to create /api/user/cards or adapt the dynamic nav API as below.
+      const resp = await fetch('/api/user/cards');
+      const cardsData = await resp.json();
+      setCardLinks(Array.isArray(cardsData.cards) ? cardsData.cards : []);
 
-      if (!features.includes('admin_dashboard')) {
-        // Not an admin by RBAC permissions
-        router.replace('/');
-        return;
-      }
-
-      setUser({ email: userData.email, features });
       setLoading(false);
     })();
   }, [router]);
 
   if (loading) return <div>Loading…</div>;
-  if (!user) return null; // Redirected
+  if (!user) return null;
 
   return (
     <main style={{ maxWidth: 700, margin: '2rem auto', padding: 20 }}>
@@ -79,6 +69,39 @@ export default function AdminPage() {
       </header>
 
       <h1>Admin Dashboard</h1>
+
+      {/* Dynamic Card Feature Links */}
+      {cardLinks.length > 0 && (
+        <section style={{ marginBottom: 28 }}>
+          <h2>Admin Cards</h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {cardLinks.map(card => (
+              <li key={card.key} style={{ marginBottom: 14 }}>
+                <a
+                  href={card.url}
+                  style={{
+                    fontSize: 18,
+                    display: 'flex',
+                    alignItems: 'center',
+                    textDecoration: 'none',
+                    color: '#0366d6',
+                  }}
+                >
+                  {card.icon && (
+                    <img
+                      src={card.icon}
+                      alt=""
+                      style={{ width: 25, height: 25, marginRight: 10, objectFit: 'contain', verticalAlign: 'middle' }}
+                    />
+                  )}
+                  {card.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <ul style={{ lineHeight: 2, fontSize: 18 }}>
         <li>
           <a href="/admin/users">Manage Users</a>

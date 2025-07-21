@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-// Replace with absolute path if you use aliases
 import { supabase } from '@/utils/supabase/browser';
 
 const FEATURE_TYPES = [
@@ -19,8 +18,12 @@ export default function AdminFeaturesPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const iconInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Fetch all features
   useEffect(() => { fetchFeatures(); }, []);
+
+  // Notify navbar (and any listener) to immediately refresh navigation
+  function notifyNavUpdate() {
+    window.dispatchEvent(new Event('nav-update'));
+  }
 
   async function fetchFeatures() {
     setLoading(true);
@@ -32,7 +35,6 @@ export default function AdminFeaturesPage() {
     setLoading(false);
   }
 
-  // Start editing or adding feature
   function startEdit(f?: any) {
     setEditing(f ? f.key : 'new');
     setForm({
@@ -49,6 +51,7 @@ export default function AdminFeaturesPage() {
     });
     setIconFile(null);
     setActionError(null);
+    iconInputRef.current?.value && (iconInputRef.current.value = '');
   }
 
   function cancelEdit() {
@@ -59,14 +62,11 @@ export default function AdminFeaturesPage() {
     iconInputRef.current?.value && (iconInputRef.current.value = '');
   }
 
-  // Handle icon file selection (for preview and upload)
   function handleIconFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     setIconFile(e.target.files?.[0] || null);
   }
 
-  // Upload icon to Supabase Storage bucket. Returns public URL or null.
   async function uploadIconFile(file: File, featureKey: string): Promise<string | null> {
-    // Replace with your actual bucket name!
     const BUCKET = 'feature-icons';
     const filePath = `${featureKey}_${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage.from(BUCKET).upload(filePath, file, { upsert: true });
@@ -74,20 +74,17 @@ export default function AdminFeaturesPage() {
       setActionError('Icon upload failed: ' + error.message);
       return null;
     }
-    // Get public URL (adjust for your Supabase config as needed)
     const { publicUrl } = supabase.storage.from(BUCKET).getPublicUrl(filePath).data;
     return publicUrl || null;
   }
 
-  // Save (create or update) feature
   async function saveFeature() {
     setActionError(null);
     let icon_url = form.icon_url;
 
-    // If a new icon is selected for upload
     if (iconFile && form.key) {
       const uploadedUrl = await uploadIconFile(iconFile, form.key);
-      if (!uploadedUrl) return; // error already set
+      if (!uploadedUrl) return;
       icon_url = uploadedUrl;
     }
 
@@ -97,7 +94,7 @@ export default function AdminFeaturesPage() {
       order: Number(form.order) || 0,
       active: !!form.active
     };
-    const method = form.id ? 'PATCH' : 'POST'; // PATCH to update, POST to create
+    const method = form.id ? 'PATCH' : 'POST';
     const res = await fetch('/api/admin/features', {
       method, headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -108,10 +105,10 @@ export default function AdminFeaturesPage() {
       return;
     }
     fetchFeatures();
+    notifyNavUpdate();    // <-- Nav instantly updates
     cancelEdit();
   }
 
-  // Delete feature (soft delete by setting active=false)
   async function deactivateFeature(id: number) {
     if (!window.confirm('Hide/deactivate this feature?')) return;
     setActionError(null);
@@ -126,6 +123,7 @@ export default function AdminFeaturesPage() {
       return;
     }
     fetchFeatures();
+    notifyNavUpdate();    // <-- Nav instantly updates
     cancelEdit();
   }
 

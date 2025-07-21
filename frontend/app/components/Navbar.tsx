@@ -19,22 +19,30 @@ export default function Navbar() {
   const [user, setUser] = useState<{ email: string } | null>(null);
   const [navLinks, setNavLinks] = useState<NavItem[]>([]);
 
+  // Function to fetch nav links
+  async function fetchNavLinks() {
+    const { data } = await supabase.auth.getUser();
+    if (data?.user) {
+      setUser({ email: data.user.email ?? '' });
+      const resp = await fetch('/api/user/nav');
+      const navRes = await resp.json();
+      setNavLinks(Array.isArray(navRes.nav) ? navRes.nav : []);
+    }
+  }
+
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const { data } = await supabase.auth.getUser();
-      if (data?.user) {
-        if (mounted) setUser({ email: data.user.email ?? '' });
-        // Fetch navigation links from API
-        const resp = await fetch('/api/user/nav');
-        const navRes = await resp.json();
-        if (mounted) setNavLinks(Array.isArray(navRes.nav) ? navRes.nav : []);
-      }
-    })();
+    fetchNavLinks();
+
+    // -- Auto-refresh Navbar on admin changes --
+    function handleNavUpdate() {
+      fetchNavLinks();
+    }
+    window.addEventListener('nav-update', handleNavUpdate);
     return () => {
-      mounted = false;
+      window.removeEventListener('nav-update', handleNavUpdate);
     };
-  }, [pathname]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]); // Re-fetches on route change *and* after admin CRUD
 
   if (!user) return null;
 
@@ -56,7 +64,11 @@ export default function Navbar() {
     >
       <div>
         {navLinks.map(link => (
-          <Link href={link.url} key={link.key} style={{ marginRight: 16, display: 'inline-flex', alignItems: 'center' }}>
+          <Link
+            href={link.url.startsWith('/') ? link.url : `/${link.url}`} // Ensures absolute URL
+            key={link.key}
+            style={{ marginRight: 16, display: 'inline-flex', alignItems: 'center' }}
+          >
             {link.icon && (
               <img
                 src={link.icon}

@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Card from '../../components/ui/Cards';
-import Icon from '../../components/ui/Icon';
 import GroupsManager from '@/components/admin/GroupsManager';
 import GroupFeatureManager from '@/components/admin/GroupFeatureManager';
 import FeaturesManager from '@/components/admin/FeaturesManager';
@@ -67,15 +65,18 @@ export default function GroupsPage() {
   return (
     <main style={{ maxWidth: 1200, margin: '2rem auto', padding: 20, display: 'flex', flexWrap: 'wrap', gap: 32 }}>
       <div style={{ flex: '1 1 340px', minWidth: 340 }}>
-        <Card title="Groups" icon={<Icon name="user" animate />}>
+        <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-bold mb-4">Groups</h2>
           <GroupsManager />
-        </Card>
-        <Card title="Assign Users to Groups" icon={<Icon name="mail" animate />} className="mt-8">
+        </div>
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-xl font-bold mb-4">Assign Users to Groups</h2>
           <GroupMemberManager />
-        </Card>
+        </div>
       </div>
       <div style={{ flex: '2 1 500px', minWidth: 400, display: 'flex', flexDirection: 'column', gap: 32 }}>
-        <Card title="Set Feature Permissions for a Group" icon={<Icon name="lock" animate />}>
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-xl font-bold mb-4">Set Feature Permissions for a Group</h2>
           {loading && <div>Loading groups…</div>}
           {!loading && groups.length === 0 && <div>No groups defined yet.</div>}
           {groups.length > 0 && (
@@ -100,20 +101,21 @@ export default function GroupsPage() {
               <GroupFeatureManager group={selectedGroup!} allFeatures={features} />
             </>
           )}
-        </Card>
-        <Card title="System Features" icon={<Icon name="eye" animate />}>
+        </div>
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-xl font-bold mb-4">System Features</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
             {features.map(f => {
-              const iconType = f.type === 'page' ? 'eye' : f.type === 'card' ? 'user' : 'lock';
               return (
-                <Card key={f.key} title={f.name} icon={<Icon name={iconType} animate />} className="min-w-[180px] flex-1">
+                <div key={f.key} className="bg-gray-50 p-4 rounded-lg border min-w-[180px] flex-1">
+                  <h3 className="font-semibold mb-2">{f.name}</h3>
                   <div style={{ fontSize: 13, color: '#555' }}>{f.description}</div>
                   <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>Type: {f.type || 'feature'}</div>
-                </Card>
+                </div>
               );
             })}
           </div>
-        </Card>
+        </div>
       </div>
     </main>
   );

@@ -45,6 +45,13 @@ export default function AuthForm() {
               setMessage(null);
             } else setError(error.message);
           } else {
+            // Update login timestamps
+            try {
+              await fetch('/api/user/update-login', { method: 'POST' });
+            } catch (loginError) {
+              console.error('Failed to update login timestamp:', loginError);
+              // Don't block login flow if this fails
+            }
             router.replace('/dashboard');
           }
           setLoading(false);
@@ -126,6 +133,13 @@ export default function AuthForm() {
             setMessage('Signup successful! Check your email to verify and sign in.');
             setTab('login');
           } else {
+            // Update login timestamps for new user
+            try {
+              await fetch('/api/user/update-login', { method: 'POST' });
+            } catch (loginError) {
+              console.error('Failed to update login timestamp:', loginError);
+              // Don't block signup flow if this fails
+            }
             setMessage('Signup successful—welcome!');
             router.replace('/dashboard');
           }

@@ -1,50 +1,86 @@
-Project Brief: Insights (as of July 20, 2025)
+How to Brief Copilot (or any new developer)
+--------------------------------------------------
+To instantly bring Copilot or a new developer up to speed, say:
+
+    "See the latest Insight Design Brief for project context, architecture, and current state."
+
+This file contains:
+* A summary of the appâ€™s purpose, architecture, and design system
+* The current state of all major features and flows
+* The latest technical and UX changes (with dates)
+* Whatâ€™s next and whatâ€™s unfinished
+* Dev process notes and best practices
+
+If you want Copilot to continue work, just say:
+    "Continue from the last item in the design brief."
+
+If you want a summary, say:
+    "Summarize the current state of the app from the design brief."
+
+If you want to know how something works, say:
+    "Explain [feature/component] as described in the design brief."
+
+This ensures all context, history, and next steps are always available for fast onboarding and continuity.
+
+Project Brief: Insights (as of July 22, 2025)
 What Has Been Implemented
 * Dynamic Navigation & Admin Dashboard
-* Nav and admin dashboards are now fully powered by feature metadata (RBAC-driven) from the database.
+* Nav and admin dashboards are fully powered by feature metadata (RBAC-driven) from the database.
 * No links are hardcoded; adding/removing features from the admin instantly updates nav/dash for authorized users.
 * Navbar auto-refreshes after admin CRUD, with absolute URL fixes.
 * Feature & Access Group Management
 * Complete CRUD for features and access groups, with RBAC integration.
-* Features can be set as “card”, “page”, etc., and have icons, URLs, and order fields.
+* Features can be set as card, page, etc., and have icons, URLs, and order fields.
 * Group-feature assignments and user-group management are handled through the admin UI.
 * All controls tested for proper access enforcement.
 * UI & Design System Overhaul
 * Universal design system scaffolded: Card, Button, Icon, Avatar, Notification, ThemeProvider, and theme tokens.
 * Tailwind CSS (v3/v4-compatible) integrated with tokens and utility classes.
-* Global styles/typography aligned to a clean, scalable brand standard (Resend-inspired): cards for features, animated icons, notification system, and well-structured user/profile UI.
-* Per-page CSS eliminated; styles are now entirely component/token–driven and automatically apply to all new features/pages.
+* Global styles/typography aligned to a clean, scalable brand standard: cards for features, animated icons, notification system, and well-structured user/profile UI.
+* Per-page CSS eliminated; styles are now entirely component/token-driven and automatically apply to all new features/pages.
 * Authentication & Public Flows
-* Login page rebuilt as a full-featured, accessible, multi-tab public landing page with registration, password reset, and email verification flows; all using Supabase.
-* All new auth screens and forms are on-brand, responsive, and leverage the core design system.
-* Login required for any app access; public entrypoint is /app/login/page.tsx.
+* Login page is a full-featured, accessible, multi-tab public landing page with registration, password reset, and email verification flows (Supabase-powered).
+* All auth screens and forms are on-brand, responsive, and leverage the core design system.
+* Login required for any app access; public entrypoint is /app/login/page.tsx.
 * API Endpoints
 * Dynamic endpoints for user nav/cards based on RBAC.
-* /api/contact endpoint: validates and sends contact submissions to developer email using Resend’s test domain.
+* /api/contact endpoint: validates and sends contact submissions to developer email using Resend's test domain.
 * Code/permission checks for all endpoints.
+
+* July 22, 2025: Major UI/UX and infrastructure improvements
+    - Implemented a global, branded loading spinner for all page transitions using Next.js App Router's loading.tsx pattern (no more manual spinner logic in layout).
+    - Restored and enforced global styles by ensuring globals.css is imported in layout.tsx, fixing font, background, and button sizing regressions.
+    - Refactored dashboard and insights pages to use Card and Spinner for loading states, ensuring design system consistency.
+    - Audited and fixed AuthForm field and button sizing, label font, and background styling to match design system.
+    - Confirmed ThemeProvider and theme tokens are applied app-wide; all design primitives are in use.
+    - All legacy per-page CSS and manual style overrides removed; only design system and Tailwind tokens are used.
+    - All changes validated for both admin and user flows.
+
 What's Still Needed / Next Steps
 * Visual/Functional Polish
-* Continue migrating legacy pages/components to the new design system (Card, Button, etc.).
-* Expand animated icon support and ensure all dynamic cards/pages display correct visual flair.
+    - Continue migrating any remaining legacy pages/components to the new design system (Card, Button, etc.).
+    - Expand animated icon support and ensure all dynamic cards/pages display correct visual flair.
 * User Dashboard Enhancements
-* Implement user dashboard with dynamic, RBAC-powered cards/widgets, not just admin/dashboard.
-* Add per-user card rearrangement (drag-and-drop save).
+    - Implement user dashboard with dynamic, RBAC-powered cards/widgets, not just admin/dashboard.
+    - Add per-user card rearrangement (drag-and-drop save).
 * Notifications
-* Build or integrate a real notification delivery/consumption system (in-app toasts and historical view).
+    - Build or integrate a real notification delivery/consumption system (in-app toasts and historical view).
 * Contact Handling
-* Future: Admin console for viewing contact form submissions (currently just email).
-* Expand notification settings for more destinations as business needs.
+    - Future: Admin console for viewing contact form submissions (currently just email).
+    - Expand notification settings for more destinations as business needs.
 * Access Control and QA
-* Confirm RBAC is respected everywhere (API endpoints, UI, and navigation).
-* Systematic audits for any legacy or per-page CSS to finalize style unification.
+    - Confirm RBAC is respected everywhere (API endpoints, UI, and navigation).
+    - Systematic audits for any legacy or per-page CSS to finalize style unification.
 * Developer/Owner Documentation
-* Continue/complete documentation/checklists for adding new features, cards, or pages—no code/style duplication or one-off CSS allowed.
-* Reference onboarding, feature assignment, and style integration for new devs.
+    - Continue/complete documentation/checklists for adding new features, cards, or pagesâ€”no code/style duplication or one-off CSS allowed.
+    - Reference onboarding, feature assignment, and style integration for new devs.
+
 Dev/Process Notes
 * All code contributions should use the new design system and themed UI primitives by default.
 * Avoid all per-page CSS; styles must be tokenized/shared.
 * When expanding features (cards/pages), verify admin CRUD and navigation propagate changes fully.
 * Provide direct and actionable feedback for code issues/fixes.
-Last updated: July 20, 2025, 10:40 PM EDT
-Continue: Next item is further page/app migration to design system, animated icons, user dashboard RBAC cards, or any unsolved polish as prioritized.
+
+Last updated: July 22, 2025, 11:59 PM EDT
+Continue: Next item is further page/app migration to design system, animated icons, user dashboard RBAC cards, or any unsolved polish as prioritized.
 

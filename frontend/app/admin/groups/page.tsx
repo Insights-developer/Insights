@@ -1,10 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import GroupsManager from '@/components/admin/GroupsManager';
-import GroupFeatureManager from '@/components/admin/GroupFeatureManager';
-import FeaturesManager from '@/components/admin/FeaturesManager';
-import GroupMemberManager from '@/components/admin/GroupMemberManager';
 
 type AccessGroup = {
   id: number;
@@ -67,11 +63,11 @@ export default function GroupsPage() {
       <div style={{ flex: '1 1 340px', minWidth: 340 }}>
         <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
           <h2 className="text-xl font-bold mb-4">Groups</h2>
-          <GroupsManager />
+          <div>GroupsManager component would go here</div>
         </div>
         <div className="bg-white shadow-lg rounded-lg p-6">
           <h2 className="text-xl font-bold mb-4">Assign Users to Groups</h2>
-          <GroupMemberManager />
+          <div>GroupMemberManager component would go here</div>
         </div>
       </div>
       <div style={{ flex: '2 1 500px', minWidth: 400, display: 'flex', flexDirection: 'column', gap: 32 }}>
@@ -98,7 +94,7 @@ export default function GroupsPage() {
                   ))}
                 </select>
               </label>
-              <GroupFeatureManager group={selectedGroup!} allFeatures={features} />
+              <div>GroupFeatureManager component would go here</div>
             </>
           )}
         </div>

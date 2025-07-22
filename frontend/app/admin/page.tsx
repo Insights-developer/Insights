@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/utils/supabase/browser';
-import { appCache } from '../../utils/cache';
 
 type FeatureCardLink = {
   key: string;
@@ -25,25 +23,37 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    (async () => {
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth?.user) {
-        router.replace('/');
-        return;
-      }
+    if (!mounted) return;
 
-      const CACHE_KEY = 'admin-cards';
-      const CACHE_DURATION = 30000; // 30 seconds cache for admin data
-
-      // Check cache first
-      const cachedData = appCache.get<FeatureCardLink[]>(CACHE_KEY);
-      if (cachedData) {
-        setCardLinks(cachedData);
-        setLoading(false);
-        return;
-      }
-
+    const loadData = async () => {
       try {
+        // Only run in browser environment
+        if (typeof window === 'undefined') {
+          setLoading(false);
+          return;
+        }
+
+        // Import supabase only when needed
+        const { supabase } = await import('@/utils/supabase/browser');
+        const { appCache } = await import('../../utils/cache');
+
+        const { data: auth } = await supabase.auth.getUser();
+        if (!auth?.user) {
+          router.replace('/');
+          return;
+        }
+
+        const CACHE_KEY = 'admin-cards';
+        const CACHE_DURATION = 30000; // 30 seconds cache for admin data
+
+        // Check cache first
+        const cachedData = appCache.get<FeatureCardLink[]>(CACHE_KEY);
+        if (cachedData) {
+          setCardLinks(cachedData);
+          setLoading(false);
+          return;
+        }
+
         // Fetch dynamic admin cards/features
         const resp = await fetch('/api/user/cards');
         const cardsData = await resp.json();
@@ -54,16 +64,13 @@ export default function AdminPage() {
         setCardLinks(cardData);
       } catch (error) {
         console.error('Failed to fetch admin cards:', error);
-        // Use stale cache if available
-        const staleData = appCache.get<FeatureCardLink[]>(CACHE_KEY);
-        if (staleData) {
-          setCardLinks(staleData);
-        }
+      } finally {
+        setLoading(false);
       }
+    };
 
-      setLoading(false);
-    })();
-  }, [router]);
+    loadData();
+  }, [mounted, router]);
 
   if (!mounted || loading) {
     return (

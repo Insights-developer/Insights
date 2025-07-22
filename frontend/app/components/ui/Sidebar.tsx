@@ -50,13 +50,13 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const getIconForNavItem = (key: string): string => {
     const iconMap: { [key: string]: string } = {
       dashboard_page: 'home',
-      profile_page: 'user',
-      contact_page: 'message-circle', // More relevant than mail for contact page
+      profile_page: 'settings', // Changed from 'user' to 'settings' (gear icon)
+      contact_page: 'mail', // Changed from 'message-circle' to 'mail' (envelope icon)
       games_page: 'gamepad',
       draws_page: 'shuffle',
       results_page: 'trophy',
       insights_page: 'eye',
-      admin_page: 'settings', // More relevant than circle
+      admin_page: 'user', // Changed from 'settings' to 'user' (person icon)
     };
     return iconMap[key] || 'circle';
   };
@@ -73,7 +73,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       style={{
         width: isCollapsed ? '60px' : '250px',
         height: '100vh',
-        backgroundColor: '#f8f9fa', // Light grey instead of black
+        backgroundColor: '#e9ecef', // Darker grey background
         color: '#333', // Dark text instead of white
         position: 'fixed',
         left: 0,
@@ -83,14 +83,14 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         display: 'flex',
         flexDirection: 'column',
         boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
-        borderRight: '1px solid #e9ecef',
+        borderRight: '1px solid #dee2e6',
       }}
     >
       {/* Header with toggle button */}
       <div
         style={{
           padding: '1rem',
-          borderBottom: '1px solid #e9ecef', // Light border
+          borderBottom: '1px solid #dee2e6', // Darker border to match
           display: 'flex',
           alignItems: 'center',
           justifyContent: isCollapsed ? 'center' : 'space-between',

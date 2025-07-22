@@ -3,12 +3,23 @@
 import { useRequireFeature } from '../../utils/hooks/useRequireFeature';
 import Card from '../components/ui/Cards';
 import Icon from '../components/ui/Icon';
+import Spinner from '../components/ui/Spinner';
 import Forbidden from '../components/Forbidden';
 
 export default function ProfilePage() {
   const { allowed, loading, forbidden } = useRequireFeature('profile_page');
 
-  if (loading) return <div>Loading profile…</div>;
+  if (loading) return (
+    <main style={{ maxWidth: 500, margin: '3rem auto', textAlign: 'center' }}>
+      <Card>
+        <div className="flex flex-col items-center justify-center py-12">
+          <Spinner size={48} />
+          <div className="mt-4 text-muted">Loading profile…</div>
+        </div>
+      </Card>
+    </main>
+  );
+  
   if (forbidden) return <Forbidden />;
   if (!allowed) return null;
 

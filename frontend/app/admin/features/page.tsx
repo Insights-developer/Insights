@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Card from '../../components/ui/Cards';
-import Button from '../../components/ui/Buttons';
-import { supabase } from '@/utils/supabase/browser';
+
+// Prevent static generation
+export const dynamic = 'force-dynamic';
 
 const FEATURE_TYPES = [
   { value: 'page', label: 'Page' },
@@ -18,9 +18,23 @@ export default function AdminFeaturesPage() {
   const [form, setForm] = useState<any>({});
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [supabase, setSupabase] = useState<any>(null);
   const iconInputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => { fetchFeatures(); }, []);
+  // Initialize supabase client browser-side only
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      import('@/utils/supabase/browser').then(({ supabase: sb }) => {
+        setSupabase(sb);
+      });
+    }
+  }, []);
+
+  useEffect(() => { 
+    if (supabase) {
+      fetchFeatures(); 
+    }
+  }, [supabase]);
 
   // Notify navbar (and any listener) to immediately refresh navigation
   function notifyNavUpdate() {
@@ -69,6 +83,10 @@ export default function AdminFeaturesPage() {
   }
 
   async function uploadIconFile(file: File, featureKey: string): Promise<string | null> {
+    if (!supabase) {
+      setActionError('Supabase client not initialized');
+      return null;
+    }
     const BUCKET = 'feature-icons';
     const filePath = `${featureKey}_${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage.from(BUCKET).upload(filePath, file, { upsert: true });
@@ -131,7 +149,13 @@ export default function AdminFeaturesPage() {
 
   return (
     <main style={{ maxWidth: 900, margin: '2rem auto', padding: 24 }}>
-      <Card title="Admin: Features CRUD">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Admin: Features CRUD</h2>
+      
+      {!supabase ? (
+        <div>Initializing...</div>
+      ) : (
+        <>
       {actionError && <div style={{ color: 'red', marginBottom: 12 }}>{actionError}</div>}
 
       <button onClick={() => startEdit()} disabled={!!editing} style={{ marginBottom: 18 }}>
@@ -250,7 +274,9 @@ export default function AdminFeaturesPage() {
           </tbody>
         </table>
       )}
-      </Card>
+        </>
+      )}
+      </div>
     </main>
   );
 }

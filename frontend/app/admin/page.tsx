@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+// Prevent static generation
+export const dynamic = 'force-dynamic';
+
 type FeatureCardLink = {
   key: string;
   label: string;

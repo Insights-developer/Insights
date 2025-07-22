@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Card from '../../components/ui/Cards';
-import Button from '../../components/ui/Buttons';
-import Icon from '../../components/ui/Icon';
+
+// Prevent static generation
+export const dynamic = 'force-dynamic';
 
 // --- Types ---
 type Group = {
@@ -145,7 +145,12 @@ export default function AdminUsersPage() {
       ) : (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
           {pagedUsers.map(u => (
-            <Card key={u.id} title={u.email} icon={<Icon name="user" animate />} className="min-w-[320px] flex-1">
+            <div key={u.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 min-w-[320px] flex-1">
+              {/* Title with user icon */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-5 h-5 text-blue-500">👤</div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{u.email}</h3>
+              </div>
               <div style={{ marginBottom: 8 }}>
                 <b>Username:</b>{' '}
                 {editId === u.id ? (
@@ -181,37 +186,37 @@ export default function AdminUsersPage() {
               <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
                 {editId === u.id ? (
                   <>
-                    <Button variant="primary" size="sm" iconLeft={<Icon name="lock" />} onClick={() => saveEdit(u)}>
-                      Save
-                    </Button>
-                    <Button variant="secondary" size="sm" iconLeft={<Icon name="eye-off" />} onClick={cancelEdit}>
-                      Cancel
-                    </Button>
+                    <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm flex items-center gap-2" onClick={() => saveEdit(u)}>
+                      🔒 Save
+                    </button>
+                    <button className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm flex items-center gap-2" onClick={cancelEdit}>
+                      👁️‍🗨️ Cancel
+                    </button>
                   </>
                 ) : (
                   <>
-                    <Button variant="outline" size="sm" iconLeft={<Icon name="eye" />} onClick={() => startEdit(u)}>
-                      Edit
-                    </Button>
-                    <Button variant="danger" size="sm" iconLeft={<Icon name="lock" />} onClick={() => deleteUser(u.id)}>
-                      Delete
-                    </Button>
+                    <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1 rounded text-sm flex items-center gap-2" onClick={() => startEdit(u)}>
+                      👁️ Edit
+                    </button>
+                    <button className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm flex items-center gap-2" onClick={() => deleteUser(u.id)}>
+                      🔒 Delete
+                    </button>
                   </>
                 )}
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       )}
       {/* Pagination Controls */}
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32, gap: 12 }}>
-        <Button size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
+        <button className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white px-3 py-1 rounded text-sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
           Prev
-        </Button>
+        </button>
         <span style={{ alignSelf: 'center' }}>Page {page} of {totalPages}</span>
-        <Button size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
+        <button className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white px-3 py-1 rounded text-sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
           Next
-        </Button>
+        </button>
       </div>
     </main>
   );

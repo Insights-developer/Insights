@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import { ThemeProvider } from './components/ui/ThemeProvider';
-// Spinner and loading handled by loading.tsx, not here
+import '../styles/globals.css';
 import { supabase } from '../utils/supabase/browser';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

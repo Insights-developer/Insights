@@ -1,32 +1,22 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Prevent static generation
 export const dynamic = 'force-dynamic';
 
-type AccessGroup = {
-  id: number;
-  name: string;
-  description: string | null;
-};
-
 export default function GroupsPage() {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    console.log('Groups page mounted');
-  }, []);
-
   return (
-    <main style={{ maxWidth: 1200, margin: '2rem auto', padding: 20 }}>
+    <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-4">Admin Groups</h2>
-        <p>Groups management will be implemented here.</p>
-        {error && <div style={{ color: 'red' }}>{error}</div>}
-        {loading && <div>Loading...</div>}
+        <h1 className="text-2xl font-bold mb-4">Group Management</h1>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="bg-gray-50 p-4 rounded-lg border">
+            <h3 className="font-semibold mb-2">Group Administration</h3>
+            <p className="text-gray-600">Group management tools will be implemented here.</p>
+          </div>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

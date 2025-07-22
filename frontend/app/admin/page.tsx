@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import { useEffect, useState } from 'react';
 
 // Prevent static generation
 export const dynamic = 'force-dynamic';

@@ -6,6 +6,7 @@ import Sidebar from './components/ui/Sidebar';
 import UserInfoBox from './components/ui/UserInfoBox';
 import '../styles/globals.css';
 import { supabase } from '../utils/supabase/browser';
+import { initializePrefetch } from '../utils/prefetch';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -14,12 +15,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     // Check initial auth state
     supabase.auth.getUser().then(({ data }) => {
-      setIsAuthenticated(!!data?.user);
+      const isAuth = !!data?.user;
+      setIsAuthenticated(isAuth);
+      
+      // Initialize prefetch if authenticated
+      if (isAuth) {
+        const cleanup = initializePrefetch();
+        return cleanup;
+      }
     });
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session?.user);
+      const isAuth = !!session?.user;
+      setIsAuthenticated(isAuth);
+      
+      // Initialize prefetch on login
+      if (isAuth && event === 'SIGNED_IN') {
+        initializePrefetch();
+      }
     });
 
     return () => subscription.unsubscribe();

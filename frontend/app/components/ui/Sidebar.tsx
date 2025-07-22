@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/utils/supabase/browser';
+import { appCache } from '../../../utils/cache';
 import Icon from './Icon';
 import { useTheme } from './ThemeProvider';
 
@@ -26,11 +27,34 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const [navLinks, setNavLinks] = useState<NavItem[]>([]);
   const [isNavigating, setIsNavigating] = useState(false);
 
-  // Function to fetch nav links
+  // Function to fetch nav links with caching
   async function fetchNavLinks() {
-    const resp = await fetch('/api/user/nav');
-    const navRes = await resp.json();
-    setNavLinks(Array.isArray(navRes.nav) ? navRes.nav : []);
+    const CACHE_KEY = 'user-nav-links';
+    const CACHE_DURATION = 60000; // 1 minute cache
+    
+    // Check cache first
+    const cachedData = appCache.get<NavItem[]>(CACHE_KEY);
+    if (cachedData) {
+      setNavLinks(cachedData);
+      return;
+    }
+
+    try {
+      const resp = await fetch('/api/user/nav');
+      const navRes = await resp.json();
+      const navData = Array.isArray(navRes.nav) ? navRes.nav : [];
+      
+      // Cache the result
+      appCache.set(CACHE_KEY, navData, CACHE_DURATION);
+      setNavLinks(navData);
+    } catch (error) {
+      console.error('Failed to fetch navigation:', error);
+      // If fetch fails but we have stale cache data, use it
+      const staleData = appCache.get<NavItem[]>(CACHE_KEY);
+      if (staleData) {
+        setNavLinks(staleData);
+      }
+    }
   }
 
   useEffect(() => {
@@ -38,6 +62,9 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
     // Auto-refresh sidebar on admin changes
     function handleNavUpdate() {
+      // Clear cache when nav updates are triggered
+      appCache.delete('user-nav-links');
+      appCache.delete('admin-cards');
       fetchNavLinks();
     }
     window.addEventListener('nav-update', handleNavUpdate);

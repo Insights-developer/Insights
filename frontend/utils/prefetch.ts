@@ -28,6 +28,18 @@ export async function prefetchCriticalData() {
       .catch(console.error)
   );
 
+  // Prefetch user features data
+  promises.push(
+    fetch('/api/user/features')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data.features)) {
+          appCache.set('user-features', data.features, 60000);
+        }
+      })
+      .catch(console.error)
+  );
+
   // Wait for all prefetch operations
   await Promise.allSettled(promises);
 }

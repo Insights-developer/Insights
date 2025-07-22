@@ -65,6 +65,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       // Clear cache when nav updates are triggered
       appCache.delete('user-nav-links');
       appCache.delete('admin-cards');
+      appCache.delete('user-features'); // Clear user features cache too
       fetchNavLinks();
     }
     window.addEventListener('nav-update', handleNavUpdate);

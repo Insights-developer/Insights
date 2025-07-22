@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/browser';
+import { appCache } from '../cache';
 
 /**
  * Hook: Checks if user has the required featureKey permission.
@@ -29,19 +30,52 @@ export function useRequireFeature(featureKey: string) {
         return;
       }
 
-      // Fetch allowed features
-      const resp = await fetch('/api/user/features');
-      const { features } = await resp.json();
+      const CACHE_KEY = 'user-features';
+      const CACHE_DURATION = 60000; // 1 minute cache
 
-      if (!features?.includes(featureKey)) {
-        setAllowed(false);
-        setForbidden(true);
+      // Check cache first
+      const cachedFeatures = appCache.get<string[]>(CACHE_KEY);
+      if (cachedFeatures) {
+        if (!cachedFeatures.includes(featureKey)) {
+          setAllowed(false);
+          setForbidden(true);
+        } else {
+          setAllowed(true);
+          setForbidden(false);
+        }
         setLoading(false);
         return;
       }
 
-      setAllowed(true);
-      setForbidden(false);
+      try {
+        // Fetch allowed features
+        const resp = await fetch('/api/user/features');
+        const { features } = await resp.json();
+
+        if (!features?.includes(featureKey)) {
+          setAllowed(false);
+          setForbidden(true);
+          setLoading(false);
+          return;
+        }
+
+        // Cache the features
+        appCache.set(CACHE_KEY, features || [], CACHE_DURATION);
+        setAllowed(true);
+        setForbidden(false);
+      } catch (error) {
+        console.error('Failed to fetch features:', error);
+        // Use stale cache if available
+        const staleFeatures = appCache.get<string[]>(CACHE_KEY);
+        if (staleFeatures && staleFeatures.includes(featureKey)) {
+          setAllowed(true);
+          setForbidden(false);
+        } else {
+          setAllowed(false);
+          setForbidden(true);
+        }
+      }
+
       setLoading(false);
     })();
   }, [featureKey, router]);

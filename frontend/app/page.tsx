@@ -30,7 +30,6 @@ export default function HomePage() {
 
   return (
     <main style={{ maxWidth: 400, margin: '3rem auto', textAlign: 'center' }}>
-      <h1>Welcome to Insights App</h1>
       <AuthForm />
     </main>
   );

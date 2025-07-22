@@ -37,14 +37,9 @@ export default function UsersPage() {
             <p className="text-sm text-gray-600 mb-3">
               Browse complete user directory with details, groups, and login history.
             </p>
-            <div className="flex gap-2">
-              <a href="#user-list" className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 inline-block">
-                View Inline
-              </a>
-              <a href="/user-listing.html" target="_blank" className="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 inline-block">
-                Full Page View
-              </a>
-            </div>
+            <a href="#user-list" className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 inline-block">
+              View Users
+            </a>
           </div>
 
           {/* Edit User Profiles */}
@@ -142,48 +137,15 @@ export default function UsersPage() {
         <div id="user-list" className="mt-8">
           <h2 className="text-xl font-bold mb-4">User Directory</h2>
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            
-            {/* Load Button */}
-            <div className="text-center py-4 mb-4">
-              <button 
-                id="load-users-btn"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Load User Data
-              </button>
-            </div>
-
-            {/* Loading State */}
-            <div id="loading-indicator" className="hidden text-center py-8">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-2 text-gray-600">Loading users...</p>
-            </div>
-
-            {/* Error State */}
-            <div id="error-message" className="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-              <p className="text-red-800">Failed to load users. Please try again.</p>
-            </div>
-
-            {/* User Data Container */}
-            <div id="user-data-container" className="hidden">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {/* User cards will be inserted here */}
-              </div>
-              <div className="mt-4 text-center">
-                <span id="user-count" className="text-sm text-gray-600">0 users found</span>
-              </div>
-            </div>
-
-            {/* Initial State */}
-            <div id="initial-state" className="text-center py-8">
+            <div className="text-center py-8">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to Load User Data</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">User Data Loading</h3>
               <p className="text-gray-600 mb-4">
-                Click the button above to fetch and display all users from the database.
+                User data will be loaded dynamically through the API when this feature is activated.
               </p>
               <p className="text-sm text-gray-500">
                 API Endpoint: <code className="bg-white px-2 py-1 rounded">GET /api/admin/users</code>
@@ -191,134 +153,6 @@ export default function UsersPage() {
             </div>
           </div>
         </div>
-
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            document.addEventListener('DOMContentLoaded', function() {
-              const loadButton = document.getElementById('load-users-btn');
-              if (loadButton) {
-                loadButton.onclick = loadUsers;
-              }
-            });
-
-            function loadUsers() {
-              const loadingIndicator = document.getElementById('loading-indicator');
-              const errorMessage = document.getElementById('error-message');
-              const userDataContainer = document.getElementById('user-data-container');
-              const initialState = document.getElementById('initial-state');
-              const userCount = document.getElementById('user-count');
-              
-              // Show loading state
-              if (initialState) initialState.classList.add('hidden');
-              if (errorMessage) errorMessage.classList.add('hidden');
-              if (userDataContainer) userDataContainer.classList.add('hidden');
-              if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-              
-              fetch('/api/admin/users')
-                .then(response => {
-                  if (!response.ok) {
-                    throw new Error('Failed to fetch users');
-                  }
-                  return response.json();
-                })
-                .then(data => {
-                  const users = data.users || [];
-                  
-                  // Get container for user cards
-                  const container = document.querySelector('#user-data-container .grid');
-                  if (container) {
-                    container.innerHTML = '';
-                    
-                    // Create user cards
-                    users.forEach(user => {
-                      const card = document.createElement('div');
-                      card.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow';
-                      
-                      const formatDate = (dateString) => {
-                        if (!dateString) return 'Never';
-                        try {
-                          return new Date(dateString).toLocaleDateString();
-                        } catch (e) {
-                          return 'Invalid date';
-                        }
-                      };
-                      
-                      card.innerHTML = \`
-                        <div class="flex items-center mb-3">
-                          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <h4 class="font-semibold text-gray-900">\${user.username || 'No username'}</h4>
-                            <p class="text-sm text-gray-500">\${user.email || 'No email'}</p>
-                          </div>
-                        </div>
-                        
-                        <div class="space-y-2 text-sm">
-                          <div class="flex justify-between">
-                            <span class="text-gray-500">Role:</span>
-                            <span class="px-2 py-1 text-xs rounded-full \${user.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}">\${user.role || 'No role'}</span>
-                          </div>
-                          
-                          <div class="flex justify-between">
-                            <span class="text-gray-500">Phone:</span>
-                            <span class="text-gray-900">\${user.phone || 'Not provided'}</span>
-                          </div>
-                          
-                          <div class="flex justify-between">
-                            <span class="text-gray-500">Groups:</span>
-                            <span class="text-gray-900">\${user.groups && user.groups.length > 0 ? user.groups.length : 0}</span>
-                          </div>
-                          
-                          <div class="flex justify-between">
-                            <span class="text-gray-500">Last Login:</span>
-                            <span class="text-gray-900">\${formatDate(user.current_login_at)}</span>
-                          </div>
-                          
-                          <div class="flex justify-between">
-                            <span class="text-gray-500">Login Count:</span>
-                            <span class="text-gray-900">\${user.login_count || 0}</span>
-                          </div>
-                          
-                          <div class="flex justify-between">
-                            <span class="text-gray-500">Joined:</span>
-                            <span class="text-gray-900">\${formatDate(user.created_at)}</span>
-                          </div>
-                        </div>
-                        
-                        \${user.groups && user.groups.length > 0 ? \`
-                          <div class="mt-3 pt-3 border-t border-gray-200">
-                            <p class="text-xs text-gray-500 mb-2">Groups:</p>
-                            <div class="flex flex-wrap gap-1">
-                              \${user.groups.map(group => \`<span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">\${group.name}</span>\`).join('')}
-                            </div>
-                          </div>
-                        \` : ''}
-                      \`;
-                      
-                      container.appendChild(card);
-                    });
-                    
-                    // Update user count
-                    if (userCount) {
-                      userCount.textContent = \`\${users.length} users found\`;
-                    }
-                  }
-                  
-                  // Show success state
-                  if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                  if (userDataContainer) userDataContainer.classList.remove('hidden');
-                })
-                .catch(error => {
-                  console.error('Error loading users:', error);
-                  if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                  if (errorMessage) errorMessage.classList.remove('hidden');
-                });
-            }
-          `
-        }} />
 
         {/* API Information */}
         <div className="mt-8 bg-gray-50 rounded-lg p-4">

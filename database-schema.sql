@@ -74,6 +74,20 @@ CREATE TABLE insight_templates (
 );
 CREATE UNIQUE INDEX insight_templates_pkey ON public.insight_templates USING btree (id);
 
+-- Table: login_history
+CREATE TABLE login_history (
+  id integer NOT NULL DEFAULT nextval('login_history_id_seq'::regclass),
+  user_id uuid NOT NULL,
+  login_at timestamp without time zone DEFAULT now(),
+  ip_address inet,
+  user_agent text,
+  PRIMARY KEY (id)
+);
+ALTER TABLE login_history ADD FOREIGN KEY (user_id) REFERENCES users(id);
+CREATE UNIQUE INDEX login_history_pkey ON public.login_history USING btree (id);
+CREATE INDEX idx_login_history_user_id ON public.login_history USING btree (user_id);
+CREATE INDEX idx_login_history_login_at ON public.login_history USING btree (login_at);
+
 -- Table: notifications
 CREATE TABLE notifications (
   id integer NOT NULL DEFAULT nextval('notifications_id_seq'::regclass),
@@ -117,8 +131,12 @@ CREATE TABLE users (
   created_at timestamp without time zone DEFAULT now(),
   username text,
   phone text,
+  current_login_at timestamp without time zone,
+  previous_login_at timestamp without time zone,
+  login_count integer DEFAULT 0,
   PRIMARY KEY (id)
 );
 CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id);
 CREATE UNIQUE INDEX users_email_key ON public.users USING btree (email);
+CREATE INDEX idx_users_login_tracking ON public.users USING btree (current_login_at, previous_login_at);
 

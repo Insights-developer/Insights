@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/utils/supabase/browser';
 import Icon from './Icon';
@@ -106,56 +105,58 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       {/* Main navigation items */}
       <nav style={{ flex: 1, padding: '1rem 0' }}>
         {mainNavItems.map((link) => {
-          const isActive = pathname === (link.url.startsWith('/') ? link.url : `/${link.url}`);
+          const linkUrl = link.url.startsWith('/') ? link.url : `/${link.url}`;
+          const isActive = pathname === linkUrl;
+          
+          const handleNavigation = (e: React.MouseEvent) => {
+            e.preventDefault();
+            router.push(linkUrl);
+          };
           
           return (
-            <Link
+            <div
               key={link.key}
-              href={link.url.startsWith('/') ? link.url : `/${link.url}`}
-              style={{ textDecoration: 'none' }}
+              className="inline-flex items-center font-semibold rounded transition"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: isCollapsed ? '12px' : '12px 16px',
+                margin: '4px 12px',
+                borderRadius: '8px',
+                backgroundColor: isActive ? '#3B82F6' : 'transparent', // Blue background when active
+                color: isActive ? 'white' : '#374151', // White text when active, dark grey otherwise
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                border: isActive ? 'none' : '1px solid transparent',
+              }}
+              onClick={handleNavigation}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = '#1D4ED8'; // Darker blue on hover
+                  e.currentTarget.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#374151';
+                }
+              }}
             >
-              <div
-                className="inline-flex items-center font-semibold rounded transition"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: isCollapsed ? '12px' : '12px 16px',
-                  margin: '4px 12px',
-                  borderRadius: '8px',
-                  backgroundColor: isActive ? '#3B82F6' : 'transparent', // Blue background when active
-                  color: isActive ? 'white' : '#374151', // White text when active, dark grey otherwise
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  justifyContent: isCollapsed ? 'center' : 'flex-start',
-                  border: isActive ? 'none' : '1px solid transparent',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.backgroundColor = '#1D4ED8'; // Darker blue on hover
-                    e.currentTarget.style.color = 'white';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = '#374151';
-                  }
-                }}
-              >
-                <Icon 
-                  name={getIconForNavItem(link.key)} 
-                  style={{ 
-                    color: 'inherit',
-                    marginRight: isCollapsed ? 0 : '12px'
-                  }} 
-                />
-                {!isCollapsed && (
-                  <span style={{ fontSize: '14px', fontWeight: 500 }}>
-                    {link.label}
-                  </span>
-                )}
-              </div>
-            </Link>
+              <Icon 
+                name={getIconForNavItem(link.key)} 
+                style={{ 
+                  color: 'inherit',
+                  marginRight: isCollapsed ? 0 : '12px'
+                }} 
+              />
+              {!isCollapsed && (
+                <span style={{ fontSize: '14px', fontWeight: 500 }}>
+                  {link.label}
+                </span>
+              )}
+            </div>
           );
         })}
       </nav>
@@ -164,51 +165,51 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       <div style={{ padding: '1rem 0', borderTop: '1px solid #e9ecef' }}>
         {/* Profile link */}
         {profileItem && (
-          <Link
-            href={profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`}
-            style={{ textDecoration: 'none' }}
+          <div
+            className="inline-flex items-center font-semibold rounded transition"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: isCollapsed ? '12px' : '12px 16px',
+              margin: '4px 12px 16px 12px',
+              borderRadius: '8px',
+              backgroundColor: pathname === (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`) ? '#3B82F6' : 'transparent',
+              color: pathname === (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`) ? 'white' : '#374151',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              justifyContent: isCollapsed ? 'center' : 'flex-start',
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              const profileUrl = profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`;
+              router.push(profileUrl);
+            }}
+            onMouseEnter={(e) => {
+              if (pathname !== (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`)) {
+                e.currentTarget.style.backgroundColor = '#1D4ED8';
+                e.currentTarget.style.color = 'white';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (pathname !== (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`)) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#374151';
+              }
+            }}
           >
-            <div
-              className="inline-flex items-center font-semibold rounded transition"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: isCollapsed ? '12px' : '12px 16px',
-                margin: '4px 12px 16px 12px',
-                borderRadius: '8px',
-                backgroundColor: pathname === (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`) ? '#3B82F6' : 'transparent',
-                color: pathname === (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`) ? 'white' : '#374151',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                justifyContent: isCollapsed ? 'center' : 'flex-start',
-              }}
-              onMouseEnter={(e) => {
-                if (pathname !== (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`)) {
-                  e.currentTarget.style.backgroundColor = '#1D4ED8';
-                  e.currentTarget.style.color = 'white';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (pathname !== (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`)) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#374151';
-                }
-              }}
-            >
-              <Icon 
-                name={getIconForNavItem(profileItem.key)} 
-                style={{ 
-                  color: 'inherit',
-                  marginRight: isCollapsed ? 0 : '12px'
-                }} 
-              />
-              {!isCollapsed && (
-                <span style={{ fontSize: '14px', fontWeight: 500 }}>
-                  {profileItem.label}
-                </span>
-              )}
-            </div>
-          </Link>
+            <Icon 
+              name={getIconForNavItem(profileItem.key)} 
+              style={{ 
+                color: 'inherit',
+                marginRight: isCollapsed ? 0 : '12px'
+              }} 
+            />
+            {!isCollapsed && (
+              <span style={{ fontSize: '14px', fontWeight: 500 }}>
+                {profileItem.label}
+              </span>
+            )}
+          </div>
         )}
 
         {/* Collapse toggle button */}

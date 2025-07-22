@@ -17,7 +17,6 @@ type FeatureCardLink = {
 export default function AdminPage() {
   const router = useRouter();
   const [cardLinks, setCardLinks] = useState<FeatureCardLink[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -27,16 +26,15 @@ export default function AdminPage() {
         return;
       }
 
+      // Add 2-second delay for testing spinner
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
       // Fetch dynamic admin cards/features
       const resp = await fetch('/api/user/cards');
       const cardsData = await resp.json();
       setCardLinks(Array.isArray(cardsData.cards) ? cardsData.cards : []);
-
-      setLoading(false);
     })();
   }, [router]);
-
-  if (loading) return <div>Loading…</div>;
 
   return (
     <main style={{ maxWidth: 700, margin: '2rem auto', padding: 20 }}>

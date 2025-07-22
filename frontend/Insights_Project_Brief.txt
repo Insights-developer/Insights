@@ -1,0 +1,139 @@
+INSIGHTS PROJECT BRIEF
+======================
+
+PROJECT OVERVIEW
+-----------------
+Insights is a comprehensive lottery application built with Next.js that provides users with lottery games, analytics, and results tracking. The application features a robust authentication system and role-based access control to provide different functionality to different user tiers.
+
+CORE FEATURES
+-------------
+
+1. USER AUTHENTICATION & AUTHORIZATION
+   - Supabase-powered authentication system
+   - Role-based feature access control
+   - User promotion system (Guest → Member)
+   - Secure session management
+
+2. LOTTERY GAMES
+   - Interactive lottery games interface
+   - Game participation functionality
+   - User-specific game access based on permissions
+
+3. INSIGHTS & ANALYTICS
+   - Draw pattern analysis tools
+   - Trend visualization and reporting
+   - Data-driven insights for lottery patterns
+   - Statistical analysis capabilities
+
+4. RESULTS TRACKING
+   - Historical draw results browser
+   - Past results search and filtering
+   - Results comparison tools
+
+5. USER DASHBOARD
+   - Centralized user interface
+   - Feature navigation based on user permissions
+   - Welcome interface with feature overview
+   - Quick access to available modules
+
+6. ADMINISTRATIVE PANEL
+   - Admin-only access controls
+   - User management capabilities
+   - System administration tools
+
+7. USER PROFILE MANAGEMENT
+   - Personal profile settings
+   - Account information management
+   - User preference controls
+
+TECHNICAL ARCHITECTURE
+-----------------------
+
+Frontend Framework: Next.js 15.4.2
+- React 19.1.0 for UI components
+- TypeScript for type safety
+- Tailwind CSS for styling
+- App Router architecture
+
+Backend Integration:
+- Supabase for authentication and database
+- PostgreSQL database via Vercel Postgres
+- Zod for data validation
+- RESTful API endpoints
+
+Development Tools:
+- Turbopack for fast development builds
+- ESLint for code quality
+- PostCSS for CSS processing
+- Autoprefixer for browser compatibility
+
+ARCHITECTURE PATTERNS
+----------------------
+
+1. FEATURE-BASED ACCESS CONTROL
+   - Dynamic feature loading based on user permissions
+   - Route protection using custom hooks
+   - Graceful handling of unauthorized access
+
+2. COMPONENT ORGANIZATION
+   - Modular component structure
+   - Reusable UI components
+   - Feature-specific page components
+
+3. STATE MANAGEMENT
+   - React hooks for local state
+   - Supabase client for authentication state
+   - Server-side data fetching
+
+4. SECURITY
+   - Protected routes with authentication checks
+   - Feature-level authorization
+   - Secure API endpoints
+
+USER JOURNEY
+------------
+
+1. User arrives at landing page
+2. Authentication required (sign up/sign in)
+3. Redirect to personalized dashboard
+4. Access features based on user permissions:
+   - Games: Play lottery games
+   - Insights: Analyze lottery data and patterns
+   - Results: Browse historical lottery results
+   - Profile: Manage account settings
+   - Admin: Administrative functions (if authorized)
+
+TARGET USERS
+------------
+
+1. GUESTS: Limited access, authentication required
+2. MEMBERS: Full access to games, insights, and results
+3. ADMINISTRATORS: Full system access including admin panel
+
+DEVELOPMENT STATUS
+------------------
+- Core authentication system: Implemented
+- Dashboard framework: Implemented
+- Feature routing: Implemented
+- Individual feature pages: Basic structure in place
+- Admin panel: Basic structure available
+- Database integration: Configured with Supabase
+
+NEXT STEPS
+----------
+- Complete individual feature implementations
+- Enhance insights analytics capabilities
+- Implement comprehensive game logic
+- Expand administrative functionality
+- Add comprehensive testing suite
+- Performance optimization
+- User experience enhancements
+
+PROJECT GOALS
+-------------
+To provide a comprehensive, secure, and user-friendly lottery platform that offers:
+- Engaging lottery gaming experience
+- Powerful analytical insights
+- Comprehensive results tracking
+- Scalable architecture for future expansion
+- Robust security and user management

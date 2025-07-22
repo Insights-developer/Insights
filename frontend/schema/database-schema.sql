@@ -1,4 +1,4 @@
--- schema/init.sql
+-- schema/database-schema.sql
 -- ====================================================
 -- Main Database Schema for Insights Lottery App
 -- Updated: 2025-07-20

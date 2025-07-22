@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Card from '../../components/ui/Cards';
+import Button from '../../components/ui/Buttons';
+import Icon from '../../components/ui/Icon';
 
 // --- Types ---
 type Group = {
@@ -19,6 +22,8 @@ type User = {
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [page, setPage] = useState(1);
+  const pageSize = 6;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
@@ -124,8 +129,12 @@ export default function AdminUsersPage() {
     }
   }
 
+  // Pagination logic
+  const totalPages = Math.ceil(users.length / pageSize);
+  const pagedUsers = users.slice((page - 1) * pageSize, page * pageSize);
+
   return (
-    <main style={{ maxWidth: 800, margin: '2rem auto', padding: 20 }}>
+    <main style={{ maxWidth: 900, margin: '2rem auto', padding: 24 }}>
       <h2>Admin: Users Management</h2>
       <p>
         <small>
@@ -139,103 +148,98 @@ export default function AdminUsersPage() {
       {(loading || groupsLoading) ? (
         <div>Loading…</div>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Username</th>
-              <th>Phone</th>
-              <th>Groups</th>
-              <th>Created</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(u => (
-              <tr key={u.id}>
-                {/* EMAIL field */}
-                <td>
-                  {editId === u.id ? (
-                    <input
-                      value={edit.email ?? ''}
-                      onChange={e => setEdit(edit => ({ ...edit, email: e.target.value }))}
-                      style={{ width: '95%' }}
-                      type="email"
-                    />
-                  ) : u.email}
-                </td>
-                {/* USERNAME */}
-                <td>
-                  {editId === u.id ? (
-                    <input
-                      value={edit.username ?? ''}
-                      onChange={e => setEdit(edit => ({ ...edit, username: e.target.value }))}
-                      style={{ width: '95%' }}
-                    />
-                  ) : (u.username || <em>(none)</em>)}
-                </td>
-                {/* PHONE */}
-                <td>
-                  {editId === u.id ? (
-                    <input
-                      value={edit.phone ?? ''}
-                      onChange={e => {
-                        const digits = e.target.value.replace(/[^\d]/g, '');
-                        setEdit(edit => ({ ...edit, phone: digits }));
-                      }}
-                      style={{ width: '95%' }}
-                      maxLength={15}
-                      placeholder="digits only"
-                    />
-                  ) : (u.phone || <em>(none)</em>)}
-                </td>
-                {/* GROUPS */}
-                <td>
-                  {editId === u.id ? (
-                    <select
-                      multiple
-                      style={{ width: '95%' }}
-                      value={Array.isArray(edit.groups) ? edit.groups.map(g => String(g.id)) : []}
-                      onChange={e => {
-                        const selectedIds = Array.from(e.target.selectedOptions, opt => Number(opt.value));
-                        setEdit(edit => ({
-                          ...edit,
-                          groups: allGroups.filter(g => selectedIds.includes(g.id))
-                        }));
-                      }}
-                    >
-                      {allGroups.map(g => (
-                        <option key={g.id} value={g.id}>
-                          {g.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    u.groups.map(g => g.name).join(', ') || <em>(none)</em>
-                  )}
-                </td>
-                {/* CREATED AT */}
-                <td>{new Date(u.created_at).toLocaleString()}</td>
-                {/* ACTIONS */}
-                <td>
-                  {editId === u.id ? (
-                    <>
-                      <button onClick={() => saveEdit(u)}>Save</button>{' '}
-                      <button onClick={cancelEdit}>Cancel</button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={() => startEdit(u)}>Edit</button>{' '}
-                      <button onClick={() => deleteUser(u.id)} style={{ color: 'red' }}>
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+          {pagedUsers.map(u => (
+            <Card key={u.id} title={u.email} icon={<Icon name="user" animate />} className="min-w-[320px] flex-1">
+              <div style={{ marginBottom: 8 }}>
+                <b>Username:</b>{' '}
+                {editId === u.id ? (
+                  <input
+                    value={edit.username ?? ''}
+                    onChange={e => setEdit(edit => ({ ...edit, username: e.target.value }))}
+                    style={{ width: '60%' }}
+                  />
+                ) : (u.username || <em>(none)</em>)}
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <b>Phone:</b>{' '}
+                {editId === u.id ? (
+                  <input
+                    value={edit.phone ?? ''}
+                    onChange={e => {
+                      const digits = e.target.value.replace(/[^\d]/g, '');
+                      setEdit(edit => ({ ...edit, phone: digits }));
+                    }}
+                    style={{ width: '60%' }}
+                    maxLength={15}
+                    placeholder="digits only"
+                  />
+                ) : (u.phone || <em>(none)</em>)}
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <b>Groups:</b>{' '}
+                {editId === u.id ? (
+                  <select
+                    multiple
+                    style={{ width: '60%' }}
+                    value={Array.isArray(edit.groups) ? edit.groups.map(g => String(g.id)) : []}
+                    onChange={e => {
+                      const selectedIds = Array.from(e.target.selectedOptions, opt => Number(opt.value));
+                      setEdit(edit => ({
+                        ...edit,
+                        groups: allGroups.filter(g => selectedIds.includes(g.id))
+                      }));
+                    }}
+                  >
+                    {allGroups.map(g => (
+                      <option key={g.id} value={g.id}>
+                        {g.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  u.groups.map(g => g.name).join(', ') || <em>(none)</em>
+                )}
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <b>Created:</b> {new Date(u.created_at).toLocaleString()}
+              </div>
+              <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+                {editId === u.id ? (
+                  <>
+                    <Button variant="primary" size="sm" iconLeft={<Icon name="lock" />} onClick={() => saveEdit(u)}>
+                      Save
+                    </Button>
+                    <Button variant="secondary" size="sm" iconLeft={<Icon name="eye-off" />} onClick={cancelEdit}>
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" iconLeft={<Icon name="eye" />} onClick={() => startEdit(u)}>
+                      Edit
+                    </Button>
+                    <Button variant="danger" size="sm" iconLeft={<Icon name="lock" />} onClick={() => deleteUser(u.id)}>
+                      Delete
+                    </Button>
+                  </>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32, gap: 12 }}>
+          <Button size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
+            Prev
+          </Button>
+          <span style={{ alignSelf: 'center' }}>Page {page} of {totalPages}</span>
+          <Button size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
+            Next
+          </Button>
+        </div>
       )}
     </main>
   );

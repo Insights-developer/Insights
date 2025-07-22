@@ -1,6 +1,8 @@
 'use client';
 
 import { useRequireFeature } from '../../utils/hooks/useRequireFeature';
+import Card from '../components/ui/Cards';
+import Icon from '../components/ui/Icon';
 import Forbidden from '../components/Forbidden';
 
 export default function ProfilePage() {
@@ -13,9 +15,10 @@ export default function ProfilePage() {
   // Replace with your profile details/editing component
   return (
     <main style={{ maxWidth: 500, margin: '3rem auto', textAlign: 'center' }}>
-      <h1>Your Profile</h1>
-      <p>Edit your details, manage your account, etc.</p>
-      {/* ...profile form or info goes here... */}
+      <Card title="Your Profile" icon={<Icon name="user" animate />}>
+        <p>Edit your details, manage your account, etc.</p>
+        {/* ...profile form or info goes here... */}
+      </Card>
     </main>
   );
 }

@@ -131,8 +131,7 @@ export default function AdminFeaturesPage() {
 
   return (
     <main style={{ maxWidth: 900, margin: '2rem auto', padding: 24 }}>
-      <Card title="Manage Features">
-      <h2>Admin: Features CRUD</h2>
+      <Card title="Admin: Features CRUD">
       {actionError && <div style={{ color: 'red', marginBottom: 12 }}>{actionError}</div>}
 
       <button onClick={() => startEdit()} disabled={!!editing} style={{ marginBottom: 18 }}>

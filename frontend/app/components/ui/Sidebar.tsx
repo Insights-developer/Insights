@@ -45,6 +45,13 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
       const navRes = await resp.json();
       const navData = Array.isArray(navRes.nav) ? navRes.nav : [];
       
+      // Debug logging - remove this later
+      console.log('Navigation data received:', navData);
+      const adminItem = navData.find((item: any) => item.key === 'admin_page');
+      const contactItem = navData.find((item: any) => item.key === 'contact_page');
+      if (adminItem) console.log('Admin item:', adminItem);
+      if (contactItem) console.log('Contact item:', contactItem);
+      
       // Cache the result
       appCache.set(CACHE_KEY, navData, CACHE_DURATION);
       setNavLinks(navData);
@@ -81,6 +88,11 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
 
   // Map feature keys to icons
   const getIconForNavItem = (key: string, dbIcon?: string | null): string => {
+    // Debug logging - remove this later
+    if (key === 'admin_page' || key === 'contact_page') {
+      console.log(`Debug - ${key}:`, { key, dbIcon, hasDbIcon: !!(dbIcon && dbIcon.trim().length > 0) });
+    }
+    
     // First check if there's a database-provided icon
     if (dbIcon && dbIcon.trim().length > 0) {
       return dbIcon;
@@ -97,7 +109,14 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
       insights_page: 'eye',
       admin_page: 'user', // Changed from 'settings' to 'user' (person icon)
     };
-    return iconMap[key] || 'circle';
+    const result = iconMap[key] || 'circle';
+    
+    // Debug logging - remove this later
+    if (key === 'admin_page' || key === 'contact_page') {
+      console.log(`Debug - ${key} result:`, result);
+    }
+    
+    return result;
   };
 
   // Sort and categorize nav items

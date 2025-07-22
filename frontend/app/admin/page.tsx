@@ -20,11 +20,11 @@ export default function AdminPage() {
   const router = useRouter();
   const [cardLinks, setCardLinks] = useState<FeatureCardLink[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isInitialRender, setIsInitialRender] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
+  // Ensure component is mounted before showing content
   useEffect(() => {
-    // Set initial render to false after component mounts
-    setIsInitialRender(false);
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -85,8 +85,8 @@ export default function AdminPage() {
     </main>
   );
 
-  // Loading state with consistent layout structure
-  if (loading || isInitialRender) {
+  // Show loading until both mounted and data is loaded
+  if (!mounted || loading) {
     return renderAdminLayout(
       <div 
         className="flex flex-col items-center justify-center" 

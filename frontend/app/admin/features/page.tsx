@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Card from '../../components/ui/Cards';
+import Button from '../../components/ui/Buttons';
 import { supabase } from '@/utils/supabase/browser';
 
 const FEATURE_TYPES = [
@@ -128,7 +130,8 @@ export default function AdminFeaturesPage() {
   }
 
   return (
-    <main style={{ maxWidth: 1100, margin: '2rem auto', padding: 20 }}>
+    <main style={{ maxWidth: 900, margin: '2rem auto', padding: 24 }}>
+      <Card title="Manage Features">
       <h2>Admin: Features CRUD</h2>
       {actionError && <div style={{ color: 'red', marginBottom: 12 }}>{actionError}</div>}
 
@@ -248,6 +251,7 @@ export default function AdminFeaturesPage() {
           </tbody>
         </table>
       )}
+      </Card>
     </main>
   );
 }

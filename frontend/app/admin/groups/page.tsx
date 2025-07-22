@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Card from '../../components/ui/Cards';
 import GroupsManager from '@/components/admin/GroupsManager';
 import GroupFeatureManager from '@/components/admin/GroupFeatureManager';
 import FeaturesManager from '@/components/admin/FeaturesManager';
@@ -63,55 +64,50 @@ export default function GroupsPage() {
 
   return (
     <main style={{ maxWidth: 900, margin: '2rem auto', padding: 20 }}>
-      <h2>Manage Groups & Features</h2>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
-
-      {/* Group CRUD component */}
-      <GroupsManager />
-
-      {/* Assign users to groups */}
-      <section style={{ marginTop: 40 }}>
-        <h3>Assign Users to Groups</h3>
-        <GroupMemberManager />
-      </section>
-
-      {/* Assign features to groups */}
-      <section style={{ marginTop: 40 }}>
-        <h3>Set Feature Permissions for a Group</h3>
-        {loading && <div>Loading groups…</div>}
-        {!loading && groups.length === 0 && <div>No groups defined yet.</div>}
-        {groups.length > 0 && (
-          <>
-            <label>
-              <strong>Select group: </strong>
-              <select
-                value={selectedGroup?.id ?? ''}
-                onChange={e => {
-                  const id = Number(e.target.value);
-                  setSelectedGroup(groups.find(g => g.id === id) ?? null);
-                }}
-              >
-                {groups.map(group => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {selectedGroup && (
-              <div style={{ marginTop: 24 }}>
-                <GroupFeatureManager group={selectedGroup} allFeatures={features} />
-              </div>
-            )}
-          </>
-        )}
-      </section>
-
-      {/* Global Features Manager */}
-      <section style={{ marginTop: 60 }}>
-        <FeaturesManager />
-      </section>
+      <Card title="Manage Groups & Features">
+        {error && <div style={{ color: 'red' }}>{error}</div>}
+        <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: 320 }}>
+            <h3>Groups</h3>
+            <GroupsManager />
+          </div>
+          <div style={{ flex: 1, minWidth: 320 }}>
+            <h3>Assign Users to Groups</h3>
+            <GroupMemberManager />
+          </div>
+        </div>
+        <div style={{ marginTop: 40 }}>
+          <h3>Set Feature Permissions for a Group</h3>
+          {loading && <div>Loading groups…</div>}
+          {!loading && groups.length === 0 && <div>No groups defined yet.</div>}
+          {groups.length > 0 && (
+            <>
+              <label>
+                <strong>Select group: </strong>
+                <select
+                  value={selectedGroup?.id ?? ''}
+                  onChange={e => {
+                    const id = Number(e.target.value);
+                    setSelectedGroup(groups.find(g => g.id === id) ?? null);
+                  }}
+                >
+                  {groups.map(group => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {/* If GroupFeatureManager expects 'group' prop, pass the group object; otherwise, pass groupId as before */}
+              <GroupFeatureManager group={selectedGroup!} allFeatures={features} />
+            </>
+          )}
+        </div>
+        <div style={{ marginTop: 40 }}>
+          <h3>All Features</h3>
+          <FeaturesManager />
+        </div>
+      </Card>
     </main>
   );
 }

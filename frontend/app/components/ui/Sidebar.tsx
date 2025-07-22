@@ -80,7 +80,13 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
   }, [pathname]);
 
   // Map feature keys to icons
-  const getIconForNavItem = (key: string): string => {
+  const getIconForNavItem = (key: string, dbIcon?: string | null): string => {
+    // First check if there's a database-provided icon
+    if (dbIcon && dbIcon.trim().length > 0) {
+      return dbIcon;
+    }
+    
+    // Fall back to key-based mapping
     const iconMap: { [key: string]: string } = {
       dashboard_page: 'home',
       profile_page: 'settings', // Changed from 'user' to 'settings' (gear icon)
@@ -178,7 +184,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
               }}
             >
               <Icon 
-                name={getIconForNavItem(link.key)} 
+                name={getIconForNavItem(link.key, link.icon)} 
                 style={{ 
                   color: 'inherit',
                   marginRight: isCollapsed ? 0 : '12px'
@@ -234,7 +240,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
             }}
           >
             <Icon 
-              name={getIconForNavItem(profileItem.key)} 
+              name={getIconForNavItem(profileItem.key, profileItem.icon)} 
               style={{ 
                 color: 'inherit',
                 marginRight: isCollapsed ? 0 : '12px'

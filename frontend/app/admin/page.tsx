@@ -4,11 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/browser';
 import { appCache } from '../../utils/cache';
-import PageLayout from '../components/ui/PageLayout';
-import { usePageLoading } from '../components/ui/PageLayout';
-import Card from '../components/ui/Cards';
-import Icon from '../components/ui/Icon';
-import Spinner from '../components/ui/Spinner';
 
 type FeatureCardLink = {
   key: string;
@@ -23,7 +18,6 @@ export default function AdminPage() {
   const [cardLinks, setCardLinks] = useState<FeatureCardLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const { showLoading, LoadingContent } = usePageLoading(mounted, loading);
 
   // Ensure component is mounted before showing content
   useEffect(() => {
@@ -71,49 +65,44 @@ export default function AdminPage() {
     })();
   }, [router]);
 
-  if (showLoading) {
+  if (!mounted || loading) {
     return (
-      <PageLayout title="Admin Dashboard" icon={<Icon name="user" animate />}>
-        <LoadingContent>
-          <Spinner size={48} />
-          <div className="mt-4 text-gray-500">
-            Loading admin dashboard…
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+          <div className="flex items-center justify-center py-8">
+            <div className="text-gray-500">Loading admin dashboard…</div>
           </div>
-        </LoadingContent>
-      </PageLayout>
+        </div>
+      </div>
     );
   }
 
-  const content = cardLinks.length > 0 ? (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      {cardLinks.map(card => (
-        <Card 
-          key={card.key} 
-          title={card.label} 
-          icon={card.icon ? 
-            <img src={card.icon} alt="" className="w-7 h-7 object-contain" /> : 
-            <Icon name="user" />
-          }
-        >
-          <a 
-            href={card.url} 
-            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
-          >
-            Go to {card.label}
-          </a>
-        </Card>
-      ))}
-    </div>
-  ) : (
-    <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-      <Icon name="user" className="mb-4" />
-      <p>No admin features available</p>
-    </div>
-  );
-
   return (
-    <PageLayout title="Admin Dashboard" icon={<Icon name="user" animate />}>
-      {content}
-    </PageLayout>
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+        
+        {cardLinks.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {cardLinks.map(card => (
+              <div key={card.key} className="bg-gray-50 p-4 rounded-lg border">
+                <h3 className="font-semibold mb-2">{card.label}</h3>
+                <a 
+                  href={card.url} 
+                  className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                >
+                  Go to {card.label}
+                </a>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+            <p>No admin features available</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

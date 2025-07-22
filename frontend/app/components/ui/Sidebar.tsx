@@ -24,6 +24,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const theme = useTheme();
   const [navLinks, setNavLinks] = useState<NavItem[]>([]);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Function to fetch nav links
   async function fetchNavLinks() {
@@ -40,6 +41,10 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       fetchNavLinks();
     }
     window.addEventListener('nav-update', handleNavUpdate);
+    
+    // Reset navigation state when route changes
+    setIsNavigating(false);
+    
     return () => {
       window.removeEventListener('nav-update', handleNavUpdate);
     };
@@ -110,7 +115,10 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           
           const handleNavigation = (e: React.MouseEvent) => {
             e.preventDefault();
-            router.push(linkUrl);
+            if (pathname !== linkUrl) {
+              setIsNavigating(true);
+              router.push(linkUrl);
+            }
           };
           
           return (
@@ -182,7 +190,10 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
             onClick={(e) => {
               e.preventDefault();
               const profileUrl = profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`;
-              router.push(profileUrl);
+              if (pathname !== profileUrl) {
+                setIsNavigating(true);
+                router.push(profileUrl);
+              }
             }}
             onMouseEnter={(e) => {
               if (pathname !== (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`)) {

@@ -10,7 +10,8 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
+    async function checkAuth() {
+      const { data } = await supabase.auth.getUser();
       if (data?.user) {
         // After login, attempt to promote from Guest to Member if newly verified.
         // Safe: if already member or not verified, does nothing/bails quietly.
@@ -23,7 +24,20 @@ export default function HomePage() {
       } else {
         setLoading(false);
       }
+    }
+
+    checkAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        router.replace('/dashboard');
+      } else {
+        setLoading(false);
+      }
     });
+
+    return () => subscription.unsubscribe();
   }, [router]);
 
   if (loading) return <div>Loading...</div>;

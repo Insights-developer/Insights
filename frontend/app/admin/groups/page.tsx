@@ -1,8 +1,4 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-
-// Prevent static generation
+// Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
 export default function GroupsPage() {

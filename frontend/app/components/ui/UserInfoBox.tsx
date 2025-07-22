@@ -71,7 +71,7 @@ export default function UserInfoBox() {
   };
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', display: 'inline-block', minWidth: 'max-content' }}>
       <div
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         style={{
@@ -84,6 +84,7 @@ export default function UserInfoBox() {
           cursor: 'pointer',
           border: '1px solid #e9ecef',
           transition: 'all 0.2s ease',
+          whiteSpace: 'nowrap',
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = '#e9ecef';
@@ -115,6 +116,7 @@ export default function UserInfoBox() {
             top: '100%',
             right: 0,
             width: '320px',
+            maxWidth: '90vw',
             backgroundColor: 'white',
             border: '1px solid #e9ecef',
             borderRadius: '8px',

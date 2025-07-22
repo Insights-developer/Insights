@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Card from '../components/ui/Cards';
-import Icon from '../components/ui/Icon';
-import Spinner from '../components/ui/Spinner';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/browser';
 import { appCache } from '../../utils/cache';
+import PageLayout, { usePageLoading } from '../components/ui/PageLayout';
+import Card from '../components/ui/Cards';
+import Icon from '../components/ui/Icon';
+import Spinner from '../components/ui/Spinner';
 
 type FeatureCardLink = {
   key: string;
@@ -21,6 +22,7 @@ export default function AdminPage() {
   const [cardLinks, setCardLinks] = useState<FeatureCardLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const { showLoading, LoadingContent } = usePageLoading(mounted, loading);
 
   // Ensure component is mounted before showing content
   useEffect(() => {
@@ -68,60 +70,49 @@ export default function AdminPage() {
     })();
   }, [router]);
 
-  // Always render the main layout structure to prevent layout shifts
-  const renderAdminLayout = (content: React.ReactNode) => (
-    <main style={{ 
-      maxWidth: 700, 
-      margin: '2rem auto', 
-      padding: 20,
-      backgroundColor: 'transparent',
-      minHeight: '400px' // Ensure consistent minimum height
-    }}>
-      <Card title="Admin Dashboard" icon={<Icon name="user" animate />}>
-        <div style={{ minHeight: '200px' }}>
-          {content}
-        </div>
-      </Card>
-    </main>
-  );
-
-  // Show loading until both mounted and data is loaded
-  if (!mounted || loading) {
-    return renderAdminLayout(
-      <div 
-        className="flex flex-col items-center justify-center" 
-        style={{ minHeight: '200px', padding: '2rem 0' }}
-      >
-        <Spinner size={48} />
-        <div className="mt-4" style={{ fontSize: '16px', color: '#6b7280' }}>
-          Loading admin dashboard…
-        </div>
-      </div>
+  if (showLoading) {
+    return (
+      <PageLayout title="Admin Dashboard" icon={<Icon name="user" animate />}>
+        <LoadingContent>
+          <Spinner size={48} />
+          <div className="mt-4 text-gray-500">
+            Loading admin dashboard…
+          </div>
+        </LoadingContent>
+      </PageLayout>
     );
   }
 
-  // Loaded content with same layout structure
   const content = cardLinks.length > 0 ? (
-    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {cardLinks.map(card => (
-        <li key={card.key} style={{ flex: '1 1 200px', minWidth: 200 }}>
-          <Card title={card.label} icon={card.icon ? <img src={card.icon} alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} /> : <Icon name="user" /> }>
-            <a href={card.url} style={{ textDecoration: 'none', color: '#0366d6', fontWeight: 500 }}>
-              Go to {card.label}
-            </a>
-          </Card>
-        </li>
+        <Card 
+          key={card.key} 
+          title={card.label} 
+          icon={card.icon ? 
+            <img src={card.icon} alt="" className="w-7 h-7 object-contain" /> : 
+            <Icon name="user" />
+          }
+        >
+          <a 
+            href={card.url} 
+            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          >
+            Go to {card.label}
+          </a>
+        </Card>
       ))}
-    </ul>
+    </div>
   ) : (
-    <div 
-      className="flex flex-col items-center justify-center" 
-      style={{ padding: '2rem 0', color: '#6b7280' }}
-    >
-      <Icon name="user" style={{ marginBottom: '1rem' }} />
+    <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+      <Icon name="user" className="mb-4" />
       <p>No admin features available</p>
     </div>
   );
 
-  return renderAdminLayout(content);
+  return (
+    <PageLayout title="Admin Dashboard" icon={<Icon name="user" animate />}>
+      {content}
+    </PageLayout>
+  );
 }

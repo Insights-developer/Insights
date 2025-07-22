@@ -2,57 +2,43 @@
 
 import { useState, useEffect } from 'react';
 import { useRequireFeature } from '../../utils/hooks/useRequireFeature';
-import Card from '../components/ui/Cards';
+import PageLayout, { usePageLoading } from '../components/ui/PageLayout';
 import Icon from '../components/ui/Icon';
 import Spinner from '../components/ui/Spinner';
 import Forbidden from '../components/Forbidden';
 
 export default function ProfilePage() {
   const { allowed, loading, forbidden } = useRequireFeature('profile_page');
-  const [isInitialRender, setIsInitialRender] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const { showLoading, LoadingContent } = usePageLoading(mounted, loading);
 
   useEffect(() => {
-    // Set initial render to false after component mounts
-    setIsInitialRender(false);
+    setMounted(true);
   }, []);
 
-  // Always render the main layout structure to prevent layout shifts
-  const renderProfileLayout = (content: React.ReactNode) => (
-    <main style={{ 
-      maxWidth: 500, 
-      margin: '3rem auto', 
-      textAlign: 'center',
-      backgroundColor: 'transparent',
-      minHeight: '400px' // Ensure consistent minimum height
-    }}>
-      <Card title="Your Profile" icon={<Icon name="settings" animate />}>
-        <div style={{ minHeight: '100px' }}>
-          {content}
-        </div>
-      </Card>
-    </main>
-  );
-
-  // Loading state with consistent layout structure
-  if (loading || isInitialRender) {
-    return renderProfileLayout(
-      <div className="flex flex-col items-center justify-center py-12">
-        <Spinner size={48} />
-        <div className="mt-4 text-muted" style={{ color: '#6b7280' }}>Loading profile…</div>
-      </div>
+  if (showLoading) {
+    return (
+      <PageLayout title="Your Profile" icon={<Icon name="settings" animate />} maxWidth="sm">
+        <LoadingContent>
+          <Spinner size={48} />
+          <div className="mt-4 text-gray-500">Loading profile…</div>
+        </LoadingContent>
+      </PageLayout>
     );
   }
   
   if (forbidden) return <Forbidden />;
   if (!allowed) return null;
 
-  // Profile content
-  const profileContent = (
-    <div>
-      <p>Edit your details, manage your account, etc.</p>
-      {/* ...profile form or info goes here... */}
-    </div>
+  return (
+    <PageLayout title="Your Profile" icon={<Icon name="settings" animate />} maxWidth="sm">
+      <div className="text-center space-y-6">
+        <p className="text-gray-600">Edit your details, manage your account, etc.</p>
+        {/* Profile form or info goes here */}
+        <div className="bg-gray-50 p-6 rounded-lg">
+          <p className="text-sm text-gray-500">Profile management features coming soon...</p>
+        </div>
+      </div>
+    </PageLayout>
   );
-
-  return renderProfileLayout(profileContent);
 }

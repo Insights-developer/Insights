@@ -11,8 +11,22 @@ import { initializePrefetch } from '../utils/prefetch';
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Mobile detection
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // Auto-collapse sidebar on mobile
+      if (mobile && !isSidebarCollapsed) {
+        setIsSidebarCollapsed(true);
+      }
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
     // Check initial auth state
     supabase.auth.getUser().then(({ data }) => {
       const isAuth = !!data?.user;
@@ -36,7 +50,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   return (
@@ -44,42 +61,54 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider>
           {isAuthenticated ? (
-            <div style={{ display: 'flex', minHeight: '100vh' }}>
+            <div className="flex min-h-screen relative">
+              {/* Mobile backdrop overlay */}
+              {isMobile && !isSidebarCollapsed && (
+                <div 
+                  className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+                  onClick={() => setIsSidebarCollapsed(true)}
+                />
+              )}
+              
               {/* Sidebar */}
               <Sidebar 
                 isCollapsed={isSidebarCollapsed} 
                 onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                isMobile={isMobile}
               />
               
               {/* Main content area */}
               <div 
-                style={{ 
-                  flex: 1,
-                  marginLeft: isSidebarCollapsed ? '60px' : '250px',
-                  transition: 'margin-left 0.3s ease',
-                  display: 'flex',
-                  flexDirection: 'column',
+                className={`
+                  flex-1 flex flex-col transition-all duration-300 ease-in-out
+                  ${isMobile ? 'ml-0' : (isSidebarCollapsed ? 'ml-15' : 'ml-64')}
+                `}
+                style={{
+                  marginLeft: isMobile ? '0' : (isSidebarCollapsed ? '60px' : '250px'),
                 }}
               >
                 {/* Top bar with user info */}
                 <div 
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    alignItems: 'center',
-                    padding: '16px 24px',
-                    backgroundColor: '#f8f9fa', // Light grey to match the overall design
-                    borderBottom: '1px solid #e9ecef',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 100,
-                  }}
+                  className="flex justify-end items-center p-4 sm:p-6 bg-gray-50 border-b border-gray-200 sticky top-0 z-20"
                 >
+                  {/* Mobile menu button */}
+                  {isMobile && (
+                    <button
+                      onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                      className="mr-auto p-2 rounded-md hover:bg-gray-200 transition-colors"
+                    >
+                      <div className="w-6 h-6 flex flex-col justify-center items-center">
+                        <span className="block w-5 h-0.5 bg-gray-600 mb-1"></span>
+                        <span className="block w-5 h-0.5 bg-gray-600 mb-1"></span>
+                        <span className="block w-5 h-0.5 bg-gray-600"></span>
+                      </div>
+                    </button>
+                  )}
                   <UserInfoBox />
                 </div>
                 
                 {/* Page content */}
-                <div style={{ flex: 1, padding: '24px' }}>
+                <div className="flex-1 p-4 sm:p-6 lg:p-8">
                   {children}
                 </div>
               </div>

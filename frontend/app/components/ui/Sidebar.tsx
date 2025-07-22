@@ -18,9 +18,10 @@ type NavItem = {
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+  isMobile?: boolean;
 }
 
-export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
@@ -102,20 +103,16 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
   return (
     <div
+      className={`
+        ${isCollapsed ? 'w-15' : 'w-64'} h-screen bg-gray-200 text-gray-800
+        ${isMobile ? 'fixed' : 'fixed'} left-0 top-0 z-40
+        transition-all duration-300 ease-in-out
+        flex flex-col shadow-lg border-r border-gray-300
+        ${isMobile && isCollapsed ? '-translate-x-full' : 'translate-x-0'}
+      `}
       style={{
         width: isCollapsed ? '60px' : '250px',
-        height: '100vh',
-        backgroundColor: '#e9ecef', // Darker grey background
-        color: '#333', // Dark text instead of white
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        zIndex: 1000,
-        transition: 'width 0.3s ease',
-        display: 'flex',
-        flexDirection: 'column',
-        boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
-        borderRight: '1px solid #dee2e6',
+        transform: isMobile && isCollapsed ? 'translateX(-100%)' : 'translateX(0)',
       }}
     >
       {/* Header with toggle button */}

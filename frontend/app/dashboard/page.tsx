@@ -7,6 +7,7 @@ import Forbidden from '../components/Forbidden';
 import Card from '../components/ui/Cards';
 import Button from '../components/ui/Buttons';
 import Icon from '../components/ui/Icon';
+import Spinner from '../components/ui/Spinner';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -43,7 +44,16 @@ export default function DashboardPage() {
     })();
   }, [router, pathname]); // <-- Reacts to route changes!
 
-  if (loading) return <div>Loading dashboard…</div>;
+  if (loading) return (
+    <main style={{ maxWidth: 600, margin: '3rem auto', textAlign: 'center' }}>
+      <Card>
+        <div className="flex flex-col items-center justify-center py-12">
+          <Spinner size={48} />
+          <div className="mt-4 text-muted">Loading dashboard…</div>
+        </div>
+      </Card>
+    </main>
+  );
   if (forbidden) return <Forbidden />;
   if (!user) return null;
 

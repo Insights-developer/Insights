@@ -15,7 +15,7 @@ export default function ProfilePage() {
   // Replace with your profile details/editing component
   return (
     <main style={{ maxWidth: 500, margin: '3rem auto', textAlign: 'center' }}>
-      <Card title="Your Profile" icon={<Icon name="user" animate />}>
+      <Card title="Your Profile" icon={<Icon name="settings" animate />}>
         <p>Edit your details, manage your account, etc.</p>
         {/* ...profile form or info goes here... */}
       </Card>

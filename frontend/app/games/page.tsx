@@ -12,7 +12,7 @@ export default function GamesPage() {
 
   return (
     <main style={{ maxWidth: 600, margin: '3rem auto', textAlign: 'center' }}>
-      <Card title="Games" icon={<Icon name="lock" animate />}>
+      <Card title="Games" icon={<Icon name="gamepad" animate />}>
         <p>Welcome to the Games page. View or play lottery games here.</p>
         {/* ...your games page content... */}
       </Card>

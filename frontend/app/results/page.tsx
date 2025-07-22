@@ -12,7 +12,7 @@ export default function ResultsPage() {
 
   return (
     <main style={{ maxWidth: 600, margin: '3rem auto', textAlign: 'center' }}>
-      <Card title="Results" icon={<Icon name="mail" animate />}>
+      <Card title="Results" icon={<Icon name="trophy" animate />}>
         <p>Browse past draw results here.</p>
         {/* Your results content goes here */}
       </Card>

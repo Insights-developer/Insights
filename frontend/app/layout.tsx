@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     justifyContent: 'flex-end',
                     alignItems: 'center',
                     padding: '16px 24px',
-                    backgroundColor: 'white',
+                    backgroundColor: '#f8f9fa', // Light grey to match the overall design
                     borderBottom: '1px solid #e9ecef',
                     position: 'sticky',
                     top: 0,

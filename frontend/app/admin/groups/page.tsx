@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Card from '../../components/ui/Cards';
+import Icon from '../../components/ui/Icon';
 import GroupsManager from '@/components/admin/GroupsManager';
 import GroupFeatureManager from '@/components/admin/GroupFeatureManager';
 import FeaturesManager from '@/components/admin/FeaturesManager';
@@ -18,6 +19,7 @@ type Feature = {
   key: string;
   name: string;
   description: string | null;
+  type?: string;
 };
 
 export default function GroupsPage() {
@@ -63,21 +65,17 @@ export default function GroupsPage() {
   useEffect(fetchFeatures, []);
 
   return (
-    <main style={{ maxWidth: 900, margin: '2rem auto', padding: 20 }}>
-      <Card title="Manage Groups & Features">
-        {error && <div style={{ color: 'red' }}>{error}</div>}
-        <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: 320 }}>
-            <h3>Groups</h3>
-            <GroupsManager />
-          </div>
-          <div style={{ flex: 1, minWidth: 320 }}>
-            <h3>Assign Users to Groups</h3>
-            <GroupMemberManager />
-          </div>
-        </div>
-        <div style={{ marginTop: 40 }}>
-          <h3>Set Feature Permissions for a Group</h3>
+    <main style={{ maxWidth: 1200, margin: '2rem auto', padding: 20, display: 'flex', flexWrap: 'wrap', gap: 32 }}>
+      <div style={{ flex: '1 1 340px', minWidth: 340 }}>
+        <Card title="Groups" icon={<Icon name="user" animate />}>
+          <GroupsManager />
+        </Card>
+        <Card title="Assign Users to Groups" icon={<Icon name="mail" animate />} className="mt-8">
+          <GroupMemberManager />
+        </Card>
+      </div>
+      <div style={{ flex: '2 1 500px', minWidth: 400, display: 'flex', flexDirection: 'column', gap: 32 }}>
+        <Card title="Set Feature Permissions for a Group" icon={<Icon name="lock" animate />}>
           {loading && <div>Loading groups…</div>}
           {!loading && groups.length === 0 && <div>No groups defined yet.</div>}
           {groups.length > 0 && (
@@ -90,6 +88,7 @@ export default function GroupsPage() {
                     const id = Number(e.target.value);
                     setSelectedGroup(groups.find(g => g.id === id) ?? null);
                   }}
+                  style={{ marginLeft: 8 }}
                 >
                   {groups.map(group => (
                     <option key={group.id} value={group.id}>
@@ -98,16 +97,24 @@ export default function GroupsPage() {
                   ))}
                 </select>
               </label>
-              {/* If GroupFeatureManager expects 'group' prop, pass the group object; otherwise, pass groupId as before */}
               <GroupFeatureManager group={selectedGroup!} allFeatures={features} />
             </>
           )}
-        </div>
-        <div style={{ marginTop: 40 }}>
-          <h3>All Features</h3>
-          <FeaturesManager />
-        </div>
-      </Card>
+        </Card>
+        <Card title="System Features" icon={<Icon name="eye" animate />}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+            {features.map(f => {
+              const iconType = f.type === 'page' ? 'eye' : f.type === 'card' ? 'user' : 'lock';
+              return (
+                <Card key={f.key} title={f.name} icon={<Icon name={iconType} animate />} className="min-w-[180px] flex-1">
+                  <div style={{ fontSize: 13, color: '#555' }}>{f.description}</div>
+                  <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>Type: {f.type || 'feature'}</div>
+                </Card>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
     </main>
   );
 }

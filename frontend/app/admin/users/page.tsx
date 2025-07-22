@@ -135,14 +135,9 @@ export default function AdminUsersPage() {
 
   return (
     <main style={{ maxWidth: 900, margin: '2rem auto', padding: 24 }}>
-      <h2>Admin: Users Management</h2>
-      <p>
-        <small>
-          <b>Access is now determined by group memberships only.</b>
-          {` `}
-          The legacy <code>role</code> field is not used; use groups to manage permissions.
-        </small>
-      </p>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24, textAlign: 'center' }}>
+        User Administration
+      </h1>
       {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
       {actionError && <div style={{ color: 'red', marginBottom: 12 }}>{actionError}</div>}
       {(loading || groupsLoading) ? (
@@ -178,28 +173,7 @@ export default function AdminUsersPage() {
               </div>
               <div style={{ marginBottom: 8 }}>
                 <b>Groups:</b>{' '}
-                {editId === u.id ? (
-                  <select
-                    multiple
-                    style={{ width: '60%' }}
-                    value={Array.isArray(edit.groups) ? edit.groups.map(g => String(g.id)) : []}
-                    onChange={e => {
-                      const selectedIds = Array.from(e.target.selectedOptions, opt => Number(opt.value));
-                      setEdit(edit => ({
-                        ...edit,
-                        groups: allGroups.filter(g => selectedIds.includes(g.id))
-                      }));
-                    }}
-                  >
-                    {allGroups.map(g => (
-                      <option key={g.id} value={g.id}>
-                        {g.name}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  u.groups.map(g => g.name).join(', ') || <em>(none)</em>
-                )}
+                {u.groups.map(g => g.name).join(', ') || <em>(none)</em>}
               </div>
               <div style={{ marginBottom: 8 }}>
                 <b>Created:</b> {new Date(u.created_at).toLocaleString()}
@@ -230,17 +204,15 @@ export default function AdminUsersPage() {
         </div>
       )}
       {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32, gap: 12 }}>
-          <Button size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
-            Prev
-          </Button>
-          <span style={{ alignSelf: 'center' }}>Page {page} of {totalPages}</span>
-          <Button size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
-            Next
-          </Button>
-        </div>
-      )}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32, gap: 12 }}>
+        <Button size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
+          Prev
+        </Button>
+        <span style={{ alignSelf: 'center' }}>Page {page} of {totalPages}</span>
+        <Button size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
+          Next
+        </Button>
+      </div>
     </main>
   );
 }

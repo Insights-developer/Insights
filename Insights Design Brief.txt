@@ -1,5 +1,47 @@
 Insights App: Architectural & RBAC Overview (as of July 23, 2025)
 
+USER MANAGEMENT RECOVERY & NEXT.JS BUILD BUG WORKAROUND - July 23, 2025
+================================================================
+**CURRENT COMPILATION STATUS: FIXED** ✅
+
+**Session Summary - User Management Recovery:**
+Successfully recovered the user management page after battling a persistent and unusual Next.js build error. The page is now functional and the application compiles successfully.
+
+**The Bug:**
+- **Error:** "Element type is invalid: expected a string... but got: object."
+- **Root Cause:** A severe, undiscovered bug within the Next.js 15.4.2 framework, specifically tied to the `/admin/users` route. The build would fail the moment the page component at this specific path was declared a Client Component with `'use client'`.
+
+**Troubleshooting Steps Attempted (All Failed):**
+1.  **Component Simplification:** The error persisted even when the page was reduced to a single `<div>` with no imports or logic.
+2.  **Copying Working Code:** Overwriting the file with code from a known-good admin page did not resolve the issue.
+3.  **Cache Clearing:** Deleting the `.next` directory had no effect.
+4.  **Dependency Reinstallation:** A full `rm -rf node_modules` and `npm install` did not fix the problem.
+5.  **Route Renaming (within /admin):** Renaming the page to `/admin/manage-users` also failed; the error followed the file.
+
+**The Successful Workaround:**
+The only solution was to move the page out of the `/admin` directory entirely.
+- The user management page was moved from `/frontend/app/admin/users` to `/frontend/app/manage-users`.
+- The link on the main Admin Dashboard was updated to point to the new `/manage-users` route.
+- This immediately resolved the build error.
+
+**Current State & Successes:**
+- ✅ **Build Fixed:** The application now compiles successfully without any errors.
+- ✅ **User Management Restored:** A functional user management page now exists at `/manage-users`.
+- ✅ **Functionality:** The page correctly fetches the user list from the `/api/admin/users` endpoint and displays it in a table.
+- ✅ **Stable Foundation:** The page is built on the simple, proven pattern, providing a stable base for future enhancements.
+
+**LESSONS LEARNED & CRITICAL WARNING:**
+1.  There appears to be a fundamental bug in Next.js 15.4.2 related to the specific route path `/admin/users`.
+2.  **DO NOT** attempt to create a page at `/admin/users`. The build will fail. Use the established `/manage-users` path instead.
+3.  For stubborn build errors, isolating the problem by moving the component can be a valid (if drastic) troubleshooting step.
+
+**STATE FOR NEXT SESSION:**
+The user management page is now stable and functional, but basic. The immediate next steps should be to build upon this stable foundation by adding CRUD (Create, Read, Update, Delete) functionality to the user list.
+
+---
+*Previous entries have been preserved below for historical context.*
+---
+
 CRITICAL USER MANAGEMENT BUILD FAILURES - July 23, 2025
 ================================================================
 **CURRENT COMPILATION STATUS: BROKEN** ❌

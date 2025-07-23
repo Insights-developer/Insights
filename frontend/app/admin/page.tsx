@@ -10,7 +10,7 @@ export default function AdminPage() {
           <div className="bg-gray-50 p-4 rounded-lg border hover:bg-gray-100 transition-colors">
             <h3 className="font-semibold mb-2">User Management</h3>
             <a 
-              href="/admin/users" 
+              href="/manage-users" 
               className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
             >
               Go to User Management

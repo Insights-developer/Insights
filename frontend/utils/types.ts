@@ -4,8 +4,14 @@
 export type UserProfile = {
   id: string;
   email: string;
+  username: string | null;
+  phone: string | null;
   role: string;
   created_at: string;
+  current_login_at: string | null;
+  previous_login_at: string | null;
+  login_count: number;
+  groups: AccessGroup[];
 };
 
 // === Access Groups ===

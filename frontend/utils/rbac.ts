@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { Session } from '@supabase/supabase-js';
 
 // Deprecated: Do not use this for access; use getUserFeatures instead.
 export async function getUserRole(userId: string): Promise<string | null> {
@@ -47,4 +48,8 @@ export async function getUserFeatures(userId: string): Promise<string[]> {
 
   // Deduplicate
   return [...new Set(featuresData.map((f: { feature: string }) => f.feature))];
+}
+
+export function checkAdmin(session: Session): boolean {
+  return session.user?.role === 'admin';
 }

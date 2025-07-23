@@ -1,4 +1,115 @@
-Insights App: Architectural & RBAC Overview (as of July 22, 2025)
+Insights App: Architectural & RBAC Overview (as of July 23, 2025)
+
+CRITICAL USER MANAGEMENT BUILD FAILURES - July 23, 2025
+================================================================
+**CURRENT COMPILATION STATUS: BROKEN** ❌
+
+**Session Summary - User Management Implementation Attempt:**
+Attempted to fix three key issues but encountered persistent compilation failures:
+
+**Issues Addressed:**
+1. ✅ **Logout Flow Fixed** - UserInfoBox now redirects to '/' instead of '/login'
+2. ✅ **Admin Dashboard Label Removed** - Removed "Admin Dashboard" heading from users page
+3. ❌ **Inline User Viewing** - FAILED due to compilation errors
+
+**Critical Build Error Pattern:**
+- **Error:** `ssr: false` is not allowed with `next/dynamic` in Server Components
+- **Root Cause:** Next.js 15.4.2 + React 19.1.0 compatibility issues with dynamic imports
+- **Attempted Solutions:**
+  - Dynamic imports with `ssr: false`
+  - Converting to Client Components with `'use client'`
+  - Schema alignment between API response and TypeScript interfaces
+  - Multiple component architecture approaches
+
+**Schema Inconsistencies Discovered:**
+- Database uses `current_login_at` but interfaces expected `last_login_at`
+- API returns `{ users: [...] }` but components expected direct array
+- Group data structure: API returns `Group[]` but some interfaces expected `number`
+
+**File State After Session:**
+- `/app/admin/users/page.tsx`: Client Component with dynamic import and `ssr: false`
+- `/app/admin/users/client.tsx`: Complete user management component with proper types
+- **Status:** Both files show "No errors found" in TypeScript but compilation may still fail
+
+**Technical Architecture Attempted:**
+```tsx
+// page.tsx - Client Component approach
+'use client';
+import dynamic from 'next/dynamic';
+
+const UsersPageClient = dynamic(() => import('./client'), {
+  ssr: false,  // ← This causes compilation error
+  loading: () => <LoadingComponent />
+});
+```
+
+**Known Working Patterns from Previous Session:**
+- Simple HTML + Tailwind CSS (no custom components)
+- `export const dynamic = 'force-dynamic';` for preventing static generation
+- Direct component exports without dynamic imports
+- Specific React hook imports: `import { useState, useEffect } from 'react';`
+
+**CRITICAL WARNING FOR NEXT DEVELOPER:**
+The user management system is currently in a broken state. The build will likely fail with dynamic import errors. DO NOT attempt complex React patterns with Next.js 15.4.2. Use the proven simple patterns from the previous admin rebuild.
+
+**RECOMMENDED RECOVERY APPROACH:**
+1. Delete both `/app/admin/users/page.tsx` and `/app/admin/users/client.tsx`
+2. Create a single, simple page.tsx using the proven admin pattern:
+```tsx
+'use client';
+import { useState, useEffect } from 'react';
+
+export const dynamic = 'force-dynamic';
+
+export default function UsersPage() {
+  // Simple implementation without dynamic imports
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-2xl font-bold mb-6">User Management</h1>
+        {/* Simple user listing without complex patterns */}
+      </div>
+    </div>
+  );
+}
+```
+
+**DATA STRUCTURE REQUIREMENTS:**
+- API endpoint: `/api/admin/users` returns `{ users: UserProfile[] }`
+- UserProfile interface:
+```tsx
+interface Group {
+  id: number;
+  name: string;
+}
+
+interface UserProfile {
+  id: string;
+  email: string;
+  current_login_at: string | null;
+  groups: Group[];
+}
+```
+
+**LESSONS LEARNED:**
+1. Next.js 15.4.2 + React 19.1.0 has severe compatibility issues with dynamic imports
+2. `ssr: false` patterns that worked in earlier versions now cause compilation failures
+3. Complex component architectures should be avoided until framework stability improves
+4. The proven admin page pattern from July 22 should be used for ALL admin pages
+5. User management functionality needs to be implemented as a single, simple component
+
+**SUCCESSFUL FIXES THIS SESSION:**
+- ✅ UserInfoBox logout redirect corrected
+- ✅ Admin Dashboard label removal completed
+- ✅ Schema analysis and API response format understanding
+
+**FAILED IMPLEMENTATIONS:**
+- ❌ Dynamic component loading with SSR disabled
+- ❌ Complex React component architecture
+- ❌ Multiple file component splitting for user management
+
+**STATE FOR NEXT SESSION:**
+The app currently has a non-functional user management page that will likely cause build failures. Immediate priority should be implementing a working user management system using the proven simple patterns, not attempting to restore the complex dynamic import approach that failed.
 
 CRITICAL ADMIN SYSTEM BUILD ERRORS RESOLVED - July 22, 2025
 ================================================================
@@ -289,9 +400,17 @@ Established clear patterns for admin page development that prevent build errors 
 Legacy role-based checks have been removed. Backend and frontend communicate permission information clearly and directly, with a standard permission model that is easy to maintain and expand. The new navigation system provides better UX while maintaining full RBAC integration.
 
 **FOR FUTURE DEVELOPMENT SESSIONS:**
-When returning to this project, reference the "CRITICAL ADMIN SYSTEM BUILD ERRORS RESOLVED" section for established patterns and the "ADMIN DEVELOPMENT RECOMMENDATIONS" for safe enhancement strategies. The admin system foundation is now stable and ready for feature implementation.
+When returning to this project, reference the "CRITICAL USER MANAGEMENT BUILD FAILURES - July 23, 2025" section to understand the current broken state. The user management system must be rebuilt using the proven simple patterns from July 22, avoiding dynamic imports and complex React architectures.
 
-If you return to a new thread, mentioning "Insights App RBAC with modern sidebar navigation and resolved admin build issues, last updated July 22, 2025" or referencing this brief will immediately cue me in to your architecture, design, conventions, and the critical lessons learned from the admin system debugging!
+**IMMEDIATE NEXT STEPS:**
+1. **DELETE** current broken user management files
+2. **REBUILD** using simple, proven admin pattern from July 22
+3. **TEST** build after each change to prevent regression
+4. **AVOID** dynamic imports, complex component splitting, and `ssr: false` patterns
+
+The admin system foundation from July 22 remains stable, but user management specifically is broken and needs reconstruction.
+
+If you return to a new thread, mention "Insights App with BROKEN user management system as of July 23, 2025 - needs simple pattern rebuild" to immediately understand the critical state.
 
 
 

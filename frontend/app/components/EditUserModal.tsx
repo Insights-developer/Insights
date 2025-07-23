@@ -15,7 +15,14 @@ export default function EditUserModal({ user, groups, isOpen, onClose, onSave }:
   const [formData, setFormData] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    setFormData(user);
+    if (user) {
+      setFormData({
+        ...user,
+        groups: user.groups || [],
+      });
+    } else {
+      setFormData(null);
+    }
   }, [user]);
 
   if (!isOpen || !formData) {

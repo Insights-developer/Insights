@@ -55,7 +55,7 @@ export default function UserInfoBox() {
   async function handleSignOut() {
     await supabase.auth.signOut();
     setUserInfo(null); // Clear user info immediately
-    router.replace('/login');
+    router.replace('/');
   }
 
   if (!userInfo) return null;

@@ -69,7 +69,7 @@ export default function UserManagementClient() {
           username: updatedUser.username,
           phone: updatedUser.phone,
           role: updatedUser.role,
-          groups: updatedUser.groups.map(g => g.id),
+          groups: (updatedUser.groups || []).map(g => g.id),
         }),
       });
 

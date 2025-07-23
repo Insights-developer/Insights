@@ -33,6 +33,10 @@ export default function UserManagementClient() {
         const usersData = await usersResponse.json();
         const groupsData = await groupsResponse.json();
         
+        console.log('--- DEBUG: UserManagementClient ---');
+        console.log('Fetched Users Data:', JSON.stringify(usersData, null, 2));
+        console.log('Fetched Groups Data:', JSON.stringify(groupsData, null, 2));
+
         setUsers(usersData.users);
         setAllGroups(groupsData.groups);
       } catch (err) {
@@ -46,6 +50,8 @@ export default function UserManagementClient() {
   }, []);
 
   const handleEdit = (user: UserProfile) => {
+    console.log('--- DEBUG: UserManagementClient ---');
+    console.log('Editing User (passed to modal):', JSON.stringify(user, null, 2));
     setEditingUser(user);
     setIsEditModalOpen(true);
   };
@@ -78,7 +84,9 @@ export default function UserManagementClient() {
         throw new Error(errorData.error || 'Failed to save user');
       }
 
-      setUsers(users.map(u => (u.id === updatedUser.id ? updatedUser : u)));
+      const { user: savedUser } = await response.json();
+
+      setUsers(users.map(u => (u.id === savedUser.id ? savedUser : u)));
       handleCloseEditModal();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -133,7 +141,6 @@ export default function UserManagementClient() {
             <p className="text-gray-600">{user.email}</p>
             <div className="mt-4">
               <p><strong>Phone:</strong> {user.phone || 'N/A'}</p>
-              <p><strong>Role:</strong> {user.role}</p>
               <p><strong>Member Since:</strong> {new Date(user.created_at).toLocaleDateString()}</p>
               <p><strong>Last Login:</strong> {user.current_login_at ? new Date(user.current_login_at).toLocaleString() : 'Never'}</p>
               <p><strong>Previous Login:</strong> {user.previous_login_at ? new Date(user.previous_login_at).toLocaleString() : 'Never'}</p>

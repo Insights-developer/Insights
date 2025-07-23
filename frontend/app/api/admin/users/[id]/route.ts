@@ -12,7 +12,13 @@ export async function PATCH(request: Request, context: any) {
   }
 
   const userId = context.params.id;
-  const { email, username, phone, role, groups } = await request.json();
+  const body = await request.json();
+
+  console.log('--- DEBUG: PATCH /api/admin/users/[id] ---');
+  console.log('Received User ID:', userId);
+  console.log('Received Request Body:', JSON.stringify(body, null, 2));
+
+  const { email, username, phone, role, groups } = body;
 
   try {
     // Update user details

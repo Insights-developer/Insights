@@ -15,6 +15,9 @@ export default function EditUserModal({ user, groups, isOpen, onClose, onSave }:
   const [formData, setFormData] = useState<UserProfile | null>(null);
 
   useEffect(() => {
+    console.log('--- DEBUG: EditUserModal ---');
+    console.log('Received User Prop:', JSON.stringify(user, null, 2));
+    console.log('Received Groups Prop:', JSON.stringify(groups, null, 2));
     if (user) {
       setFormData({
         ...user,
@@ -91,7 +94,6 @@ export default function EditUserModal({ user, groups, isOpen, onClose, onSave }:
               className="w-full px-3 py-2 border rounded"
             >
               <option value="member">Member</option>
-              <option value="admin">Admin</option>
             </select>
           </div>
           <div className="mb-4">

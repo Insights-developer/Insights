@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     // Update user login timestamps
-    const { error } = await supabase
+    const { error: userUpdateError } = await supabase
       .from('users')
       .update({
         previous_login_at: currentUser?.current_login_at || null,
@@ -30,9 +30,29 @@ export async function POST(req: NextRequest) {
       })
       .eq('id', user.id);
 
-    if (error) {
-      console.error('Login update error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (userUpdateError) {
+      console.error('Login update error:', userUpdateError);
+      return NextResponse.json({ error: userUpdateError.message }, { status: 500 });
+    }
+
+    // Also log to login_history table
+    const ipAddress = req.headers.get('x-forwarded-for') || 
+                      req.headers.get('x-real-ip') || 
+                      '0.0.0.0';
+    const userAgent = req.headers.get('user-agent') || '';
+    
+    const { error: historyError } = await supabase
+      .from('login_history')
+      .insert({
+        user_id: user.id,
+        login_at: new Date().toISOString(),
+        ip_address: ipAddress.split(',')[0].trim(), // Get first IP if multiple
+        user_agent: userAgent
+      });
+      
+    if (historyError) {
+      console.error('Login history insert error:', historyError);
+      // Don't fail the request if only the history insert fails
     }
 
     return NextResponse.json({ success: true });

@@ -138,7 +138,7 @@ export default function UserManagementClient() {
               <p><strong>Last Login:</strong> {user.current_login_at ? new Date(user.current_login_at).toLocaleString() : 'Never'}</p>
               <p><strong>Previous Login:</strong> {user.previous_login_at ? new Date(user.previous_login_at).toLocaleString() : 'Never'}</p>
               <p><strong>Login Count:</strong> {user.login_count}</p>
-              <p><strong>Groups:</strong> {user.groups.map(g => g.name).join(', ') || 'None'}</p>
+              <p><strong>Groups:</strong> {(user.groups || []).map(g => g.name).join(', ') || 'None'}</p>
             </div>
             <div className="mt-6 flex justify-end space-x-2">
               <button onClick={() => handleEdit(user)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Edit</button>

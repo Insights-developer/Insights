@@ -15,9 +15,6 @@ export default function EditUserModal({ user, groups, isOpen, onClose, onSave }:
   const [formData, setFormData] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    console.log('--- DEBUG: EditUserModal ---');
-    console.log('Received User Prop:', JSON.stringify(user, null, 2));
-    console.log('Received Groups Prop:', JSON.stringify(groups, null, 2));
     if (user) {
       setFormData({
         ...user,

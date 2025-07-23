@@ -33,12 +33,8 @@ export default function UserManagementClient() {
         const usersData = await usersResponse.json();
         const groupsData = await groupsResponse.json();
         
-        console.log('--- DEBUG: UserManagementClient ---');
-        console.log('Fetched Users Data:', JSON.stringify(usersData, null, 2));
-        console.log('Fetched Groups Data:', JSON.stringify(groupsData, null, 2));
-
         setUsers(usersData.users);
-        setAllGroups(groupsData.groups);
+        setAllGroups(groupsData.groups || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
@@ -50,8 +46,6 @@ export default function UserManagementClient() {
   }, []);
 
   const handleEdit = (user: UserProfile) => {
-    console.log('--- DEBUG: UserManagementClient ---');
-    console.log('Editing User (passed to modal):', JSON.stringify(user, null, 2));
     setEditingUser(user);
     setIsEditModalOpen(true);
   };
@@ -154,20 +148,24 @@ export default function UserManagementClient() {
           </div>
         ))}
       </div>
-      <EditUserModal
-        user={editingUser}
-        groups={allGroups}
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        onSave={handleSaveUser}
-      />
-      <ConfirmModal
-        isOpen={isConfirmModalOpen}
-        onClose={handleCloseConfirmModal}
-        onConfirm={handleConfirmDelete}
-        title="Confirm Deletion"
-        message={`Are you sure you want to delete the user ${deletingUser?.email}? This action cannot be undone.`}
-      />
+      {isEditModalOpen && (
+        <EditUserModal
+          user={editingUser}
+          groups={allGroups}
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          onSave={handleSaveUser}
+        />
+      )}
+      {isConfirmModalOpen && (
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={handleCloseConfirmModal}
+          onConfirm={handleConfirmDelete}
+          title="Confirm Deletion"
+          message={`Are you sure you want to delete the user ${deletingUser?.email}? This action cannot be undone.`}
+        />
+      )}
     </div>
   );
 }

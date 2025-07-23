@@ -1,7 +1,7 @@
 import { Client } from "pg";
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-// Read (GET) all draws
+// Read (GET) all groups
 export async function GET() {
   const client = new Client({
     connectionString: process.env.POSTGRES_URL,
@@ -9,10 +9,10 @@ export async function GET() {
   });
   try {
     await client.connect();
-    const result = await client.query('SELECT * FROM draws ORDER BY draw_date DESC;');
+    const result = await client.query('SELECT id, name FROM groups ORDER BY name;');
     await client.end();
     return new Response(
-      JSON.stringify({ draws: result.rows }),
+      JSON.stringify({ groups: result.rows }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error: any) {
@@ -23,10 +23,10 @@ export async function GET() {
   }
 }
 
-// Placeholder for draw creation (POST)
+// Placeholder for group creation (POST)
 export async function POST() {
   return new Response(
-    JSON.stringify({ error: "POST (draw creation) not implemented yet." }),
+    JSON.stringify({ error: "POST (group creation) not implemented yet." }),
     { status: 501, headers: { "Content-Type": "application/json" } }
   );
 }

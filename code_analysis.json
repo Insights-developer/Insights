@@ -4,15 +4,12 @@
       "path": "/api/admin/groups",
       "methods": [
         "GET",
-        "POST"
+        "POST",
+        "DELETE",
+        "PATCH"
       ],
-      "required_features": [
-        "admin_dashboard"
-      ],
-      "parameters": [
-        "name",
-        "description"
-      ],
+      "required_features": [],
+      "parameters": [],
       "file": "frontend/app/api/admin/groups/route.ts"
     },
     {
@@ -22,16 +19,8 @@
         "POST",
         "DELETE"
       ],
-      "required_features": [
-        "admin_dashboard",
-        "admin_dashboard"
-      ],
-      "parameters": [
-        "groupId",
-        "feature",
-        "groupId",
-        "feature"
-      ],
+      "required_features": [],
+      "parameters": [],
       "file": "frontend/app/api/admin/group-features/route.ts"
     },
     {
@@ -39,25 +28,19 @@
       "methods": [
         "GET",
         "POST",
+        "DELETE",
         "PATCH"
       ],
-      "required_features": [
-        "admin_dashboard"
-      ],
-      "parameters": [
-        "key",
-        "name",
-        "description",
-        "type",
-        "nav_name",
-        "icon_url",
-        "order",
-        "url",
-        "active",
-        "id",
-        "...fields"
-      ],
+      "required_features": [],
+      "parameters": [],
       "file": "frontend/app/api/admin/features/route.ts"
+    },
+    {
+      "path": "/api/admin/users-new",
+      "methods": [],
+      "required_features": [],
+      "parameters": [],
+      "file": "frontend/app/api/admin/users-new/route.ts"
     },
     {
       "path": "/api/admin/users",
@@ -66,33 +49,9 @@
         "DELETE",
         "PATCH"
       ],
-      "required_features": [
-        "admin_dashboard",
-        "admin_dashboard",
-        "admin_dashboard"
-      ],
-      "parameters": [
-        "userId",
-        "email",
-        "username",
-        "phone",
-        "groupIds",
-        "userId"
-      ],
-      "file": "frontend/app/api/admin/users/route.ts"
-    },
-    {
-      "path": "/api/admin/users/[id]",
-      "methods": [
-        "DELETE",
-        "PATCH"
-      ],
-      "required_features": [
-        "admin_dashboard",
-        "admin_dashboard"
-      ],
+      "required_features": [],
       "parameters": [],
-      "file": "frontend/app/api/admin/users/[id]/route.ts"
+      "file": "frontend/app/api/admin/users/route.ts"
     },
     {
       "path": "/api/admin/insight-templates",
@@ -102,17 +61,8 @@
         "DELETE",
         "PATCH"
       ],
-      "required_features": [
-        "admin_dashboard"
-      ],
-      "parameters": [
-        "template_name",
-        "description",
-        "config",
-        "id",
-        "...fields",
-        "id"
-      ],
+      "required_features": [],
+      "parameters": [],
       "file": "frontend/app/api/admin/insight-templates/route.ts"
     },
     {
@@ -122,17 +72,8 @@
         "POST",
         "DELETE"
       ],
-      "required_features": [
-        "admin_dashboard",
-        "admin_dashboard",
-        "admin_dashboard"
-      ],
-      "parameters": [
-        "userId",
-        "groupId",
-        "userId",
-        "groupId"
-      ],
+      "required_features": [],
+      "parameters": [],
       "file": "frontend/app/api/admin/group-members/route.ts"
     },
     {
@@ -140,66 +81,26 @@
       "methods": [
         "GET"
       ],
-      "required_features": [
-        "results_page"
-      ],
+      "required_features": [],
       "parameters": [],
       "file": "frontend/app/api/results/route.ts"
     },
     {
       "path": "/api/games",
       "methods": [
-        "GET",
-        "POST"
-      ],
-      "required_features": [
-        "games_page",
-        "admin_dashboard"
-      ],
-      "parameters": [
-        "name",
-        "config"
-      ],
-      "file": "frontend/app/api/games/route.ts"
-    },
-    {
-      "path": "/api/profile",
-      "methods": [
-        "GET",
-        "PATCH"
+        "GET"
       ],
       "required_features": [],
-      "parameters": [
-        "email",
-        "username",
-        "phone"
-      ],
-      "file": "frontend/app/api/profile/route.ts"
-    },
-    {
-      "path": "/api/contact",
-      "methods": [
-        "POST"
-      ],
-      "required_features": [
-        "contact"
-      ],
       "parameters": [],
-      "file": "frontend/app/api/contact/route.ts"
+      "file": "frontend/app/api/games/route.ts"
     },
     {
       "path": "/api/access-groups",
       "methods": [
-        "GET",
-        "POST"
+        "GET"
       ],
-      "required_features": [
-        "admin_dashboard"
-      ],
-      "parameters": [
-        "name",
-        "description"
-      ],
+      "required_features": [],
+      "parameters": [],
       "file": "frontend/app/api/access-groups/route.ts"
     },
     {
@@ -217,30 +118,17 @@
         "GET",
         "POST"
       ],
-      "required_features": [
-        "admin_dashboard"
-      ],
-      "parameters": [
-        "game_id",
-        "draw_date",
-        "results",
-        "bonus"
-      ],
+      "required_features": [],
+      "parameters": [],
       "file": "frontend/app/api/draws/route.ts"
     },
     {
       "path": "/api/uploads",
       "methods": [
-        "GET",
-        "POST",
-        "DELETE"
+        "POST"
       ],
       "required_features": [],
-      "parameters": [
-        "filename",
-        "blob_url",
-        "id"
-      ],
+      "parameters": [],
       "file": "frontend/app/api/uploads/route.ts"
     },
     {
@@ -248,9 +136,7 @@
       "methods": [
         "GET"
       ],
-      "required_features": [
-        "dashboard_page"
-      ],
+      "required_features": [],
       "parameters": [],
       "file": "frontend/app/api/dashboard/route.ts"
     },
@@ -275,7 +161,8 @@
     {
       "path": "/api/user/profile",
       "methods": [
-        "GET"
+        "GET",
+        "PATCH"
       ],
       "required_features": [],
       "parameters": [],
@@ -293,7 +180,8 @@
     {
       "path": "/api/user/cards",
       "methods": [
-        "GET"
+        "GET",
+        "POST"
       ],
       "required_features": [],
       "parameters": [],
@@ -312,17 +200,20 @@
       "path": "/api/notifications",
       "methods": [
         "GET",
-        "POST"
+        "PATCH"
       ],
-      "required_features": [
-        "admin_dashboard"
-      ],
-      "parameters": [
-        "user_id",
-        "notif_type",
-        "data"
-      ],
+      "required_features": [],
+      "parameters": [],
       "file": "frontend/app/api/notifications/route.ts"
+    },
+    {
+      "path": "/api/debug/config",
+      "methods": [
+        "GET"
+      ],
+      "required_features": [],
+      "parameters": [],
+      "file": "frontend/app/api/debug/config/route.ts"
     },
     {
       "path": "/api/insights",
@@ -330,9 +221,7 @@
         "GET",
         "POST"
       ],
-      "required_features": [
-        "insights_page"
-      ],
+      "required_features": [],
       "parameters": [],
       "file": "frontend/app/api/insights/route.ts"
     }
@@ -341,52 +230,26 @@
     {
       "key": "admin_dashboard",
       "used_in": [
-        "frontend/utils/rbac.ts",
-        "frontend/app/api/games/route.ts",
-        "frontend/app/api/access-groups/route.ts",
-        "frontend/app/api/draws/route.ts",
-        "frontend/app/api/notifications/route.ts",
-        "frontend/app/api/admin/groups/route.ts",
-        "frontend/app/api/admin/group-features/route.ts",
-        "frontend/app/api/admin/group-features/route.ts",
-        "frontend/app/api/admin/features/route.ts",
-        "frontend/app/api/admin/users/route.ts",
-        "frontend/app/api/admin/users/route.ts",
-        "frontend/app/api/admin/users/route.ts",
-        "frontend/app/api/admin/insight-templates/route.ts",
-        "frontend/app/api/admin/group-members/route.ts",
-        "frontend/app/api/admin/group-members/route.ts",
-        "frontend/app/api/admin/group-members/route.ts",
-        "frontend/app/api/admin/users/[id]/route.ts",
-        "frontend/app/api/admin/users/[id]/route.ts"
+        "frontend/utils/rbac.ts"
       ]
     },
     {
       "key": "contact",
       "used_in": [
-        "frontend/app/contact/page.tsx",
-        "frontend/app/api/contact/route.ts"
-      ]
-    },
-    {
-      "key": "dashboard_page",
-      "used_in": [
-        "frontend/app/api/dashboard/route.ts"
+        "frontend/app/contact/page.tsx"
       ]
     },
     {
       "key": "games_page",
       "used_in": [
         "frontend/utils/hooks/useRequireFeature.tsx",
-        "frontend/app/games/page.tsx",
-        "frontend/app/api/games/route.ts"
+        "frontend/app/games/page.tsx"
       ]
     },
     {
       "key": "insights_page",
       "used_in": [
-        "frontend/app/insights/page.tsx",
-        "frontend/app/api/insights/route.ts"
+        "frontend/app/insights/page.tsx"
       ]
     },
     {
@@ -398,8 +261,7 @@
     {
       "key": "results_page",
       "used_in": [
-        "frontend/app/results/page.tsx",
-        "frontend/app/api/results/route.ts"
+        "frontend/app/results/page.tsx"
       ]
     }
   ],
@@ -544,6 +406,21 @@
       "purpose": "* Hook: Checks if user has the required featureKey permission.\n * Usage:\n *   const { allowed, loading, forbidden } = useRequireFeature('games_page');\n *   if (loading) return <Loading />;\n *   if (forbidden) return <Forbidden />;"
     },
     {
+      "name": "useRequireFeature",
+      "file": "frontend/utils/hooks/useRequireFeatureNew.tsx",
+      "purpose": "* Enhanced hook for checking feature permissions using centralized auth\n * @param featureKey - The feature key to check\n * @param redirectOnFail - Whether to redirect to login if unauthorized (default: true)"
+    },
+    {
+      "name": "useRequireAnyFeature",
+      "file": "frontend/utils/hooks/useRequireFeatureNew.tsx",
+      "purpose": "* Enhanced hook for checking feature permissions using centralized auth\n * @param featureKey - The feature key to check\n * @param redirectOnFail - Whether to redirect to login if unauthorized (default: true)"
+    },
+    {
+      "name": "useRequireAdmin",
+      "file": "frontend/utils/hooks/useRequireFeatureNew.tsx",
+      "purpose": "* Enhanced hook for checking feature permissions using centralized auth\n * @param featureKey - The feature key to check\n * @param redirectOnFail - Whether to redirect to login if unauthorized (default: true)"
+    },
+    {
       "name": "usePageLoading",
       "file": "frontend/app/hooks/usePageLoading.ts",
       "purpose": null
@@ -552,14 +429,71 @@
   "database_tables": [
     "access_group_features",
     "access_groups",
+    "draws",
     "features",
+    "games",
     "insight_templates",
-    "login_history",
-    "uploads",
+    "nav_items",
+    "notifications",
+    "results",
     "user_access_groups",
+    "user_cards",
     "users"
   ],
   "type_definitions": [
+    {
+      "kind": "interface",
+      "name": "ApiSuccessResponse",
+      "file": "frontend/utils/api-handler.ts",
+      "exported": true,
+      "properties": [
+        {
+          "name": "data",
+          "type": "T",
+          "optional": false
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "status",
+          "type": "'success'",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "kind": "interface",
+      "name": "ApiErrorResponse",
+      "file": "frontend/utils/api-handler.ts",
+      "exported": true,
+      "properties": [
+        {
+          "name": "error",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "status",
+          "type": "'error'",
+          "optional": false
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "kind": "type",
+      "name": "ApiResponse",
+      "file": "frontend/utils/api-handler.ts",
+      "exported": true,
+      "value": "ApiSuccessResponse<T> | ApiErrorResponse"
+    },
     {
       "kind": "type",
       "name": "UserProfile",
@@ -601,6 +535,42 @@
       "file": "frontend/utils/types.ts",
       "exported": true,
       "value": "{\n  public: {\n    Tables: {\n      users: {\n        Row: UserProfile"
+    },
+    {
+      "kind": "interface",
+      "name": "ApiResponse",
+      "file": "frontend/utils/api-client.ts",
+      "exported": true,
+      "properties": [
+        {
+          "name": "data",
+          "type": "T",
+          "optional": true
+        },
+        {
+          "name": "error",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "status",
+          "type": "number",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "kind": "interface",
+      "name": "ApiErrorHandler",
+      "file": "frontend/utils/api-client.ts",
+      "exported": true,
+      "properties": [
+        {
+          "name": "onApiError",
+          "type": "(error: string, status: number) => void",
+          "optional": true
+        }
+      ]
     },
     {
       "kind": "interface",
@@ -1276,78 +1246,6 @@
     {
       "kind": "interface",
       "name": "PageProps",
-      "file": "frontend/.next/types/app/api/profile/route.ts",
-      "exported": true,
-      "properties": [
-        {
-          "name": "params",
-          "type": "Promise<SegmentParams>",
-          "optional": true
-        },
-        {
-          "name": "searchParams",
-          "type": "Promise<any>",
-          "optional": true
-        }
-      ]
-    },
-    {
-      "kind": "interface",
-      "name": "LayoutProps",
-      "file": "frontend/.next/types/app/api/profile/route.ts",
-      "exported": true,
-      "properties": [
-        {
-          "name": "children",
-          "type": "React.ReactNode",
-          "optional": true
-        },
-        {
-          "name": "params",
-          "type": "Promise<SegmentParams>",
-          "optional": true
-        }
-      ]
-    },
-    {
-      "kind": "interface",
-      "name": "PageProps",
-      "file": "frontend/.next/types/app/api/contact/route.ts",
-      "exported": true,
-      "properties": [
-        {
-          "name": "params",
-          "type": "Promise<SegmentParams>",
-          "optional": true
-        },
-        {
-          "name": "searchParams",
-          "type": "Promise<any>",
-          "optional": true
-        }
-      ]
-    },
-    {
-      "kind": "interface",
-      "name": "LayoutProps",
-      "file": "frontend/.next/types/app/api/contact/route.ts",
-      "exported": true,
-      "properties": [
-        {
-          "name": "children",
-          "type": "React.ReactNode",
-          "optional": true
-        },
-        {
-          "name": "params",
-          "type": "Promise<SegmentParams>",
-          "optional": true
-        }
-      ]
-    },
-    {
-      "kind": "interface",
-      "name": "PageProps",
       "file": "frontend/.next/types/app/api/access-groups/route.ts",
       "exported": true,
       "properties": [
@@ -1816,42 +1714,6 @@
     {
       "kind": "interface",
       "name": "PageProps",
-      "file": "frontend/.next/types/app/api/admin/users/[id]/route.ts",
-      "exported": true,
-      "properties": [
-        {
-          "name": "params",
-          "type": "Promise<SegmentParams>",
-          "optional": true
-        },
-        {
-          "name": "searchParams",
-          "type": "Promise<any>",
-          "optional": true
-        }
-      ]
-    },
-    {
-      "kind": "interface",
-      "name": "LayoutProps",
-      "file": "frontend/.next/types/app/api/admin/users/[id]/route.ts",
-      "exported": true,
-      "properties": [
-        {
-          "name": "children",
-          "type": "React.ReactNode",
-          "optional": true
-        },
-        {
-          "name": "params",
-          "type": "Promise<SegmentParams>",
-          "optional": true
-        }
-      ]
-    },
-    {
-      "kind": "interface",
-      "name": "PageProps",
       "file": "frontend/.next/types/app/api/user/nav/route.ts",
       "exported": true,
       "properties": [
@@ -2051,6 +1913,42 @@
       "kind": "interface",
       "name": "LayoutProps",
       "file": "frontend/.next/types/app/api/user/promote-if-verified/route.ts",
+      "exported": true,
+      "properties": [
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "optional": true
+        },
+        {
+          "name": "params",
+          "type": "Promise<SegmentParams>",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "kind": "interface",
+      "name": "PageProps",
+      "file": "frontend/.next/types/app/api/debug/config/route.ts",
+      "exported": true,
+      "properties": [
+        {
+          "name": "params",
+          "type": "Promise<SegmentParams>",
+          "optional": true
+        },
+        {
+          "name": "searchParams",
+          "type": "Promise<any>",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "kind": "interface",
+      "name": "LayoutProps",
+      "file": "frontend/.next/types/app/api/debug/config/route.ts",
       "exported": true,
       "properties": [
         {
@@ -2078,6 +1976,39 @@
       "file": "frontend/components/AdminGroupTable.tsx",
       "exported": false,
       "value": "{\n  id: number"
+    },
+    {
+      "kind": "interface",
+      "name": "AuthState",
+      "file": "frontend/context/AuthContext.tsx",
+      "exported": false,
+      "properties": [
+        {
+          "name": "user",
+          "type": "User | null",
+          "optional": false
+        },
+        {
+          "name": "session",
+          "type": "Session | null",
+          "optional": false
+        },
+        {
+          "name": "features",
+          "type": "string[]",
+          "optional": false
+        },
+        {
+          "name": "loading",
+          "type": "boolean",
+          "optional": false
+        },
+        {
+          "name": "initialized",
+          "type": "boolean",
+          "optional": false
+        }
+      ]
     },
     {
       "kind": "type",
@@ -2238,6 +2169,87 @@
     },
     {
       "kind": "interface",
+      "name": "Feature",
+      "file": "frontend/app/admin/features/FeatureManagementClient.tsx",
+      "exported": false,
+      "properties": [
+        {
+          "name": "id",
+          "type": "number",
+          "optional": false
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "description",
+          "type": "string | null",
+          "optional": false
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "nav_name",
+          "type": "string | null",
+          "optional": false
+        },
+        {
+          "name": "icon_url",
+          "type": "string | null",
+          "optional": false
+        },
+        {
+          "name": "url",
+          "type": "string | null",
+          "optional": false
+        },
+        {
+          "name": "order",
+          "type": "number",
+          "optional": false
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "kind": "interface",
+      "name": "AccessGroup",
+      "file": "frontend/app/admin/features/FeatureManagementClient.tsx",
+      "exported": false,
+      "properties": [
+        {
+          "name": "id",
+          "type": "number",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "description",
+          "type": "string | null",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "kind": "interface",
       "name": "PageLayoutProps",
       "file": "frontend/app/components/ui/PageLayout.tsx",
       "exported": false,
@@ -2367,86 +2379,89 @@
   "component_dependencies": {
     "AdminUserTable": [],
     "AdminGroupTable": [],
+    "AuthProvider": [],
     "HomePage": [
       "AuthForm"
     ],
     "RootLayout": [
-      "Sidebar",
       "UserInfoBox",
-      "ThemeProvider"
+      "ThemeProvider",
+      "Sidebar"
     ],
     "Loading": [
       "Spinner"
     ],
-    "useRequireFeature": [
-      "Loading",
-      "Forbidden"
-    ],
+    "useRequireFeature": [],
     "GroupsManager": [],
     "FeaturesManager": [],
     "GroupMemberManager": [],
     "GroupFeatureManager": [],
+    "ApiErrorNotification": [],
     "AdminPage": [],
     "UsersPage": [
       "UserManagementClient"
     ],
     "Forbidden": [],
     "AuthForm": [
+      "Icon",
       "Button",
-      "Card",
-      "Icon"
+      "Card"
     ],
     "EditUserModal": [],
-    "AuthProvider": [],
     "ConfirmModal": [],
     "Navbar": [],
     "ResultsPage": [
-      "Spinner",
-      "Card",
       "Icon",
-      "Forbidden"
+      "Spinner",
+      "Forbidden",
+      "Card"
     ],
     "GamesPage": [
-      "Spinner",
-      "Card",
       "Icon",
-      "Forbidden"
+      "Spinner",
+      "Forbidden",
+      "Card"
     ],
     "ProfilePage": [
-      "Spinner",
-      "PageLayout",
       "Icon",
+      "PageLayout",
+      "Spinner",
       "Forbidden"
     ],
     "ContactPage": [
-      "Spinner",
-      "PageLayout",
       "Icon",
+      "PageLayout",
+      "Spinner",
       "Forbidden"
     ],
     "DrawsPage": [
-      "Spinner",
-      "Card",
       "Icon",
-      "Forbidden"
+      "Spinner",
+      "Forbidden",
+      "Card"
     ],
     "DashboardPage": [
-      "Spinner",
-      "Card",
-      "PageLayout",
       "Icon",
-      "Forbidden"
+      "PageLayout",
+      "Spinner",
+      "Forbidden",
+      "Card"
     ],
     "LoginPage": [
       "AuthForm"
     ],
     "InsightsPage": [
+      "Icon",
       "Spinner",
-      "Card",
-      "Icon"
+      "Card"
     ],
     "GroupsPage": [],
-    "AdminFeaturesPage": [],
+    "FeatureManagementClient": [
+      "ConfirmModal"
+    ],
+    "AdminFeaturesPage": [
+      "FeatureManagementClient"
+    ],
     "UserManagementClient": [
       "ConfirmModal"
     ],
@@ -2488,12 +2503,12 @@
         "snippet": "achedData) {\n      setNavLinks(cachedData);\n      return;\n    }\n\n    try {\n      const resp = await fetch('/api/user/nav', { credentials: 'include' });\n      const navRes = await resp.json();\n      const navData = Array.i"
       },
       {
-        "file": "frontend/.next/static/chunks/app/layout-614efcc923e90327.js",
+        "file": "frontend/.next/static/chunks/app/layout-235adcef0db21d5a.js",
         "function": null,
         "snippet": "e)(!1);async function f(){let e=\"user-nav-links\",t=l.E.get(e);if(t)return void p(t);try{let t=await fetch(\"/api/user/nav\",{credentials:\"include\"}),r=await t.json(),n=Array.isArray(r.nav)?r.nav:[];console.log(\"Navigation d"
       },
       {
-        "file": "frontend/.next/static/chunks/app/layout-614efcc923e90327.js",
+        "file": "frontend/.next/static/chunks/app/layout-235adcef0db21d5a.js",
         "function": null,
         "snippet": "top:0,left:0,right:0,bottom:0,zIndex:1e3},onClick:()=>l(!1)})]})}async function p(){let e=[];e.push(fetch(\"/api/user/nav\",{credentials:\"include\"}).then(e=>e.json()).then(e=>{Array.isArray(e.nav)&&l.E.set(\"user-nav-links\","
       }
@@ -2503,6 +2518,11 @@
         "file": "frontend/utils/prefetch.ts",
         "function": null,
         "snippet": "}\n      })\n      .catch(console.error)\n  );\n\n  // Prefetch user features data\n  promises.push(\n    fetch('/api/user/features', { credentials: 'include' })\n      .then(res => res.json())\n      .then(data => {\n        if (Array"
+      },
+      {
+        "file": "frontend/context/AuthContext.tsx",
+        "function": null,
+        "snippet": "E_DURATION) {\n      return featureCache.features;\n    }\n    \n    try {\n      const response = await fetch('/api/user/features', {\n        credentials: 'include',\n        headers: {\n          'Cache-Control': 'no-cache',"
       },
       {
         "file": "frontend/utils/hooks/useRequireFeature.tsx",
@@ -2520,7 +2540,7 @@
         "snippet": "se);\n        return;\n      }\n\n      try {\n        // Fetch user features\n        const resp = await fetch('/api/user/features');\n        const featuresData = await resp.json();\n        const userFeatures = Array.isArray(featur"
       },
       {
-        "file": "frontend/.next/static/chunks/app/layout-614efcc923e90327.js",
+        "file": "frontend/.next/static/chunks/app/layout-235adcef0db21d5a.js",
         "function": null,
         "snippet": ".then(e=>{Array.isArray(e.cards)&&l.E.set(\"admin-cards\",e.cards,3e4)}).catch(console.error)),e.push(fetch(\"/api/user/features\",{credentials:\"include\"}).then(e=>e.json()).then(e=>{Array.isArray(e.features)&&l.E.set(\"user-featur"
       },
@@ -2555,7 +2575,7 @@
         "snippet": "r-features\",t=i.E.get(a);if(t){t.includes(\"dashboard_page\")?j(t):g(!0),o(!1);return}try{let e=await fetch(\"/api/user/features\"),s=await e.json(),t=Array.isArray(s.features)?s.features:[];i.E.set(a,t,6e4),t.includes(\"dashboard_"
       },
       {
-        "file": "frontend/.next/static/chunks/app/insights/page-e8962ef9e9902b4e.js",
+        "file": "frontend/.next/static/chunks/app/insights/page-0c78bc90ea5cdf2c.js",
         "function": null,
         "snippet": "features\",i=o.E.get(s);if(i){i.includes(e)?(l(!0),d(!1)):(l(!1),d(!0)),c(!1);return}try{let t=await fetch(\"/api/user/features\"),{features:r}=await t.json();if(!(null==r?void 0:r.includes(e))){l(!1),d(!0),c(!1);return}o.E.set(s"
       }
@@ -2567,7 +2587,7 @@
         "snippet": "}\n      })\n      .catch(console.error)\n  );\n\n  // Prefetch user cards data\n  promises.push(\n    fetch('/api/user/cards', { credentials: 'include' })\n      .then(res => res.json())\n      .then(data => {\n        if (Array"
       },
       {
-        "file": "frontend/.next/static/chunks/app/layout-614efcc923e90327.js",
+        "file": "frontend/.next/static/chunks/app/layout-235adcef0db21d5a.js",
         "function": null,
         "snippet": ").then(e=>{Array.isArray(e.nav)&&l.E.set(\"user-nav-links\",e.nav,6e4)}).catch(console.error)),e.push(fetch(\"/api/user/cards\",{credentials:\"include\"}).then(e=>e.json()).then(e=>{Array.isArray(e.cards)&&l.E.set(\"admin-cards\",e"
       }
@@ -2599,19 +2619,19 @@
         "snippet": "const fetchData = async () => {\n      setLoading(true);\n      try {\n        const response = await fetch('/api/admin/users', { credentials: 'include' });\n        if (!response.ok) {\n          throw new Error('Failed to refr"
       },
       {
-        "file": "frontend/.next/static/chunks/8817-8a8f75d4172c9d17.js",
+        "file": "frontend/.next/static/chunks/1983-f9a00e7d3a30dbbf.js",
         "function": null,
-        "snippet": "]=(0,a.useState)(null);(0,a.useEffect)(()=>{!async function(){y(!0);try{let[e,s]=await Promise.all([fetch(\"/api/admin/users\",{credentials:\"include\"}),fetch(\"/api/access-groups\",{credentials:\"include\"})]);if(403===e.status)th"
+        "snippet": "]=(0,a.useState)(null);(0,a.useEffect)(()=>{!async function(){k(!0);try{let[e,s]=await Promise.all([fetch(\"/api/admin/users\",{credentials:\"include\"}),fetch(\"/api/access-groups\",{credentials:\"include\"})]);if(403===e.status)th"
       },
       {
-        "file": "frontend/.next/static/chunks/8817-8a8f75d4172c9d17.js",
+        "file": "frontend/.next/static/chunks/1983-f9a00e7d3a30dbbf.js",
         "function": null,
-        "snippet": "(e,t)=>{z({type:e,message:t}),setTimeout(()=>z(null),5e3)},el=()=>{(async()=>{y(!0);try{let e=await fetch(\"/api/admin/users\",{credentials:\"include\"});if(!e.ok)throw Error(\"Failed to refresh users\");let s=await e.json();t(s.u"
+        "snippet": "(e,s)=>{z({type:e,message:s}),setTimeout(()=>z(null),5e3)},eo=()=>{(async()=>{k(!0);try{let e=await fetch(\"/api/admin/users\",{credentials:\"include\"});if(!e.ok)throw Error(\"Failed to refresh users\");let s=await e.json();t(s.u"
       },
       {
-        "file": "frontend/.next/server/chunks/1100.js",
+        "file": "frontend/.next/server/chunks/8693.js",
         "function": null,
-        "snippet": "(a,b)=>{T({type:a,message:b}),setTimeout(()=>T(null),5e3)},af=()=>{(async()=>{v(!0);try{let a=await fetch(\"/api/admin/users\",{credentials:\"include\"});if(!a.ok)throw Error(\"Failed to refresh users\");let c=await a.json();b(c.u"
+        "snippet": "(a,b)=>{W({type:a,message:b}),setTimeout(()=>W(null),5e3)},ai=()=>{(async()=>{y(!0);try{let a=await fetch(\"/api/admin/users\",{credentials:\"include\"});if(!a.ok)throw Error(\"Failed to refresh users\");let b=await a.json();c(b.u"
       }
     ],
     "/api/admin/groups": [
@@ -2641,6 +2661,48 @@
         "snippet": "] = useState<Group[]>([]);\n  const [loading, setLoading] = useState(true);\n\n  useEffect(() => {\n    fetch('/api/admin/groups')\n      .then((res) => res.json())\n      .then(({ groups }) => setGroups(groups || []))\n      .final"
       }
     ],
+    "/api/user/update-login": [
+      {
+        "file": "frontend/context/AuthContext.tsx",
+        "function": null,
+        "snippet": "Features(session.user.id);\n        \n        // Update login timestamp\n        try {\n          await fetch('/api/user/update-login', { \n            method: 'POST',\n            credentials: 'include'\n          });\n        } catch (l"
+      },
+      {
+        "file": "frontend/context/AuthContext.tsx",
+        "function": null,
+        "snippet": "res(data.session.user.id);\n        \n        // Update login timestamp\n        try {\n          await fetch('/api/user/update-login', { \n            method: 'POST',\n            credentials: 'include'\n          });\n        } catch (l"
+      },
+      {
+        "file": "frontend/app/components/AuthForm.tsx",
+        "function": null,
+        "snippet": "in successful');\n              // Update login timestamps\n              try {\n                await fetch('/api/user/update-login', { method: 'POST' });\n              } catch (loginError) {\n                console.error('Failed to"
+      },
+      {
+        "file": "frontend/app/components/AuthForm.tsx",
+        "function": null,
+        "snippet": "} else {\n            // Update login timestamps for new user\n            try {\n              await fetch('/api/user/update-login', { method: 'POST' });\n            } catch (loginError) {\n              console.error('Failed to upd"
+      },
+      {
+        "file": "frontend/.next/static/chunks/8036-539fd13e1a4c1fd8.js",
+        "function": null,
+        "snippet": "\"Invalid email or password\"):E(o.message);else if(r.user){console.log(\"Login successful\");try{await fetch(\"/api/user/update-login\",{method:\"POST\"})}catch(e){console.error(\"Failed to update login timestamp:\",e)}e.replace(\"/dashboar"
+      },
+      {
+        "file": "frontend/.next/static/chunks/8036-539fd13e1a4c1fd8.js",
+        "function": null,
+        "snippet": "firmed_at)N(\"Signup successful! Check your email to verify and sign in.\"),o(\"login\");else{try{await fetch(\"/api/user/update-login\",{method:\"POST\"})}catch(e){console.error(\"Failed to update login timestamp:\",e)}N(\"Signup successful"
+      },
+      {
+        "file": "frontend/.next/server/chunks/7061.js",
+        "function": null,
+        "snippet": "\"Invalid email or password\"):I(c.message);else if(b.user){console.log(\"Login successful\");try{await fetch(\"/api/user/update-login\",{method:\"POST\"})}catch(a){console.error(\"Failed to update login timestamp:\",a)}a.replace(\"/dashboar"
+      },
+      {
+        "file": "frontend/.next/server/chunks/7061.js",
+        "function": null,
+        "snippet": "firmed_at)G(\"Signup successful! Check your email to verify and sign in.\"),c(\"login\");else{try{await fetch(\"/api/user/update-login\",{method:\"POST\"})}catch(a){console.error(\"Failed to update login timestamp:\",a)}G(\"Signup successful"
+      }
+    ],
     "/api/user/promote-if-verified": [
       {
         "file": "frontend/app/page.tsx",
@@ -2668,6 +2730,66 @@
         "file": "frontend/components/admin/FeaturesManager.tsx",
         "function": null,
         "snippet": "irreversible.`)) return;\n    setSaving(true);\n    setError(null);\n    try {\n      const res = await fetch('/api/admin/features', {\n        method: 'DELETE',\n        headers: { 'Content-Type': 'application/json' },\n        body:"
+      },
+      {
+        "file": "frontend/app/admin/features/FeatureManagementClient.tsx",
+        "function": null,
+        "snippet": "ess groups in parallel\n      const [featuresResponse, groupsResponse] = await Promise.all([\n        fetch('/api/admin/features', { credentials: 'include' }),\n        fetch('/api/access-groups', { credentials: 'include' })"
+      },
+      {
+        "file": "frontend/app/admin/features/FeatureManagementClient.tsx",
+        "function": null,
+        "snippet": "const handleSaveEdit = async () => {\n    try {\n      setLoading(true);\n      const response = await fetch('/api/admin/features', {\n        method: 'PATCH',\n        headers: {\n          'Content-Type': 'application/json',"
+      },
+      {
+        "file": "frontend/app/admin/features/FeatureManagementClient.tsx",
+        "function": null,
+        "snippet": "name are required');\n        return;\n      }\n\n      setLoading(true);\n      const response = await fetch('/api/admin/features', {\n        method: 'POST',\n        headers: {\n          'Content-Type': 'application/json',"
+      },
+      {
+        "file": "frontend/app/admin/features/FeatureManagementClient.tsx",
+        "function": null,
+        "snippet": "dpoint in the API for features, so we'll use PATCH to set active=false\n      const response = await fetch('/api/admin/features', {\n        method: 'PATCH',\n        headers: {\n          'Content-Type': 'application/json',"
+      },
+      {
+        "file": "frontend/.next/static/chunks/app/admin/features/page-0eace1bb17bc98d4.js",
+        "function": null,
+        "snippet": "fresh failed:\",e)}catch(e){console.warn(\"Session refresh exception:\",e)}let[t,r]=await Promise.all([fetch(\"/api/admin/features\",{credentials:\"include\"}),fetch(\"/api/access-groups\",{credentials:\"include\"})]);if(403===t.status)th"
+      },
+      {
+        "file": "frontend/.next/static/chunks/app/admin/features/page-0eace1bb17bc98d4.js",
+        "function": null,
+        "snippet": "(\"asc\"===R?\"desc\":\"asc\"):(O(e),T(\"asc\"))},ea=()=>{J(null),P({})},el=async()=>{try{C(!0);let e=await fetch(\"/api/admin/features\",{method:\"PATCH\",headers:{\"Content-Type\":\"application/json\"},credentials:\"include\",body:JSON.stringi"
+      },
+      {
+        "file": "frontend/.next/static/chunks/app/admin/features/page-0eace1bb17bc98d4.js",
+        "function": null,
+        "snippet": "nc()=>{try{if(!W.key||!W.name)return void em(\"error\",\"Key and name are required\");C(!0);let e=await fetch(\"/api/admin/features\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},credentials:\"include\",body:JSON.stringif"
+      },
+      {
+        "file": "frontend/.next/static/chunks/app/admin/features/page-0eace1bb17bc98d4.js",
+        "function": null,
+        "snippet": "to create feature\")}finally{C(!1)}},ed=()=>{U(null),G(!1)},eo=async()=>{if(H)try{C(!0);let e=await fetch(\"/api/admin/features\",{method:\"PATCH\",headers:{\"Content-Type\":\"application/json\"},credentials:\"include\",body:JSON.stringi"
+      },
+      {
+        "file": "frontend/.next/server/app/admin/features/page.js",
+        "function": null,
+        "snippet": "fresh failed:\",a)}catch(a){console.warn(\"Session refresh exception:\",a)}let[b,d]=await Promise.all([fetch(\"/api/admin/features\",{credentials:\"include\"}),fetch(\"/api/access-groups\",{credentials:\"include\"})]);if(403===b.status)th"
+      },
+      {
+        "file": "frontend/.next/server/app/admin/features/page.js",
+        "function": null,
+        "snippet": "(\"asc\"===H?\"desc\":\"asc\"):(G(a),I(\"asc\"))},af=()=>{O(null),Q({})},ag=async()=>{try{A(!0);let a=await fetch(\"/api/admin/features\",{method:\"PATCH\",headers:{\"Content-Type\":\"application/json\"},credentials:\"include\",body:JSON.stringi"
+      },
+      {
+        "file": "frontend/.next/server/app/admin/features/page.js",
+        "function": null,
+        "snippet": "nc()=>{try{if(!L.key||!L.name)return void an(\"error\",\"Key and name are required\");A(!0);let a=await fetch(\"/api/admin/features\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},credentials:\"include\",body:JSON.stringif"
+      },
+      {
+        "file": "frontend/.next/server/app/admin/features/page.js",
+        "function": null,
+        "snippet": "to create feature\")}finally{A(!1)}},aj=()=>{U(null),W(!1)},ak=async()=>{if(T)try{A(!0);let a=await fetch(\"/api/admin/features\",{method:\"PATCH\",headers:{\"Content-Type\":\"application/json\"},credentials:\"include\",body:JSON.stringi"
       }
     ],
     "/api/admin/group-members": [
@@ -2697,50 +2819,75 @@
         "file": "frontend/components/admin/GroupFeatureManager.tsx",
         "function": null,
         "snippet": "e);\n  }\n\n  async function removeFeature(key: string) {\n    setLoading(true);\n    const resp = await fetch('/api/admin/group-features', {\n      method: 'DELETE',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON."
+      },
+      {
+        "file": "frontend/app/admin/features/FeatureManagementClient.tsx",
+        "function": null,
+        "snippet": "reKey: string, groupId: number) => {\n    try {\n      setLoading(true);\n      const response = await fetch('/api/admin/group-features', {\n        method: 'POST',\n        headers: {\n          'Content-Type': 'application/json',"
+      },
+      {
+        "file": "frontend/app/admin/features/FeatureManagementClient.tsx",
+        "function": null,
+        "snippet": "reKey: string, groupId: number) => {\n    try {\n      setLoading(true);\n      const response = await fetch('/api/admin/group-features', {\n        method: 'DELETE',\n        headers: {\n          'Content-Type': 'application/json',"
+      },
+      {
+        "file": "frontend/.next/static/chunks/app/admin/features/page-0eace1bb17bc98d4.js",
+        "function": null,
+        "snippet": "f Error?e.message:\"Failed to delete feature\")}finally{C(!1)}},ec=async(e,t)=>{try{C(!0);let s=await fetch(\"/api/admin/group-features\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},credentials:\"include\",body:JSON.stringif"
+      },
+      {
+        "file": "frontend/.next/static/chunks/app/admin/features/page-0eace1bb17bc98d4.js",
+        "function": null,
+        "snippet": "f Error?e.message:\"Failed to assign feature\")}finally{C(!1)}},eu=async(e,t)=>{try{C(!0);let s=await fetch(\"/api/admin/group-features\",{method:\"DELETE\",headers:{\"Content-Type\":\"application/json\"},credentials:\"include\",body:JSON.string"
+      },
+      {
+        "file": "frontend/.next/server/app/admin/features/page.js",
+        "function": null,
+        "snippet": "f Error?a.message:\"Failed to delete feature\")}finally{A(!1)}},al=async(a,b)=>{try{A(!0);let c=await fetch(\"/api/admin/group-features\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},credentials:\"include\",body:JSON.stringif"
+      },
+      {
+        "file": "frontend/.next/server/app/admin/features/page.js",
+        "function": null,
+        "snippet": "f Error?a.message:\"Failed to assign feature\")}finally{A(!1)}},am=async(a,b)=>{try{A(!0);let c=await fetch(\"/api/admin/group-features\",{method:\"DELETE\",headers:{\"Content-Type\":\"application/json\"},credentials:\"include\",body:JSON.string"
       }
     ],
-    "/api/user/update-login": [
+    "/api/debug/config": [
       {
         "file": "frontend/app/components/AuthForm.tsx",
         "function": null,
-        "snippet": "e);\n          } else {\n            // Update login timestamps\n            try {\n              await fetch('/api/user/update-login', { method: 'POST' });\n            } catch (loginError) {\n              console.error('Failed to upd"
+        "snippet": "=> {\n    const checkSupabaseConfig = async () => {\n      try {\n        const configResponse = await fetch('/api/debug/config');\n        if (configResponse.ok) {\n          const configData = await configResponse.json();"
       },
       {
-        "file": "frontend/app/components/AuthForm.tsx",
+        "file": "frontend/.next/static/chunks/8036-539fd13e1a4c1fd8.js",
         "function": null,
-        "snippet": "} else {\n            // Update login timestamps for new user\n            try {\n              await fetch('/api/user/update-login', { method: 'POST' });\n            } catch (loginError) {\n              console.error('Failed to upd"
-      },
-      {
-        "file": "frontend/.next/static/chunks/8036-bfb9378ed0b6e0f8.js",
-        "function": null,
-        "snippet": "t.message.toLowerCase().includes(\"email not confirmed\")?(E(!0),I(null)):N(t.message);else{try{await fetch(\"/api/user/update-login\",{method:\"POST\"})}catch(e){console.error(\"Failed to update login timestamp:\",e)}e.replace(\"/dashboar"
-      },
-      {
-        "file": "frontend/.next/static/chunks/8036-bfb9378ed0b6e0f8.js",
-        "function": null,
-        "snippet": "firmed_at)I(\"Signup successful! Check your email to verify and sign in.\"),t(\"login\");else{try{await fetch(\"/api/user/update-login\",{method:\"POST\"})}catch(e){console.error(\"Failed to update login timestamp:\",e)}I(\"Signup successful"
-      },
-      {
-        "file": "frontend/.next/server/chunks/7061.js",
-        "function": null,
-        "snippet": "c.message.toLowerCase().includes(\"email not confirmed\")?(I(!0),E(null)):G(c.message);else{try{await fetch(\"/api/user/update-login\",{method:\"POST\"})}catch(a){console.error(\"Failed to update login timestamp:\",a)}a.replace(\"/dashboar"
-      },
-      {
-        "file": "frontend/.next/server/chunks/7061.js",
-        "function": null,
-        "snippet": "firmed_at)E(\"Signup successful! Check your email to verify and sign in.\"),c(\"login\");else{try{await fetch(\"/api/user/update-login\",{method:\"POST\"})}catch(a){console.error(\"Failed to update login timestamp:\",a)}E(\"Signup successful"
+        "snippet": "){let e=(0,i.useRouter)(),[r,o]=(0,t.useState)(\"login\");t.useEffect(()=>{(async()=>{try{let e=await fetch(\"/api/debug/config\");if(e.ok){let r=await e.json();console.log(\"Supabase Configuration:\",r),r.supabaseUrl&&r.hasAnonKey"
       }
     ],
     "/api/access-groups": [
+      {
+        "file": "frontend/app/admin/features/FeatureManagementClient.tsx",
+        "function": null,
+        "snippet": "se] = await Promise.all([\n        fetch('/api/admin/features', { credentials: 'include' }),\n        fetch('/api/access-groups', { credentials: 'include' })\n      ]);\n\n      // Check for permission issues\n      if (featuresResp"
+      },
       {
         "file": "frontend/app/admin/users/UserManagementClient.tsx",
         "function": null,
         "snippet": "e] = await Promise.all([\n          fetch('/api/admin/users', { credentials: 'include' }),\n          fetch('/api/access-groups', { credentials: 'include' })\n        ]);\n\n        // Check for permission issues\n        if (usersR"
       },
       {
-        "file": "frontend/.next/static/chunks/8817-8a8f75d4172c9d17.js",
+        "file": "frontend/.next/static/chunks/1983-f9a00e7d3a30dbbf.js",
         "function": null,
-        "snippet": "function(){y(!0);try{let[e,s]=await Promise.all([fetch(\"/api/admin/users\",{credentials:\"include\"}),fetch(\"/api/access-groups\",{credentials:\"include\"})]);if(403===e.status)throw Error(\"You do not have permission to access user"
+        "snippet": "function(){k(!0);try{let[e,s]=await Promise.all([fetch(\"/api/admin/users\",{credentials:\"include\"}),fetch(\"/api/access-groups\",{credentials:\"include\"})]);if(403===e.status)throw Error(\"You do not have permission to access user"
+      },
+      {
+        "file": "frontend/.next/static/chunks/app/admin/features/page-0eace1bb17bc98d4.js",
+        "function": null,
+        "snippet": "esh exception:\",e)}let[t,r]=await Promise.all([fetch(\"/api/admin/features\",{credentials:\"include\"}),fetch(\"/api/access-groups\",{credentials:\"include\"})]);if(403===t.status)throw Error(\"You do not have permission to access feat"
+      },
+      {
+        "file": "frontend/.next/server/app/admin/features/page.js",
+        "function": null,
+        "snippet": "esh exception:\",a)}let[b,d]=await Promise.all([fetch(\"/api/admin/features\",{credentials:\"include\"}),fetch(\"/api/access-groups\",{credentials:\"include\"})]);if(403===b.status)throw Error(\"You do not have permission to access feat"
       }
     ],
     "/api/user/profile": [
@@ -2750,7 +2897,7 @@
         "snippet": "= await supabase.auth.getUser();\n      if (data?.user) {\n        try {\n          const resp = await fetch('/api/user/profile');\n          const profile = await resp.json();\n          \n          setUserInfo({\n            email"
       },
       {
-        "file": "frontend/.next/static/chunks/app/layout-614efcc923e90327.js",
+        "file": "frontend/.next/static/chunks/app/layout-235adcef0db21d5a.js",
         "function": null,
         "snippet": "function(){let{data:e}=await d.N.auth.getUser();if(null==e?void 0:e.user){var t,n,o;try{let n=await fetch(\"/api/user/profile\"),o=await n.json();r({email:null!=(t=e.user.email)?t:\"\",username:o.username||null,groups:o.groups||["
       }
@@ -2764,109 +2911,34 @@
         "usage_type": "utility"
       },
       {
-        "file": "frontend/app/api/games/route.ts",
-        "context": "POST",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/access-groups/route.ts",
-        "context": "POST",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/draws/route.ts",
-        "context": "POST",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/notifications/route.ts",
-        "context": "POST",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/groups/route.ts",
-        "context": "POST",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/group-features/route.ts",
-        "context": "POST",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/group-features/route.ts",
-        "context": "DELETE",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/features/route.ts",
-        "context": "getAdminSupabase",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/users/route.ts",
+        "file": "frontend/app/api/dashboard/route.ts",
         "context": "GET",
         "usage_type": "utility"
       },
       {
-        "file": "frontend/app/api/admin/users/route.ts",
-        "context": "PATCH",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/users/route.ts",
-        "context": "DELETE",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/insight-templates/route.ts",
-        "context": "getAdminSupabase",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/group-members/route.ts",
-        "context": "GET",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/group-members/route.ts",
-        "context": "POST",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/group-members/route.ts",
-        "context": "DELETE",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/users/[id]/route.ts",
-        "context": "PATCH",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/api/admin/users/[id]/route.ts",
-        "context": "DELETE",
+        "file": "frontend/.next/server/app/api/dashboard/route.js",
+        "context": "w",
         "usage_type": "utility"
       }
     ],
-    "results_page": [
+    "insights_page": [
       {
-        "file": "frontend/app/api/results/route.ts",
+        "file": "frontend/app/api/dashboard/route.ts",
         "context": "GET",
         "usage_type": "utility"
       },
       {
-        "file": "frontend/app/results/page.tsx",
-        "context": "ResultsPage",
+        "file": "frontend/app/insights/page.tsx",
+        "context": "InsightsPage",
         "usage_type": "component"
+      },
+      {
+        "file": "frontend/.next/server/app/api/dashboard/route.js",
+        "context": "w",
+        "usage_type": "utility"
       }
     ],
     "games_page": [
-      {
-        "file": "frontend/app/api/games/route.ts",
-        "context": "GET",
-        "usage_type": "utility"
-      },
       {
         "file": "frontend/utils/hooks/useRequireFeature.tsx",
         "context": "Unknown",
@@ -2878,34 +2950,10 @@
         "usage_type": "component"
       }
     ],
-    "contact": [
+    "results_page": [
       {
-        "file": "frontend/app/api/contact/route.ts",
-        "context": "POST",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/contact/page.tsx",
-        "context": "ContactPage",
-        "usage_type": "component"
-      }
-    ],
-    "dashboard_page": [
-      {
-        "file": "frontend/app/api/dashboard/route.ts",
-        "context": "GET",
-        "usage_type": "utility"
-      }
-    ],
-    "insights_page": [
-      {
-        "file": "frontend/app/api/insights/route.ts",
-        "context": "GET",
-        "usage_type": "utility"
-      },
-      {
-        "file": "frontend/app/insights/page.tsx",
-        "context": "InsightsPage",
+        "file": "frontend/app/results/page.tsx",
+        "context": "ResultsPage",
         "usage_type": "component"
       }
     ],
@@ -2915,11 +2963,18 @@
         "context": "ProfilePage",
         "usage_type": "component"
       }
+    ],
+    "contact": [
+      {
+        "file": "frontend/app/contact/page.tsx",
+        "context": "ContactPage",
+        "usage_type": "component"
+      }
     ]
   },
   "last_analyzed": {
-    "commit": "4c79649957c98a516a7f5d102ef4d492bc1bc393",
+    "commit": "c463eae3d146e633bd5008afd5c439705168ed1c",
     "branch": "main",
-    "date": "2025-07-24T03:30:28Z"
+    "date": "2025-07-24T19:46:18Z"
   }
 }

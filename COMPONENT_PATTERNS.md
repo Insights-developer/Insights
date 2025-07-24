@@ -2,7 +2,82 @@
 
 **Company**: Lottery Analytics  
 **Application**: Insights  
-**Status**: In Development  
+**Status**: Production Ready - Session Management Patterns Added (July 24, 2025)  
+
+## 🔐 NEW: Centralized Session Management Patterns
+**Updated July 24, 2025 - Use these patterns for all new components**
+
+### ✅ AuthContext Usage Pattern
+```tsx
+'use client';
+import { useAuth } from '@/context/AuthContext';
+
+export default function MyComponent() {
+  const auth = useAuth();
+  
+  // Check initialization
+  if (!auth.initialized) {
+    return <div>Loading...</div>;
+  }
+  
+  // Check authentication
+  if (!auth.user) {
+    return <LoginPrompt />;
+  }
+  
+  // Check permissions
+  if (!auth.hasFeature('required_feature')) {
+    return <AccessDenied />;
+  }
+  
+  return <AuthenticatedContent />;
+}
+```
+
+### ✅ API Client Usage Pattern  
+```tsx
+'use client';
+import { useApiClient } from '@/utils/api-client';
+import { useAuth } from '@/context/AuthContext';
+
+export default function DataComponent() {
+  const api = useApiClient();
+  const auth = useAuth();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  const loadData = async () => {
+    setLoading(true);
+    const response = await api.get('/admin/users');
+    
+    if (response.error) {
+      // Error handling built-in, includes retry logic
+      console.error('Failed to load data:', response.error);
+    } else {
+      setData(response.data);
+    }
+    setLoading(false);
+  };
+  
+  // Auto-retry, session refresh, and error handling included
+  useEffect(() => { loadData(); }, []);
+  
+  return <DataDisplay data={data} loading={loading} />;
+}
+```
+
+### ✅ Feature Gate Pattern
+```tsx
+import { FeatureGate } from '@/utils/hooks/useRequireFeatureNew';
+
+export default function AdminSection() {
+  return (
+    <FeatureGate feature="admin_dashboard">
+      <AdminContent />
+    </FeatureGate>
+  );
+}
+```
 
 ## CRITICAL: Next.js Build Error Prevention
 **Based on July 22-23, 2025 debugging session**
@@ -33,21 +108,27 @@ export default function AdminPage() {
 - Mixed `className` and inline `style` objects
 - Complex useEffect hooks with browser-only code
 - Dynamic supabase imports in component initialization
+- Manual session management (use AuthContext instead)
+- Direct fetch calls (use useApiClient instead)
 
-## RBAC Protection Pattern
-Every protected page should follow this pattern:
+## RBAC Protection Pattern (UPDATED)
+Every protected page should use the new centralized auth patterns:
 ```tsx
-import { useRequireFeature } from '../../utils/hooks/useRequireFeature';
+import { useAuth } from '@/context/AuthContext';
+import { FeatureGate } from '@/utils/hooks/useRequireFeatureNew';
 
 export default function ProtectedPage() {
-  const { allowed, loading } = useRequireFeature('feature_key');
-  
-  if (loading) return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-gray-500">Loading...</div>
+  return (
+    <FeatureGate feature="feature_key">
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h1 className="text-2xl font-bold mb-4">Protected Content</h1>
+          {/* Your content here */}
         </div>
+      </div>
+    </FeatureGate>
+  );
+}
       </div>
     </div>
   );

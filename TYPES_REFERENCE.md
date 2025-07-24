@@ -1,329 +1,199 @@
-# Insights App TypeScript Types Reference
+# Insights TypeScript Types Reference
 
 **Company**: Lottery Analytics  
 **Application**: Insights  
-**Status**: In Development  
+**Status**: Production Ready - Session Management Types Complete (July 24, 2025)  
+**Language**: TypeScript with strict type checking
 
-## Location
-All types are centralized in `/frontend/utils/types.ts`
+## 🔐 NEW: Session Management Types
+**Updated July 24, 2025 - Centralized authentication type definitions**
 
-## Core User Types
-
-### UserProfile
+### AuthContext Types
 ```typescript
-export interface UserProfile {
-  id: string;                           // UUID from Supabase Auth
+// Core authentication state
+interface AuthState {
+  user: User | null;
+  session: Session | null;
+  initialized: boolean;
+  features: string[];
+  featuresLastFetched: number;
+  sessionRefreshInProgress: boolean;
+}
+
+// Authentication context interface
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  initialized: boolean;
+  features: string[];
+  hasFeature: (feature: string) => boolean;
+  refreshSession: () => Promise<void>;
+  refreshPermissions: () => Promise<void>;
+  signOut: () => Promise<void>;
+}
+
+// User type with extended properties
+interface User {
+  id: string;
   email: string;
-  role?: string;                        // DEPRECATED - use Access Groups instead
-  username?: string;                    // Optional display name
-  phone?: string;                       // Optional contact info
-  name?: string;                        // Optional full name
-  avatar_url?: string;                  // Optional profile image
-  created_at?: string;                  // Account creation timestamp
-  last_login_at?: string;               // Legacy field
-  current_login_at?: string;            // Current session start
-  previous_login_at?: string;           // Previous session start
-  login_count?: number;                 // Total login count (default: 0)
-  is_active?: boolean;                  // Account status (default: true)
-}
-```
-
-### UserWithGroups
-```typescript
-export interface UserWithGroups extends UserProfile {
-  groups: AccessGroup[];                // User's assigned access groups
-}
-```
-
-## RBAC Types
-
-### AccessGroup
-```typescript
-export interface AccessGroup {
-  id: number;
-  name: string;                         // e.g., "Admins", "Premium Users"
-  description?: string | null;          // Optional group description
-}
-```
-
-### Feature
-```typescript
-export interface Feature {
-  id: number;
-  key: string;                          // Unique identifier (e.g., "admin_dashboard")
-  name: string;                         // Human-readable name
-  description?: string | null;          // Feature description
-  type?: string;                        // 'page', 'card', 'widget', etc. (default: 'feature')
-  nav_name?: string | null;             // Label for navigation
-  icon_url?: string | null;             // Navigation icon URL
-  order?: number;                       // Display order (default: 0)
-  url?: string | null;                  // Page URL (defaults to /key)
-  active?: boolean;                     // Enable/disable (default: true)
-  created_by?: string | null;           // User who created feature
-}
-```
-
-### UserAccessGroup
-```typescript
-export interface UserAccessGroup {
-  user_id: string;                      // References UserProfile.id
-  group_id: number;                     // References AccessGroup.id
-}
-```
-
-### AccessGroupFeature
-```typescript
-export interface AccessGroupFeature {
-  group_id: number;                     // References AccessGroup.id
-  feature: string;                      // References Feature.key
-}
-```
-
-## Business Logic Types
-
-### Game
-```typescript
-export interface Game {
-  id: number;
-  name: string;                         // Game name (e.g., "Powerball")
-  config?: object | null;               // Game configuration (JSON)
+  full_name?: string;
+  role?: string;
+  login_count?: number;
+  last_login?: string;
   created_at?: string;
   updated_at?: string;
 }
 ```
 
-### Draw
+### API Client Types
 ```typescript
-export interface Draw {
-  id: number;
-  game_id?: number | null;              // References Game.id
-  draw_date: string;                    // Date of draw (ISO format)
-  results: number[];                    // Main numbers drawn
-  bonus?: number[] | null;              // Bonus/powerball numbers
-  uploaded_by?: string | null;          // References UserProfile.id
-  created_at?: string;
+// API response wrapper
+interface ApiResponse<T = any> {
+  data?: T;
+  error?: string;
+  status?: number;
+}
+
+// API client interface
+interface ApiClient {
+  get: <T>(url: string) => Promise<ApiResponse<T>>;
+  post: <T>(url: string, data?: any) => Promise<ApiResponse<T>>;
+  patch: <T>(url: string, data?: any) => Promise<ApiResponse<T>>;
+  delete: <T>(url: string) => Promise<ApiResponse<T>>;
+}
+
+// API handler request context
+interface ApiRequestContext {
+  user: User;
+  features: string[];
+  session: Session;
 }
 ```
 
-### InsightTemplate
+### Database Entity Types
 ```typescript
-export interface InsightTemplate {
+// Access group definition
+interface AccessGroup {
   id: number;
-  template_name: string;                // Analysis type name
-  description?: string | null;          // What this insight provides
-  config?: object | null;               // Analysis parameters (JSON)
-  created_at?: string;
+  name: string;
+  description?: string;
+  created_at: string;
+}
+
+// User access group assignment
+interface UserAccessGroup {
+  user_id: string;
+  group_id: number;
+  assigned_at: string;
+  assigned_by?: string;
+}
+
+// Feature permission check
+interface FeatureCheck {
+  feature: string;
+  allowed: boolean;
+  reason?: string;
 }
 ```
 
-## Communication Types
-
-### ContactMessage
+### Component Prop Types
 ```typescript
-export interface ContactMessage {
-  id: number;
-  user_id?: string | null;              // References UserProfile.id (optional)
-  name?: string | null;                 // Contact name
-  email: string;                        // Contact email (required)
-  message: string;                      // Message content (required)
-  submitted_at?: string;                // Submission timestamp
+// Feature gate component props
+interface FeatureGateProps {
+  feature: string;
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}
+
+// Protected route props
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredFeatures?: string[];
+  requireAll?: boolean;
+}
+
+// API error handler props
+interface ApiErrorHandlerProps {
+  error: string | null;
+  onRetry?: () => void;
+  showRetry?: boolean;
 }
 ```
 
-### Notification
+### Utility Types
 ```typescript
-export interface Notification {
-  id: number;
-  user_id?: string | null;              // References UserProfile.id
-  notif_type?: string | null;           // Notification category
-  data?: object | null;                 // Notification data (JSON)
-  created_at?: string;
-  read_at?: string | null;              // When notification was read
+// Async operation state
+interface AsyncState<T> {
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+}
+
+// Permission cache entry
+interface PermissionCacheEntry {
+  features: string[];
+  timestamp: number;
+  userId: string;
+}
+
+// Session refresh configuration
+interface SessionConfig {
+  refreshInterval: number; // 15 minutes
+  permissionCacheTime: number; // 5 minutes
+  retryAttempts: number; // 3 attempts
+  retryDelay: number; // 1 second
 }
 ```
 
-## System Types
-
-### Upload
+## Legacy Types (Deprecated)
 ```typescript
-export interface Upload {
-  id: number;
-  user_id?: string | null;              // References UserProfile.id
-  filename?: string | null;             // Original filename
-  blob_url?: string | null;             // Vercel Blob storage URL
-  uploaded_at?: string;                 // Upload timestamp
+// ❌ Old manual session management (don't use)
+interface OldAuthHook {
+  user: User | null;
+  loading: boolean;
+  signOut: () => void;
+}
+
+// ❌ Old permission checking (don't use)  
+interface OldFeatureHook {
+  allowed: boolean;
+  loading: boolean;
 }
 ```
 
-### LoginHistory
-```typescript
-export interface LoginHistory {
-  id: number;
-  user_id: string;                      // References UserProfile.id
-  login_at?: string;                    // Login timestamp
-  ip_address?: string | null;           // IP address (inet type)
-  user_agent?: string | null;           // Browser/device info
-}
-```
+## Type Usage Patterns
 
-## Database Schema Type
-
-### Database
+### ✅ Modern AuthContext Pattern
 ```typescript
-export type Database = {
-  public: {
-    Tables: {
-      users: {
-        Row: UserProfile;
-        Insert: {
-          email: string;
-          role?: string;
-          created_at?: string;
-        };
-        Update: {
-          email?: string;
-          role?: string;
-          created_at?: string;
-        };
-      };
-      access_groups: {
-        Row: AccessGroup;
-        Insert: {
-          name: string;
-          description?: string | null;
-        };
-        Update: {
-          name?: string;
-          description?: string | null;
-        };
-      };
-      user_access_groups: {
-        Row: UserAccessGroup;
-        Insert: {
-          user_id: string;
-          group_id: number;
-        };
-        Update: {
-          user_id?: string;
-          group_id?: number;
-        };
-      };
-      features: {
-        Row: Feature;
-        Insert: {
-          key: string;
-          name: string;
-          description?: string | null;
-        };
-        Update: {
-          key?: string;
-          name?: string;
-          description?: string | null;
-        };
-      };
-      access_group_features: {
-        Row: AccessGroupFeature;
-        Insert: {
-          group_id: number;
-          feature: string;
-        };
-        Update: {
-          group_id?: number;
-          feature?: string;
-        };
-      };
-      // ... other tables follow same pattern
-    };
-  };
+const MyComponent: React.FC = () => {
+  const auth: AuthContextType = useAuth();
+  
+  // Type-safe feature checking
+  const canEdit: boolean = auth.hasFeature('insights_edit');
+  
+  return canEdit ? <EditForm /> : <ReadOnlyView />;
 };
 ```
 
-## Hook Return Types
-
-### useRequireFeature Return Type
+### ✅ API Client with Types
 ```typescript
-interface UseRequireFeatureReturn {
-  allowed: boolean;                     // Whether user has the required feature
-  loading: boolean;                     // Whether permission check is in progress
-}
-```
-
-## API Response Types
-
-### Standard API Response
-```typescript
-interface ApiResponse<T = any> {
-  data?: T;                             // Success data
-  message?: string;                     // Success message
-  error?: string;                       // Error message
-}
-```
-
-### User Features Response
-```typescript
-interface UserFeaturesResponse {
-  features: string[];                   // Array of feature keys user has access to
-}
-```
-
-### Navigation Response
-```typescript
-interface NavigationItem {
-  key: string;                          // Feature key
-  name: string;                         // Display name
-  url: string;                          // Page URL
-  icon_url?: string;                    // Icon URL
-  order: number;                        // Display order
-  type: string;                         // 'page', 'card', etc.
-}
-
-interface NavigationResponse {
-  items: NavigationItem[];              // Navigation items user can access
-}
-```
-
-## Utility Types
-
-### Common Props Types
-```typescript
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-interface EditModalProps<T> extends ModalProps {
-  onSave: (data: T) => void;
-  initialData?: T;
-}
-
-interface ConfirmModalProps extends ModalProps {
+interface CreateInsightRequest {
   title: string;
-  message: string;
-  onConfirm: () => void;
-  confirmText?: string;
-  cancelText?: string;
-}
-```
-
-## Type Guards & Validation
-```typescript
-// Type guard for checking if user has groups
-export function hasGroups(user: UserProfile | UserWithGroups): user is UserWithGroups {
-  return 'groups' in user && Array.isArray(user.groups);
+  description: string;
+  data: Record<string, any>;
 }
 
-// Type for form validation
-export interface FormError {
-  field: string;
-  message: string;
+interface InsightResponse {
+  id: string;
+  title: string;
+  created_at: string;
 }
-```
 
-## Import Usage
-```typescript
-// Import specific types
-import { UserProfile, AccessGroup, Feature } from '@/utils/types';
-
-// Import database type for Supabase
-import { Database } from '@/utils/types';
+const useCreateInsight = () => {
+  const api = useApiClient();
+  
+  return async (data: CreateInsightRequest): Promise<ApiResponse<InsightResponse>> => {
+    return api.post<InsightResponse>('/insights', data);
+  };
+};
 ```

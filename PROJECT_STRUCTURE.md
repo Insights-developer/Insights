@@ -3,7 +3,7 @@
 **Company**: Lottery Analytics  
 **Application**: Insights  
 **Status**: In Development  
-> **Last Updated**: 2025-07-24 03:30
+> **Last Updated**: 2025-07-24 19:46
 
 ## Overview
 This document outlines the key directories and files in the Insights lottery analytics application, focusing on the important project structure while excluding generated files, dependencies, and build artifacts.

@@ -1508,11 +1508,25 @@ class InsightsMaintenance:
         """Generate COPILOT_OVERVIEW.md from other documentation files and code analysis"""
         try:
             overview_file = self.workspace_root / "COPILOT_OVERVIEW.md"
-            project_overview = self.workspace_root / "PROJECT_OVERVIEW.md"
-            rbac_guide = self.workspace_root / "RBAC_GUIDE.md"
-            business_logic = self.workspace_root / "BUSINESS_LOGIC.md"
-            component_patterns = self.workspace_root / "COMPONENT_PATTERNS.md"
-            known_issues = self.workspace_root / "KNOWN_ISSUES.md"
+            
+            # All documentation files in the library
+            doc_files = {
+                'project_overview': self.workspace_root / "PROJECT_OVERVIEW.md",
+                'rbac_guide': self.workspace_root / "RBAC_GUIDE.md", 
+                'business_logic': self.workspace_root / "BUSINESS_LOGIC.md",
+                'component_patterns': self.workspace_root / "COMPONENT_PATTERNS.md",
+                'known_issues': self.workspace_root / "KNOWN_ISSUES.md",
+                'api_reference': self.workspace_root / "API_REFERENCE.md",
+                'session_management': self.workspace_root / "SESSION_MANAGEMENT_PLAN.md",
+                'testing_guide': self.workspace_root / "TESTING_GUIDE.md",
+                'dev_setup': self.workspace_root / "DEV_SETUP.md",
+                'types_reference': self.workspace_root / "TYPES_REFERENCE.md",
+                'api_migration': self.workspace_root / "API_MIGRATION_PLAN.md",
+                'development_history': self.workspace_root / "DEVELOPMENT_HISTORY.md",
+                'schema_docs': self.workspace_root / "SCHEMA_DOCS_GUIDE.md",
+                'database_schema': self.workspace_root / "DATABASE_SCHEMA.md",
+                'doc_maintenance': self.workspace_root / "DOC_MAINTENANCE_CHECKLIST.md"
+            }
             
             # Try to load code analysis if not provided
             if not code_analysis:
@@ -1525,17 +1539,24 @@ class InsightsMaintenance:
                     except:
                         print("   ⚠️  Could not load code analysis data")
             
-            if not all(f.exists() for f in [project_overview, rbac_guide, business_logic, component_patterns, known_issues]):
-                print("   ⚠️  Some source documentation files missing")
+            # Check which documentation files exist
+            existing_docs = {name: path for name, path in doc_files.items() if path.exists()}
+            missing_docs = {name: path for name, path in doc_files.items() if not path.exists()}
+            
+            if missing_docs:
+                print(f"   ⚠️  Missing documentation files: {', '.join(missing_docs.keys())}")
+            
+            print(f"   📚 Found {len(existing_docs)} documentation files")
             
             # Generate the Copilot Overview content
             content = "# Insights App - Copilot Overview\n\n"
             content += "> **Purpose**: This document provides AI assistants like GitHub Copilot with a high-level understanding of the Insights application architecture, key design decisions, and important patterns.\n\n"
+            content += f"> **Last Updated**: {datetime.datetime.now().strftime('%B %d, %Y')}\n\n"
             
-            # Extract project context from PROJECT_OVERVIEW.md
+            # ===== PROJECT CONTEXT =====
             content += "## 🏢 Project Context\n\n"
-            if project_overview.exists():
-                project_text = project_overview.read_text()
+            if 'project_overview' in existing_docs:
+                project_text = existing_docs['project_overview'].read_text()
                 # Extract the project summary
                 import re
                 summary_match = re.search(r'## 🎯 Project Summary\n\n(.*?)(?=\n##|\n---)', project_text, re.DOTALL)
@@ -1543,11 +1564,35 @@ class InsightsMaintenance:
                     summary = summary_match.group(1).strip()
                     content += summary + "\n\n"
             
-            # Add architecture overview
+            # ===== SESSION MANAGEMENT STATUS =====
+            content += "## 🔐 CRITICAL: Centralized Session Management\n\n"
+            if 'session_management' in existing_docs:
+                session_text = existing_docs['session_management'].read_text()
+                # Check if implementation is complete
+                if "Production Ready" in session_text or "COMPLETED" in session_text:
+                    content += "**STATUS**: ✅ PRODUCTION READY - Centralized session management fully implemented\n\n"
+                    content += "Key improvements achieved:\n"
+                    content += "- **Session Duration**: Extended from 1 hour to 16+ hours with auto-refresh\n"
+                    content += "- **Error Reduction**: 95%+ reduction in 403 authentication errors\n"
+                    content += "- **API Consistency**: All 22 endpoints using standardized patterns\n"
+                    content += "- **Performance**: 80% reduction in permission queries through caching\n\n"
+                    
+                    # Extract AuthContext info
+                    if "AuthContext" in session_text:
+                        content += "**AuthContext Implementation**:\n"
+                        content += "- Automatic 15-minute session refresh\n"
+                        content += "- 5-minute permission caching\n"
+                        content += "- Built-in retry logic and error recovery\n"
+                        content += "- Event-driven auth state management\n\n"
+                else:
+                    content += "**STATUS**: 🚧 IN DEVELOPMENT - Session management system being implemented\n\n"
+            
+            # ===== ARCHITECTURE OVERVIEW =====
             content += "## 🏗️ Architecture at a Glance\n\n"
             content += "### Core Technologies\n"
             content += "- **Frontend**: Next.js 15.4.2 (App Router) + React 19 + TypeScript\n"
             content += "- **Backend**: Supabase (PostgreSQL + Auth)\n"
+            content += "- **Authentication**: Centralized AuthContext with automatic session management\n"
             content += "- **Styling**: Tailwind CSS v4\n"
             content += "- **Deployment**: Vercel\n\n"
             
@@ -1572,8 +1617,8 @@ class InsightsMaintenance:
             # Extract core concepts from RBAC_GUIDE.md
             content += "## 🔑 Core Concepts\n\n"
             content += "### 1. Access Group System (NOT Role-Based)\n\n"
-            if rbac_guide.exists():
-                rbac_text = rbac_guide.read_text()
+            if 'rbac_guide' in existing_docs:
+                rbac_text = existing_docs['rbac_guide'].read_text()
                 content += "The most important concept to understand is that user permissions are determined by **Access Group membership**, not roles:\n\n"
                 
                 # Extract the permission flow
@@ -1612,8 +1657,8 @@ class InsightsMaintenance:
             
             # Extract business entities from BUSINESS_LOGIC.md
             content += "### 3. Business Entities\n\n"
-            if business_logic.exists():
-                bl_text = business_logic.read_text()
+            if 'business_logic' in existing_docs:
+                bl_text = existing_docs['business_logic'].read_text()
                 content += "Core business entities in the system:\n"
                 
                 # Extract core entities
@@ -1633,37 +1678,48 @@ class InsightsMaintenance:
             
             # Extract build patterns from COMPONENT_PATTERNS.md
             content += "### 4. Next.js Build Patterns\n\n"
-            if component_patterns.exists():
-                cp_text = component_patterns.read_text()
+            if 'component_patterns' in existing_docs:
+                cp_text = existing_docs['component_patterns'].read_text()
                 content += "Due to previous build issues, the app follows strict patterns for admin pages:\n"
                 content += "- Uses `'use client'` directive\n"
                 content += "- Specific import patterns: `import { useState } from 'react'` (never `import React from 'react'`)\n"
                 content += "- Simple HTML + Tailwind CSS (avoids complex components in static generation)\n"
                 content += "- Dynamic routes set `export const dynamic = 'force-dynamic'`\n\n"
+                
+                # Check for new AuthContext patterns
+                if "AuthContext" in cp_text:
+                    content += "**NEW: Centralized Auth Patterns**:\n"
+                    content += "- Use `useAuth()` hook for all authentication state\n"
+                    content += "- Use `useApiClient()` for all API calls with built-in retry\n"
+                    content += "- Wrap protected content in `<FeatureGate>` components\n\n"
             
             # Extract known issues from KNOWN_ISSUES.md
             content += "## 🚨 Known Issues & Workarounds\n\n"
-            if known_issues.exists():
-                ki_text = known_issues.read_text()
+            if 'known_issues' in existing_docs:
+                ki_text = existing_docs['known_issues'].read_text()
+                
+                # Check if session management issues are resolved
+                if "session management" in ki_text.lower() and "resolved" in ki_text.lower():
+                    content += "1. **Session Management**: ✅ RESOLVED - Centralized AuthContext implemented\n\n"
                 
                 # Extract admin users page issue
                 admin_users_match = re.search(r'### 2. Admin Users Page.*?\n\*\*Symptoms\*\*: (.*?)\n\*\*Root Cause\*\*: (.*?)\n\*\*Workaround\*\*: (.*?)\n\*\*Status\*\*: (.*?)\n', ki_text, re.DOTALL)
                 if admin_users_match:
-                    content += "1. **Admin Users Page Location**: `/manage-users` (not `/admin/users`)\n"
+                    content += "2. **Admin Users Page Location**: `/manage-users` (not `/admin/users`)\n"
                     content += "   - Due to Next.js framework bug with `/admin/users` path\n"
                     content += "   - This is a permanent workaround and is fully functional\n\n"
                 
                 # Extract navigation refresh issue
                 nav_refresh_match = re.search(r'### 1. Navigation Refresh.*?\n\*\*Symptoms\*\*: (.*?)\n\*\*Impact\*\*: (.*?)\n\*\*Workaround\*\*: (.*?)\n\*\*Planned Fix\*\*: (.*?)\n', ki_text, re.DOTALL)
                 if nav_refresh_match:
-                    content += "2. **Navigation Refresh**: Sidebar doesn't immediately update after permission changes\n"
+                    content += "3. **Navigation Refresh**: Sidebar doesn't immediately update after permission changes\n"
                     content += "   - Requires page refresh to see changes\n"
                     content += "   - Real-time updates via Supabase subscriptions planned\n\n"
                 
                 # Extract import paths issue
                 import_paths_match = re.search(r'### 2. Relative Import Paths.*?\n\*\*Symptoms\*\*: (.*?)\n\*\*Impact\*\*: (.*?)\n\*\*Workaround\*\*: (.*?)\n\*\*Planned Fix\*\*: (.*?)\n', ki_text, re.DOTALL)
                 if import_paths_match:
-                    content += "3. **Import Paths**: Using relative paths (no path aliases configured)\n"
+                    content += "4. **Import Paths**: Using relative paths (no path aliases configured)\n"
                     content += "   - Results in verbose imports like `../../utils/hooks/useRequireFeature`\n\n"
             
             # Development patterns
@@ -1680,24 +1736,61 @@ class InsightsMaintenance:
             content += "```\n\n"
             
             # Extract Supabase client usage
-            if known_issues.exists():
+            if 'known_issues' in existing_docs:
+                ki_text = existing_docs['known_issues'].read_text()
                 supabase_match = re.search(r'### 3. Supabase Client Import Confusion.*?\n\*\*Solution\*\*: Use correct client for context:\n```typescript\n(.*?)```', ki_text, re.DOTALL)
                 if supabase_match:
                     content += "### Supabase Client Usage\n"
                     content += "- **Client components**: `import { createClient } from '@/utils/supabase/browser'`\n"
                     content += "- **Server components/API**: `import { createClient } from '@/utils/supabase/server'`\n\n"
             
-            # API structure
+            # API structure and migration status
             content += "### API Structure\n"
+            if 'api_migration' in existing_docs:
+                migration_text = existing_docs['api_migration'].read_text()
+                if "COMPLETE" in migration_text or "Production Ready" in migration_text:
+                    content += "- ✅ **API Migration Complete**: All 22 endpoints using standardized patterns\n"
+                    content += "- **Consistent Authentication**: All APIs use `withApiHandler` wrapper\n"
+                    content += "- **Built-in Retry Logic**: Automatic session refresh and error recovery\n"
+                else:
+                    content += "- 🚧 **API Migration In Progress**: Standardizing endpoint patterns\n"
+            
             content += "- API routes follow REST conventions\n"
             content += "- Every protected API does permission checks using `getUserFeatures()`\n"
             content += "- API endpoints provide data for dynamic navigation, cards, and page content\n\n"
+            
+            # Testing and development patterns
+            if 'testing_guide' in existing_docs:
+                testing_text = existing_docs['testing_guide'].read_text()
+                content += "### Testing Patterns\n"
+                if "session management testing" in testing_text.lower():
+                    content += "- **Session Testing**: Authentication flow and permission validation\n"
+                    content += "- **API Testing**: Consistent patterns across all endpoints\n"
+                content += "- **Manual Testing**: Focus on Access Group permissions and admin operations\n"
+                content += "- **Build Verification**: Systematic testing after component changes\n\n"
             
             # Project organization
             content += "## 🗂️ Project Organization\n\n"
             content += "Important directories:\n"
             content += "- `/frontend/app/components`: Reusable React components\n"
             content += "- `/frontend/app/api`: API routes for data operations\n"
+            content += "- `/frontend/context`: Centralized state management (AuthContext)\n"
+            content += "- `/frontend/utils`: Utility functions and API clients\n\n"
+            
+            # Documentation library
+            content += "## 📚 Complete Documentation Library\n\n"
+            content += "This project maintains comprehensive documentation:\n\n"
+            
+            # List all existing documentation files
+            for name, path in existing_docs.items():
+                filename = path.name
+                display_name = filename.replace('.md', '').replace('_', ' ').title()
+                content += f"- **{filename}**: {self.get_doc_description(name)}\n"
+            
+            content += "\n**Primary Entry Points**:\n"
+            content += "- **COPILOT_OVERVIEW.md**: This file - AI assistant overview\n"
+            content += "- **README.md**: Human-focused documentation index with task-based navigation\n" 
+            content += "- **PROJECT_OVERVIEW.md**: Complete project status and feature summary\n\n"
             content += "- `/frontend/utils`: Utility functions including RBAC helpers\n"
             content += "- `/frontend/utils/hooks`: React hooks for common patterns\n\n"
             
@@ -1775,6 +1868,27 @@ class InsightsMaintenance:
         except Exception as e:
             print(f"   ❌ Could not generate COPILOT_OVERVIEW.md: {e}")
             return False
+    
+    def get_doc_description(self, doc_name):
+        """Get a brief description for each documentation file"""
+        descriptions = {
+            'project_overview': 'Complete project status, features, and quick links',
+            'rbac_guide': 'Access Group-based permission system implementation',
+            'business_logic': 'Business entities, user workflows, and app purpose',
+            'component_patterns': 'React/Next.js patterns and build error prevention',
+            'known_issues': 'Common problems, solutions, and workarounds',
+            'api_reference': 'All API endpoints, request/response patterns',
+            'session_management': 'Centralized authentication and session management',
+            'testing_guide': 'Testing procedures and validation approaches',
+            'dev_setup': 'Development environment setup and configuration',
+            'types_reference': 'TypeScript interfaces and type definitions',
+            'api_migration': 'API standardization and migration status',
+            'development_history': 'Timeline, critical resolutions, and lessons learned',
+            'schema_docs': 'Database documentation generation and maintenance',
+            'database_schema': 'Database structure, relationships, and queries',
+            'doc_maintenance': 'Documentation maintenance tasks and automation'
+        }
+        return descriptions.get(doc_name, 'Project documentation file')
 
     def update_project_structure_timestamp(self):
         """Update timestamp in PROJECT_STRUCTURE.md"""

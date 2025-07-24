@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, Fragment } from 'react';
+import { useRouter } from 'next/navigation';
 import { UserProfile, AccessGroup } from '@/utils/types';
 import { 
   ChevronUpIcon, ChevronDownIcon, PencilIcon, TrashIcon, UserPlusIcon, 
@@ -11,6 +12,9 @@ import { EyeIcon } from '@heroicons/react/24/solid';
 import ConfirmModal from '../../components/ConfirmModal';
 
 export default function UserManagementClient() {
+  // Router hook
+  const router = useRouter();
+  
   // State variables
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [allGroups, setAllGroups] = useState<AccessGroup[]>([]);
@@ -168,8 +172,11 @@ export default function UserManagementClient() {
         
         // Special handling for authentication errors
         if (response.status === 401) {
-          // Consider redirecting to login page or showing a specific auth error
+          // Show notification and redirect to login page after a short delay
           showNotification('error', 'Your session has expired. Please login again.');
+          setTimeout(() => {
+            router.push('/login');
+          }, 2000);
           return;
         }
         
@@ -247,6 +254,16 @@ export default function UserManagementClient() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        
+        // Special handling for authentication errors
+        if (response.status === 401) {
+          showNotification('error', 'Your session has expired. Please login again.');
+          setTimeout(() => {
+            router.push('/login');
+          }, 2000);
+          return;
+        }
+        
         throw new Error(errorData.error || 'Failed to delete user');
       }
 
@@ -257,6 +274,7 @@ export default function UserManagementClient() {
       showNotification('error', err instanceof Error ? err.message : 'Failed to delete user');
     } finally {
       setLoading(false);
+      setDeletingUser(null);
     }
   };
 
@@ -773,7 +791,7 @@ export default function UserManagementClient() {
       </div>
       
       {/* Delete Confirmation Modal */}
-      {isConfirmModalOpen && (
+      {isConfirmModalOpen && deletingUser && (
         <ConfirmModal
           isOpen={isConfirmModalOpen}
           onClose={handleCloseConfirmModal}
@@ -781,7 +799,7 @@ export default function UserManagementClient() {
           title="Confirm User Deletion"
           message={
             <>
-              <p>Are you sure you want to delete the user <span className="font-bold">{deletingUser?.email}</span>?</p>
+              <p>Are you sure you want to delete the user <span className="font-bold">{deletingUser.email || "this user"}</span>?</p>
               <p className="mt-2 text-sm text-red-600">This action cannot be undone and will remove all user data.</p>
             </>
           }

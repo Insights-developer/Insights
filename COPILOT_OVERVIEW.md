@@ -1,6 +1,8 @@
-# Insights App - Copilot Overview
+# AI ASSISTANT PRIMARY REFERENCE - Insights App
 
-> **Purpose**: This document provides AI assistants like GitHub Copilot with a high-level understanding of the Insights application architecture, key design decisions, and important patterns.
+> **PRIORITY DOCUMENT FOR AI ASSISTANTS**: This document should be read FIRST by any AI assistant (like GitHub Copilot) analyzing this codebase. It provides the essential high-level understanding of the Insights application architecture, key design decisions, and important patterns.
+
+> **File Identification**: COPILOT_OVERVIEW.md
 
 ## 🏢 Project Context
 

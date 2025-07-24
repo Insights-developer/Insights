@@ -1,5 +1,7 @@
 # Insights App Documentation Index
 
+> **🤖 AI ASSISTANT NOTICE**: If you are an AI assistant like GitHub Copilot, please read [COPILOT_OVERVIEW.md](COPILOT_OVERVIEW.md) FIRST before exploring other files to understand this project.
+
 **Company**: Lottery Analytics  
 **Application**: Insights  
 **Status**: In Development  
@@ -18,6 +20,7 @@
 
 ### **Need Quick Reference?**
 - 🚀 **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** - Project summary with links to everything
+- 🤖 **[COPILOT_OVERVIEW.md](COPILOT_OVERVIEW.md)** - Optimized project summary for AI assistants
 - 🌐 **[API_REFERENCE.md](API_REFERENCE.md)** - All API endpoints and usage
 - 📊 **[DATABASE_SCHEMA_GENERATED.md](DATABASE_SCHEMA_GENERATED.md)** - Database structure and relationships (auto-generated)
 

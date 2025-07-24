@@ -1,0 +1,8 @@
+{
+  "priority_files": [
+    "/COPILOT_OVERVIEW.md"
+  ],
+  "instructions": "Always check COPILOT_OVERVIEW.md first when analyzing this project",
+  "project_summary": "Lottery analytics app with Next.js frontend and Supabase backend",
+  "special_notes": "Uses Access Groups instead of traditional roles for permissions"
+}

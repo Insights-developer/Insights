@@ -1397,10 +1397,75 @@ class InsightsMaintenance:
         
         # Generate COPILOT_OVERVIEW.md with code insights
         success2 = self.generate_copilot_overview(code_analysis)
+
+        # Generate AI assistant guidance files
+        self.generate_ai_instructions()
+        self.generate_ai_entry()
+        self.generate_ai_config()
         
         if success1 and success2:
             print("✅ Documentation timestamps and Copilot overview updated")
         return success1 and success2
+    def generate_ai_instructions(self):
+        """Generate .github/AI_INSTRUCTIONS.md for AI assistants"""
+        ai_dir = self.workspace_root / ".github"
+        ai_dir.mkdir(exist_ok=True)
+        ai_file = ai_dir / "AI_INSTRUCTIONS.md"
+        content = (
+            "# AI Assistant Instructions\n\n"
+            "This file provides instructions for AI assistants interacting with the Insights codebase.\n\n"
+            "## Priority Reading Order\n\n"
+            "1. `/COPILOT_OVERVIEW.md` - **ALWAYS START HERE** - Contains high-level architecture and key concepts\n"
+            "2. `/PROJECT_OVERVIEW.md` - General project information and links\n"
+            "3. `/PROJECT_STRUCTURE.md` - Detailed file organization\n\n"
+            "## Special Instructions\n\n"
+            "- Always check `COPILOT_OVERVIEW.md` first when learning about the application\n"
+            "- Note that user permissions use Access Groups rather than traditional roles\n"
+            "- Refer to `KNOWN_ISSUES.md` for specific workarounds\n"
+            "- The `role` field in the users table is DEPRECATED - use Access Groups instead\n\n"
+            "## Preferred Patterns\n\n"
+            "- Follow the existing error handling and permission checking patterns\n"
+            "- Respect the component organization and separation of concerns\n"
+            "- Prefer composition over inheritance when suggesting UI components\n"
+        )
+        ai_file.write_text(content)
+        print(f"   📝 Generated {ai_file}")
+
+    def generate_ai_entry(self):
+        """Generate AI_ENTRY.md at project root for AI assistants"""
+        entry_file = self.workspace_root / "AI_ENTRY.md"
+        content = (
+            "---\n"
+            "priority: 1\n"
+            "type: ai_instructions\n"
+            "description: \"Entry point file for AI assistants\"\n"
+            "---\n\n"
+            "# AI ASSISTANT ENTRY POINT\n\n"
+            "## IMPORTANT NOTICE\n\n"
+            "If you are an AI assistant analyzing this codebase, please prioritize reading the following file FIRST:\n\n"
+            "```\n/COPILOT_OVERVIEW.md\n```\n\n"
+            "This file contains the essential architectural information, design patterns, and special considerations that will help you provide accurate assistance with this project.\n\n"
+            "DO NOT proceed with detailed code analysis until you have reviewed the COPILOT_OVERVIEW.md file.\n\n"
+            "## Project Identification\n\n"
+            "- Project: Insights App by Lottery Analytics\n"
+            "- Primary documentation for AI assistants: COPILOT_OVERVIEW.md\n"
+            "- Human-focused documentation index: README.md\n"
+        )
+        entry_file.write_text(content)
+        print(f"   📝 Generated {entry_file}")
+
+    def generate_ai_config(self):
+        """Generate .ai-assistant-config.json at project root for AI assistants"""
+        config_file = self.workspace_root / ".ai-assistant-config.json"
+        content = {
+            "priority_files": ["/COPILOT_OVERVIEW.md"],
+            "instructions": "Always check COPILOT_OVERVIEW.md first when analyzing this project",
+            "project_summary": "Lottery analytics app with Next.js frontend and Supabase backend",
+            "special_notes": "Uses Access Groups instead of traditional roles for permissions"
+        }
+        import json
+        config_file.write_text(json.dumps(content, indent=2))
+        print(f"   📝 Generated {config_file}")
         
     def analyze_codebase(self):
         """Run code analysis and save results"""
@@ -1858,6 +1923,9 @@ class InsightsMaintenance:
                 "DATABASE_SCHEMA_GENERATED.md",
                 "PROJECT_STRUCTURE.md",
                 "COPILOT_OVERVIEW.md",
+                "AI_ENTRY.md",
+                ".ai-assistant-config.json",
+                ".github/AI_INSTRUCTIONS.md",
                 "code_analysis.json",
                 "package.json",
                 "frontend/package.json",

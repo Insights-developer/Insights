@@ -2,17 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/utils/supabase/browser';
+import { useAuth } from '@/context/AuthContext';
 import AuthForm from './components/AuthForm';
 
+// ✅ CENTRALIZED SESSION MANAGEMENT - Updated to use AuthContext
 export default function HomePage() {
   const router = useRouter();
+  const auth = useAuth();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function checkAuth() {
-      const { data } = await supabase.auth.getUser();
-      if (data?.user) {
+      if (auth.user) {
         // After login, attempt to promote from Guest to Member if newly verified.
         // Safe: if already member or not verified, does nothing/bails quietly.
         try {
@@ -26,21 +27,12 @@ export default function HomePage() {
       }
     }
 
-    checkAuth();
+    if (!auth.loading) {
+      checkAuth();
+    }
+  }, [auth.user, auth.loading, router]);
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        router.replace('/dashboard');
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [router]);
-
-  if (loading) return <div>Loading...</div>;
+  if (loading || auth.loading) return <div>Loading...</div>;
 
   return (
     <main style={{ maxWidth: 400, margin: '3rem auto', textAlign: 'center' }}>

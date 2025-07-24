@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { supabase } from '@/utils/supabase/browser';
-import { appCache } from '../../../utils/cache';
+import { useAuth } from '@/context/AuthContext';
 import Icon from './Icon';
 import { useTheme } from './ThemeProvider';
+
+// ✅ CENTRALIZED SESSION MANAGEMENT - Updated to use AuthContext for permission-based navigation
 
 type NavItem = {
   key: string;
@@ -25,106 +26,30 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
   const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
-  const [navLinks, setNavLinks] = useState<NavItem[]>([]);
+  const auth = useAuth();
   const [isNavigating, setIsNavigating] = useState(false);
 
-  // Function to fetch nav links with caching
-  async function fetchNavLinks() {
-    const CACHE_KEY = 'user-nav-links';
-    const CACHE_DURATION = 60000; // 1 minute cache
-    
-    // Check cache first
-    const cachedData = appCache.get<NavItem[]>(CACHE_KEY);
-    if (cachedData) {
-      setNavLinks(cachedData);
-      return;
-    }
+  // Define all possible navigation items with their feature requirements
+  const allNavItems = [
+    { key: 'dashboard_page', label: 'Dashboard', url: '/dashboard', icon: 'home', order: 1, feature: 'dashboard_page' },
+    { key: 'games_page', label: 'Games', url: '/games', icon: 'gamepad', order: 2, feature: 'games_page' },
+    { key: 'results_page', label: 'Results', url: '/results', icon: 'trophy', order: 3, feature: 'results_page' },
+    { key: 'insights_page', label: 'Insights', url: '/insights', icon: 'eye', order: 4, feature: 'insights_page' },
+    { key: 'contact_page', label: 'Contact', url: '/contact', icon: 'mail', order: 5, feature: 'contact' },
+    { key: 'admin_page', label: 'Admin', url: '/admin', icon: 'user', order: 10, feature: 'admin' },
+  ];
 
-    try {
-      const resp = await fetch('/api/user/nav', { credentials: 'include' });
-      const navRes = await resp.json();
-      const navData = Array.isArray(navRes.nav) ? navRes.nav : [];
-      
-      // Debug logging - remove this later
-      console.log('Navigation data received:', navData);
-      const adminItem = navData.find((item: any) => item.key === 'admin_page');
-      const contactItem = navData.find((item: any) => item.key === 'contact_page');
-      if (adminItem) console.log('Admin item:', adminItem);
-      if (contactItem) console.log('Contact item:', contactItem);
-      
-      // Cache the result
-      appCache.set(CACHE_KEY, navData, CACHE_DURATION);
-      setNavLinks(navData);
-    } catch (error) {
-      console.error('Failed to fetch navigation:', error);
-      // If fetch fails but we have stale cache data, use it
-      const staleData = appCache.get<NavItem[]>(CACHE_KEY);
-      if (staleData) {
-        setNavLinks(staleData);
-      }
-    }
-  }
+  // Filter navigation items based on user permissions using centralized auth
+  const visibleNavItems = allNavItems.filter(item => auth.hasFeature(item.feature));
+  
+  // Separate profile (always visible when authenticated) and main nav items
+  const mainNavItems = visibleNavItems.filter(item => item.key !== 'profile_page');
+  const profileItem = auth.user ? { key: 'profile_page', label: 'Profile', url: '/profile', icon: 'settings', order: 99, feature: 'profile_page' } : null;
 
   useEffect(() => {
-    fetchNavLinks();
-
-    // Auto-refresh sidebar on admin changes
-    function handleNavUpdate() {
-      // Clear cache when nav updates are triggered
-      appCache.delete('user-nav-links');
-      appCache.delete('admin-cards');
-      appCache.delete('user-features'); // Clear user features cache too
-      fetchNavLinks();
-    }
-    window.addEventListener('nav-update', handleNavUpdate);
-    
     // Reset navigation state when route changes
     setIsNavigating(false);
-    
-    return () => {
-      window.removeEventListener('nav-update', handleNavUpdate);
-    };
   }, [pathname]);
-
-  // Map feature keys to icons
-  const getIconForNavItem = (key: string, dbIcon?: string | null): string => {
-    // Debug logging - remove this later
-    if (key === 'admin_page' || key === 'contact_page') {
-      console.log(`Debug - ${key}:`, { key, dbIcon, hasDbIcon: !!(dbIcon && dbIcon.trim().length > 0) });
-    }
-    
-    // First check if there's a database-provided icon
-    if (dbIcon && dbIcon.trim().length > 0) {
-      return dbIcon;
-    }
-    
-    // Fall back to key-based mapping
-    const iconMap: { [key: string]: string } = {
-      dashboard_page: 'home',
-      profile_page: 'settings', // Changed from 'user' to 'settings' (gear icon)
-      contact_page: 'mail', // Changed from 'message-circle' to 'mail' (envelope icon)
-      games_page: 'gamepad',
-      draws_page: 'shuffle',
-      results_page: 'trophy',
-      insights_page: 'eye',
-      admin_page: 'user', // Changed from 'settings' to 'user' (person icon)
-    };
-    const result = iconMap[key] || 'circle';
-    
-    // Debug logging - remove this later
-    if (key === 'admin_page' || key === 'contact_page') {
-      console.log(`Debug - ${key} result:`, result);
-    }
-    
-    return result;
-  };
-
-  // Sort and categorize nav items
-  const sortedNavItems = [...navLinks].sort((a, b) => a.label.localeCompare(b.label));
-  
-  // Separate profile and main nav items
-  const mainNavItems = sortedNavItems.filter(item => item.key !== 'profile_page');
-  const profileItem = sortedNavItems.find(item => item.key === 'profile_page');
 
   return (
     <div
@@ -144,7 +69,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
       <div
         style={{
           padding: '1rem',
-          borderBottom: '1px solid #dee2e6', // Darker border to match
+          borderBottom: '1px solid #dee2e6',
           display: 'flex',
           alignItems: 'center',
           justifyContent: isCollapsed ? 'center' : 'space-between',
@@ -160,14 +85,13 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
       {/* Main navigation items */}
       <nav style={{ flex: 1, padding: '1rem 0' }}>
         {mainNavItems.map((link) => {
-          const linkUrl = link.url.startsWith('/') ? link.url : `/${link.url}`;
-          const isActive = pathname === linkUrl;
+          const isActive = pathname === link.url;
           
           const handleNavigation = (e: React.MouseEvent) => {
             e.preventDefault();
-            if (pathname !== linkUrl) {
+            if (pathname !== link.url) {
               setIsNavigating(true);
-              router.push(linkUrl);
+              router.push(link.url);
             }
           };
           
@@ -181,17 +105,16 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
                 padding: isCollapsed ? '12px' : '12px 16px',
                 margin: '4px 12px',
                 borderRadius: '8px',
-                backgroundColor: isActive ? '#3B82F6' : 'transparent', // Blue background when active
-                color: isActive ? 'white' : '#374151', // White text when active, dark grey otherwise
+                backgroundColor: isActive ? '#3B82F6' : 'transparent',
+                color: isActive ? 'white' : '#374151',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 justifyContent: isCollapsed ? 'center' : 'flex-start',
-                border: isActive ? 'none' : '1px solid transparent',
               }}
               onClick={handleNavigation}
               onMouseEnter={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.backgroundColor = '#1D4ED8'; // Darker blue on hover
+                  e.currentTarget.style.backgroundColor = '#1D4ED8';
                   e.currentTarget.style.color = 'white';
                 }
               }}
@@ -203,7 +126,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
               }}
             >
               <Icon 
-                name={getIconForNavItem(link.key, link.icon)} 
+                name={link.icon} 
                 style={{ 
                   color: 'inherit',
                   marginRight: isCollapsed ? 0 : '12px'
@@ -222,7 +145,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
       {/* Bottom section with Profile and Collapse button */}
       <div style={{ padding: '1rem 0', borderTop: '1px solid #e9ecef' }}>
         {/* Profile link */}
-        {profileItem && (
+        {profileItem && auth.hasFeature('profile_page') && (
           <div
             className="inline-flex items-center font-semibold rounded transition"
             style={{
@@ -231,35 +154,34 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
               padding: isCollapsed ? '12px' : '12px 16px',
               margin: '4px 12px 16px 12px',
               borderRadius: '8px',
-              backgroundColor: pathname === (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`) ? '#3B82F6' : 'transparent',
-              color: pathname === (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`) ? 'white' : '#374151',
+              backgroundColor: pathname === profileItem.url ? '#3B82F6' : 'transparent',
+              color: pathname === profileItem.url ? 'white' : '#374151',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               justifyContent: isCollapsed ? 'center' : 'flex-start',
             }}
             onClick={(e) => {
               e.preventDefault();
-              const profileUrl = profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`;
-              if (pathname !== profileUrl) {
+              if (pathname !== profileItem.url) {
                 setIsNavigating(true);
-                router.push(profileUrl);
+                router.push(profileItem.url);
               }
             }}
             onMouseEnter={(e) => {
-              if (pathname !== (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`)) {
+              if (pathname !== profileItem.url) {
                 e.currentTarget.style.backgroundColor = '#1D4ED8';
                 e.currentTarget.style.color = 'white';
               }
             }}
             onMouseLeave={(e) => {
-              if (pathname !== (profileItem.url.startsWith('/') ? profileItem.url : `/${profileItem.url}`)) {
+              if (pathname !== profileItem.url) {
                 e.currentTarget.style.backgroundColor = 'transparent';
                 e.currentTarget.style.color = '#374151';
               }
             }}
           >
             <Icon 
-              name={getIconForNavItem(profileItem.key, profileItem.icon)} 
+              name={profileItem.icon} 
               style={{ 
                 color: 'inherit',
                 marginRight: isCollapsed ? 0 : '12px'

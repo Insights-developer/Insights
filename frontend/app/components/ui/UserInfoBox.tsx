@@ -1,74 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/utils/supabase/browser';
+import { useAuth } from '@/context/AuthContext';
 import Icon from './Icon';
 import Avatar from './Avatar';
 
-interface UserInfo {
-  email: string;
-  username?: string;
-  groups: string[];
-  previousLoginAt?: string;
-  createdAt: string;
-  loginCount: number;
-}
+// ✅ CENTRALIZED SESSION MANAGEMENT - Updated to use AuthContext
 
 export default function UserInfoBox() {
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const auth = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  useEffect(() => {
-    async function fetchUserInfo() {
-      const { data } = await supabase.auth.getUser();
-      if (data?.user) {
-        try {
-          const resp = await fetch('/api/user/profile');
-          const profile = await resp.json();
-          
-          setUserInfo({
-            email: data.user.email ?? '',
-            username: profile.username || null,
-            groups: profile.groups || [],
-            previousLoginAt: profile.previousLoginAt,
-            createdAt: profile.createdAt,
-            loginCount: profile.loginCount || 0,
-          });
-        } catch (error) {
-          console.error('Failed to fetch user profile:', error);
-          // Fallback to basic info
-          setUserInfo({
-            email: data.user.email ?? '',
-            groups: [],
-            createdAt: data.user.created_at ?? '',
-            loginCount: 0,
-          });
-        }
-      }
-    }
+  // Don't render if user is not authenticated
+  if (!auth.user) return null;
 
-    fetchUserInfo();
-  }, []);
+  const displayName = auth.user.email?.split('@')[0] || 'User';
+  const email = auth.user.email || '';
 
   async function handleSignOut() {
-    await supabase.auth.signOut();
-    setUserInfo(null); // Clear user info immediately
+    await auth.signOut();
+    setIsDropdownOpen(false);
     router.replace('/');
   }
-
-  if (!userInfo) return null;
-
-  const displayName = userInfo.username || userInfo.email.split('@')[0];
-  const isFirstTime = userInfo.loginCount <= 1;
-  const welcomeMessage = isFirstTime ? `Welcome ${displayName}!` : `Welcome back, ${displayName}!`;
-
-  const formatLastLogin = (dateString?: string) => {
-    if (!dateString) return 'First login';
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + ' at ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
 
   return (
     <div style={{ position: 'relative', display: 'inline-block', minWidth: 'max-content' }}>
@@ -99,7 +54,7 @@ export default function UserInfoBox() {
             {displayName}
           </span>
           <span style={{ fontSize: '12px', color: '#8D99AE' }}>
-            {userInfo.groups.length > 0 ? userInfo.groups.join(', ') : 'Member'}
+            Member
           </span>
         </div>
         <Icon 
@@ -128,10 +83,10 @@ export default function UserInfoBox() {
           {/* Welcome message */}
           <div style={{ padding: '16px', borderBottom: '1px solid #e9ecef' }}>
             <div style={{ fontSize: '16px', fontWeight: 600, color: '#22223B', marginBottom: '8px' }}>
-              {welcomeMessage}
+              Welcome, {displayName}!
             </div>
             <div style={{ fontSize: '14px', color: '#8D99AE' }}>
-              {userInfo.email}
+              {email}
             </div>
           </div>
 
@@ -139,18 +94,18 @@ export default function UserInfoBox() {
           <div style={{ padding: '16px', borderBottom: '1px solid #e9ecef' }}>
             <div style={{ marginBottom: '12px' }}>
               <div style={{ fontSize: '12px', color: '#8D99AE', marginBottom: '4px' }}>
-                GROUP
+                STATUS
               </div>
               <div style={{ fontSize: '14px', color: '#22223B', fontWeight: 500 }}>
-                {userInfo.groups.length > 0 ? userInfo.groups.join(', ') : 'Member'}
+                Active Member
               </div>
             </div>
             <div>
               <div style={{ fontSize: '12px', color: '#8D99AE', marginBottom: '4px' }}>
-                LAST LOGIN
+                ACCOUNT
               </div>
               <div style={{ fontSize: '14px', color: '#22223B' }}>
-                {formatLastLogin(userInfo.previousLoginAt)}
+                Authenticated User
               </div>
             </div>
           </div>

@@ -2,24 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 
 export async function middleware(req: NextRequest) {
-  // Initialize Supabase with middleware client
+  // Initialize response that we'll pass into the supabase client
   const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
+  
+  try {
+    // Initialize Supabase with middleware client
+    const supabase = createMiddlewareClient({ req, res });
 
-  // Check if user is authenticated
-  const { data: { session } } = await supabase.auth.getSession();
-
-  // Admin routes require authentication
-  if (req.nextUrl.pathname.startsWith('/api/admin') && !session) {
-    console.log('Unauthorized access attempt to admin API:', req.nextUrl.pathname);
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 }
-    );
+    // Refresh session if possible
+    await supabase.auth.getSession();
+    
+    // IMPORTANT: We no longer block requests here, individual API routes
+    // will handle their own auth requirements. This prevents issues with
+    // session cookie handling and timing problems.
+    
+    // Return the modified response
+    return res;
+  } catch (err) {
+    console.error('Middleware error:', err);
+    // Continue anyway and let the API routes handle auth
+    return res;
   }
-
-  // Continue with the request
-  return res;
 }
 
 // Only run middleware on API routes

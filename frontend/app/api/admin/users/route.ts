@@ -6,13 +6,35 @@ import { getUserFeatures } from '@/utils/rbac';
 export async function GET(req: NextRequest) {
   const supabase = createClient();
 
-  // RBAC: admin_dashboard only
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const features = await getUserFeatures(user.id);
-  if (!features.includes('admin_dashboard'))
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    // First check if we have a valid session
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      console.error("Session error:", sessionError.message);
+      return NextResponse.json({ error: "Session error: " + sessionError.message }, { status: 401 });
+    }
+    
+    if (!sessionData?.session) {
+      return NextResponse.json({ error: "No active session found" }, { status: 401 });
+    }
+    
+    // Then get the user
+    const { data: auth, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error("User fetch error:", userError.message);
+      return NextResponse.json({ error: "User authentication failed: " + userError.message }, { status: 401 });
+    }
+    
+    const user = auth?.user;
+    if (!user) {
+      return NextResponse.json({ error: "No authenticated user found" }, { status: 401 });
+    }
+    
+    // RBAC: admin_dashboard only
+    const features = await getUserFeatures(user.id);
+    if (!features.includes('admin_dashboard')) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
 
   // 1. Get all users
   const { data: users, error: usersError } = await supabase.from('users').select('*');
@@ -59,6 +81,10 @@ export async function GET(req: NextRequest) {
   }));
 
   return NextResponse.json({ users: usersWithGroups });
+  } catch (error) {
+    console.error("Error in GET /api/admin/users:", error);
+    return NextResponse.json({ error: (error as Error).message || "Unknown error occurred" }, { status: 500 });
+  }
 }
 
 // === PATCH: Edit user profile and group memberships ===

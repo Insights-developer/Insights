@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ChevronUpIcon, ChevronDownIcon, PencilIcon, TrashIcon, PlusIcon,
   MagnifyingGlassIcon, XMarkIcon, CheckIcon,
@@ -8,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { EyeIcon } from '@heroicons/react/24/solid';
 import ConfirmModal from '../../components/ConfirmModal';
+import { supabase } from '@/utils/supabase/browser';
 
 interface Feature {
   id: number;
@@ -29,6 +31,9 @@ interface AccessGroup {
 }
 
 export default function FeatureManagementClient() {
+  // Router
+  const router = useRouter();
+  
   // State variables
   const [features, setFeatures] = useState<Feature[]>([]);
   const [accessGroups, setAccessGroups] = useState<AccessGroup[]>([]);
@@ -71,6 +76,18 @@ export default function FeatureManagementClient() {
   async function fetchData() {
     setLoading(true);
     try {
+      // Attempt to refresh the session before making API calls
+      try {
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError) {
+          console.warn('Session refresh failed:', refreshError);
+          // Continue anyway and let the API handle auth errors
+        }
+      } catch (refreshErr) {
+        console.warn('Session refresh exception:', refreshErr);
+        // Continue with the fetch attempts
+      }
+      
       // Fetch features and access groups in parallel
       const [featuresResponse, groupsResponse] = await Promise.all([
         fetch('/api/admin/features', { credentials: 'include' }),
@@ -84,9 +101,25 @@ export default function FeatureManagementClient() {
 
       // Process responses
       if (!featuresResponse.ok) {
+        // Special handling for auth errors
+        if (featuresResponse.status === 401) {
+          showNotification('error', 'Your session has expired. Please login again.');
+          setTimeout(() => {
+            router.push('/login');
+          }, 2000);
+          return;
+        }
         throw new Error('Failed to fetch features: ' + await featuresResponse.text());
       }
       if (!groupsResponse.ok) {
+        // Special handling for auth errors
+        if (groupsResponse.status === 401) {
+          showNotification('error', 'Your session has expired. Please login again.');
+          setTimeout(() => {
+            router.push('/login');
+          }, 2000);
+          return;
+        }
         throw new Error('Failed to fetch groups: ' + await groupsResponse.text());
       }
 
@@ -1001,20 +1034,22 @@ export default function FeatureManagementClient() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <ConfirmModal
-        isOpen={isConfirmModalOpen}
-        onClose={handleCloseConfirmModal}
-        onConfirm={handleConfirmDelete}
-        title="Deactivate Feature"
-        message={
-          <div>
-            <p>Are you sure you want to deactivate the feature <strong>{deletingFeature ? deletingFeature.name : ''}</strong>?</p>
-            <p className="mt-2 text-sm text-gray-500">
-              This will mark the feature as inactive. Groups with this feature will no longer have access to it.
-            </p>
-          </div>
-        }
-      />
+      {isConfirmModalOpen && deletingFeature && (
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={handleCloseConfirmModal}
+          onConfirm={handleConfirmDelete}
+          title="Deactivate Feature"
+          message={
+            <div>
+              <p>Are you sure you want to deactivate the feature <strong>{deletingFeature.name}</strong>?</p>
+              <p className="mt-2 text-sm text-gray-500">
+                This will mark the feature as inactive. Groups with this feature will no longer have access to it.
+              </p>
+            </div>
+          }
+        />
+      )}
     </div>
   );
 }

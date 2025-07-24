@@ -43,8 +43,8 @@ export default function UserManagementClient() {
       setLoading(true);
       try {
         const [usersResponse, groupsResponse] = await Promise.all([
-          fetch('/api/admin/users'),
-          fetch('/api/access-groups')
+          fetch('/api/admin/users', { credentials: 'include' }),
+          fetch('/api/access-groups', { credentials: 'include' })
         ]);
 
         // Check for permission issues
@@ -154,6 +154,7 @@ export default function UserManagementClient() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Add this to ensure cookies are sent
         body: JSON.stringify({
           email: editForm.email,
           username: editForm.username,
@@ -233,6 +234,7 @@ export default function UserManagementClient() {
       setLoading(true);
       const response = await fetch(`/api/admin/users/${deletingUser.id}`, {
         method: 'DELETE',
+        credentials: 'include', // Add this to ensure cookies are sent
       });
 
       if (!response.ok) {
@@ -266,7 +268,7 @@ export default function UserManagementClient() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch('/api/admin/users');
+        const response = await fetch('/api/admin/users', { credentials: 'include' });
         if (!response.ok) {
           throw new Error('Failed to refresh users');
         }

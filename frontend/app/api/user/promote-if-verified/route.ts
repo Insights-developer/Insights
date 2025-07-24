@@ -7,24 +7,41 @@ export async function POST(request: NextRequest) {
     const supabase = createClient();
     const user = api.getUser();
     
-    // Check if user is verified and not already in a group
-    const { data: userData, error: userError } = await api.handleDatabaseOperation(async () => {
-      return await supabase
-        .from('users')
-        .select(`
-          id, email_confirmed_at,
-          user_access_groups (access_group_id)
-        `)
-        .eq('id', user.id)
-        .single();
-    });
+    // First, ensure user exists in users table
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', user.id)
+      .single();
 
-    if (userError) return userError;
+    if (!existingUser) {
+      // Create user record if it doesn't exist
+      const { error: createError } = await api.handleDatabaseOperation(async () => {
+        return await supabase
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email,
+            created_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+      });
 
-    const userInfo = userData as any;
+      if (createError) {
+        console.error('Failed to create user record:', createError);
+        return createError;
+      }
+    }
     
-    // If user is verified and has no groups, add to default group
-    if (userInfo?.email_confirmed_at && (!userInfo.user_access_groups || userInfo.user_access_groups.length === 0)) {
+    // Check if user is verified and not already in a group
+    const { data: userGroups } = await supabase
+      .from('user_access_groups')
+      .select('group_id')
+      .eq('user_id', user.id);
+
+    // If user has no groups, add to default group
+    if (!userGroups || userGroups.length === 0) {
       // Find default group (could be "Verified Users" or similar)
       const { data: defaultGroup } = await supabase
         .from('access_groups')
@@ -38,14 +55,16 @@ export async function POST(request: NextRequest) {
             .from('user_access_groups')
             .insert({
               user_id: user.id,
-              access_group_id: defaultGroup.id
+              group_id: defaultGroup.id
             })
             .select()
             .single();
         });
 
         if (error) return error;
-        return api.success(data, 'User promoted to verified group');
+        return api.success(data, 'User created and promoted to verified group');
+      } else {
+        return api.error('Default verified group not found', 404);
       }
     }
 

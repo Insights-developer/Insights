@@ -9,12 +9,30 @@ export async function POST(request: NextRequest) {
     const now = new Date().toISOString();
     
     const { data, error } = await api.handleDatabaseOperation(async () => {
-      // First get current login time to set as previous
-      const { data: currentUser } = await supabase
+      // First check if user exists, create if not
+      const { data: existingUser } = await supabase
         .from('users')
-        .select('current_login_at, login_count')
+        .select('id, current_login_at, login_count')
         .eq('id', user.id)
         .single();
+
+      let currentUser = existingUser;
+
+      if (!existingUser) {
+        // Create user if they don't exist
+        const { data: newUser } = await supabase
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email,
+            created_at: now,
+            login_count: 0
+          })
+          .select('id, current_login_at, login_count')
+          .single();
+        
+        currentUser = newUser;
+      }
 
       // Update login timestamps and count
       return await supabase

@@ -1,23 +1,65 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Icon from './Icon';
 import Avatar from './Avatar';
 
-// ✅ CENTRALIZED SESSION MANAGEMENT - Updated to use AuthContext
+// ✅ CENTRALIZED SESSION MANAGEMENT - Updated to use AuthContext with database profile
+
+interface UserProfile {
+  email: string;
+  username?: string;
+  phone?: string;
+  created_at: string;
+  groups: Array<{ id: string; name: string; description?: string }>;
+  previousLoginAt?: string;
+  loginCount?: number;
+}
 
 export default function UserInfoBox() {
   const router = useRouter();
   const auth = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   // Don't render if user is not authenticated
   if (!auth.user) return null;
 
-  const displayName = auth.user.email?.split('@')[0] || 'User';
-  const email = auth.user.email || '';
+  useEffect(() => {
+    async function fetchUserProfile() {
+      try {
+        const response = await fetch('/api/user/profile');
+        if (response.ok) {
+          const profile = await response.json();
+          setUserProfile(profile);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      } finally {
+        setProfileLoading(false);
+      }
+    }
+
+    if (auth.user) {
+      fetchUserProfile();
+    }
+  }, [auth.user]);
+
+  // Use profile data if available, fallback to auth user data
+  const displayName = userProfile?.username || auth.user.email?.split('@')[0] || 'User';
+  const email = userProfile?.email || auth.user.email || '';
+  const groups = userProfile?.groups || [];
+  const isFirstTime = (userProfile?.loginCount || 0) <= 1;
+  const welcomeMessage = isFirstTime ? `Welcome, ${displayName}!` : `Welcome back, ${displayName}!`;
+
+  const formatLastLogin = (dateString?: string) => {
+    if (!dateString) return 'First login';
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' at ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   async function handleSignOut() {
     await auth.signOut();
@@ -54,7 +96,7 @@ export default function UserInfoBox() {
             {displayName}
           </span>
           <span style={{ fontSize: '12px', color: '#8D99AE' }}>
-            Member
+            {groups.length > 0 ? groups.map(g => g.name).join(', ') : 'Member'}
           </span>
         </div>
         <Icon 
@@ -83,7 +125,7 @@ export default function UserInfoBox() {
           {/* Welcome message */}
           <div style={{ padding: '16px', borderBottom: '1px solid #e9ecef' }}>
             <div style={{ fontSize: '16px', fontWeight: 600, color: '#22223B', marginBottom: '8px' }}>
-              Welcome, {displayName}!
+              {profileLoading ? 'Loading...' : welcomeMessage}
             </div>
             <div style={{ fontSize: '14px', color: '#8D99AE' }}>
               {email}
@@ -94,18 +136,18 @@ export default function UserInfoBox() {
           <div style={{ padding: '16px', borderBottom: '1px solid #e9ecef' }}>
             <div style={{ marginBottom: '12px' }}>
               <div style={{ fontSize: '12px', color: '#8D99AE', marginBottom: '4px' }}>
-                STATUS
+                ACCESS GROUPS
               </div>
               <div style={{ fontSize: '14px', color: '#22223B', fontWeight: 500 }}>
-                Active Member
+                {profileLoading ? 'Loading...' : (groups.length > 0 ? groups.map(g => g.name).join(', ') : 'No groups assigned')}
               </div>
             </div>
             <div>
               <div style={{ fontSize: '12px', color: '#8D99AE', marginBottom: '4px' }}>
-                ACCOUNT
+                LAST LOGIN
               </div>
               <div style={{ fontSize: '14px', color: '#22223B' }}>
-                Authenticated User
+                {profileLoading ? 'Loading...' : formatLastLogin(userProfile?.previousLoginAt)}
               </div>
             </div>
           </div>

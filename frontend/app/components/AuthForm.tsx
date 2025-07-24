@@ -12,11 +12,33 @@ type Tab = 'login' | 'register' | 'forgot';
 export default function AuthForm() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('login');
+  
+  // Check Supabase configuration on component load
+  React.useEffect(() => {
+    const checkSupabaseConfig = async () => {
+      try {
+        const configResponse = await fetch('/api/debug/config');
+        if (configResponse.ok) {
+          const configData = await configResponse.json();
+          console.log('Supabase Configuration:', configData);
+          
+          if (!configData.supabaseUrl || !configData.hasAnonKey) {
+            setError('Error: Supabase is not properly configured');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to check Supabase configuration:', err);
+      }
+    };
+    
+    checkSupabaseConfig();
+  }, []);
 
   // Form states
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [pwShow, setPwShow] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   const [registerName, setRegisterName] = useState('');
   const [registerPw2, setRegisterPw2] = useState('');
@@ -36,25 +58,55 @@ export default function AuthForm() {
       <form
         onSubmit={async e => {
           e.preventDefault();
+          
+          // Basic validation
+          if (!email || !email.trim()) {
+            setError('Email is required');
+            return;
+          }
+          
+          if (!pw || pw.length < 6) {
+            setError('Password must be at least 6 characters');
+            return;
+          }
+          
           setLoading(true);
           setError(null); setMessage(null); setShowVerifyNotice(false);
-          const { error } = await supabase.auth.signInWithPassword({ email, password: pw });
-          if (error) {
-            if (error.message.toLowerCase().includes('email not confirmed')) {
-              setShowVerifyNotice(true);
-              setMessage(null);
-            } else setError(error.message);
-          } else {
-            // Update login timestamps
-            try {
-              await fetch('/api/user/update-login', { method: 'POST' });
-            } catch (loginError) {
-              console.error('Failed to update login timestamp:', loginError);
-              // Don't block login flow if this fails
+          
+          try {
+            console.log('Attempting to sign in with email:', email);
+            const { data, error } = await supabase.auth.signInWithPassword({ 
+              email: email.trim(), 
+              password: pw 
+            });
+            
+            if (error) {
+              console.error('Login error:', error);
+              if (error.message.toLowerCase().includes('email not confirmed')) {
+                setShowVerifyNotice(true);
+                setMessage(null);
+              } else if (error.message.includes('Invalid login credentials')) {
+                setError('Invalid email or password');
+              } else {
+                setError(error.message);
+              }
+            } else if (data.user) {
+              console.log('Login successful');
+              // Update login timestamps
+              try {
+                await fetch('/api/user/update-login', { method: 'POST' });
+              } catch (loginError) {
+                console.error('Failed to update login timestamp:', loginError);
+                // Don't block login flow if this fails
+              }
+              router.replace('/dashboard');
             }
-            router.replace('/dashboard');
+          } catch (unexpectedError) {
+            console.error('Unexpected error during login:', unexpectedError);
+            setError('An unexpected error occurred. Please try again.');
+          } finally {
+            setLoading(false);
           }
-          setLoading(false);
         }}
         style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
         spellCheck={false}
@@ -95,6 +147,25 @@ export default function AuthForm() {
         <Button variant="primary" fullWidth type="submit" disabled={loading}>
           {loading ? 'Signing in…' : 'Sign In'}
         </Button>
+        
+        {error && (
+          <div style={{ 
+            marginTop: 8,
+            padding: '8px 12px',
+            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+            borderRadius: 4,
+            color: '#dc3545',
+            fontSize: 14 
+          }}>
+            {error}
+            {error.includes('Invalid login credentials') && (
+              <div style={{ marginTop: 4, fontWeight: 'normal' }}>
+                Check that your email and password are correct
+              </div>
+            )}
+          </div>
+        )}
+        
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginTop: 4 }}>
           <Button variant="secondary" size="sm" type="button" onClick={() => setTab('register')} disabled={loading}>
             Register

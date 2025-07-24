@@ -1,0 +1,64 @@
+# Backup Session 20250724_011720
+
+**Date**: 2025-07-24 01:17:20
+**Files Backed Up**: 7
+
+## Backed Up Files:
+- DATABASE_SCHEMA.SQL
+- DATABASE_SCHEMA_GENERATED.md
+- PROJECT_STRUCTURE.md
+- COPILOT_OVERVIEW.md
+- code_analysis.json
+- package.json
+- frontend/package.json
+
+## Git Status at Backup:
+```
+ D "Insights Design Brief.txt"
+ D "Insights Project Brief.txt"
+ D add_login_history.sql
+ D connection_test.py
+ D database-schema.sql
+ D database-schema.txt
+ D export_schema.py
+ D file-structure.txt
+ D generate_file_structure.py
+?? API_REFERENCE.md
+?? BUSINESS_LOGIC.md
+?? COMPONENT_PATTERNS.md
+?? COPILOT_OVERVIEW.md
+?? DATABASE_SCHEMA.SQL
+?? DATABASE_SCHEMA_GENERATED.md
+?? DEVELOPMENT_HISTORY.md
+?? DEV_SETUP.md
+?? DOC_MAINTENANCE_CHECKLIST.md
+?? KNOWN_ISSUES.md
+?? LAST_MAINTENANCE.md
+?? PROJECT_OVERVIEW.md
+?? PROJECT_STRUCTURE.md
+?? PROJECT_STRUCTURE_GENERATED.md
+?? RBAC_GUIDE.md
+?? README.md
+?? SCHEMA_DOCS_GUIDE.md
+?? TESTING_GUIDE.md
+?? TYPES_REFERENCE.md
+?? __pycache__/
+?? archive/
+?? backups/
+?? code_analysis.json
+?? codebase_analyzer.py
+?? frontend/app/admin/users/page.tsx
+?? insights_maintenance.py
+?? menu_fix.py
+
+```
+
+## Recent Commits:
+```
+c351b34 Updated all API routes
+2a01cdc Debugging admin user management API and UI
+d59c92f Updated the admin user page
+c1992e6 Updated admin user management client to handle new API responses
+a45fb8c Updated admin user editing functionality
+
+```

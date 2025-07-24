@@ -1,6 +1,15 @@
 Insights/
+├── API_REFERENCE.md
+├── BUSINESS_LOGIC.md
+├── COMPONENT_PATTERNS.md
+├── DATABASE_SCHEMA.md
+├── DEV_SETUP.md
 ├── Insights Design Brief.txt
 ├── Insights Project Brief.txt
+├── KNOWN_ISSUES.md
+├── RBAC_GUIDE.md
+├── TESTING_GUIDE.md
+├── TYPES_REFERENCE.md
 ├── add_login_history.sql
 ├── backend
 ├── connection_test.py
@@ -16,8 +25,10 @@ Insights/
 │   │   │   │   └── page.tsx
 │   │   │   ├── groups
 │   │   │   │   └── page.tsx
+│   │   │   ├── loading.tsx
 │   │   │   ├── page.tsx
 │   │   │   └── users
+│   │   │       ├── UserManagementClient.tsx
 │   │   │       └── page.tsx
 │   │   ├── api
 │   │   │   ├── access-groups
@@ -31,7 +42,11 @@ Insights/
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── groups
 │   │   │   │   │   └── route.ts
+│   │   │   │   ├── insight-templates
+│   │   │   │   │   └── route.ts
 │   │   │   │   └── users
+│   │   │   │       ├── [id]
+│   │   │   │       │   └── route.ts
 │   │   │   │       └── route.ts
 │   │   │   ├── auth
 │   │   │   ├── contact
@@ -51,6 +66,8 @@ Insights/
 │   │   │   ├── profile
 │   │   │   │   └── route.ts
 │   │   │   ├── results
+│   │   │   │   └── route.ts
+│   │   │   ├── uploads
 │   │   │   │   └── route.ts
 │   │   │   └── user
 │   │   │       ├── cards
@@ -75,6 +92,8 @@ Insights/
 │   │   │   ├── AdminUserTable.tsx
 │   │   │   ├── AuthForm.tsx
 │   │   │   ├── AuthProvider.tsx
+│   │   │   ├── ConfirmModal.tsx
+│   │   │   ├── EditUserModal.tsx
 │   │   │   ├── Forbidden.tsx
 │   │   │   ├── Navbar.tsx
 │   │   │   └── ui
@@ -83,6 +102,7 @@ Insights/
 │   │   │       ├── Cards.tsx
 │   │   │       ├── Icon.tsx
 │   │   │       ├── Notifications.tsx
+│   │   │       ├── PageLayout.tsx
 │   │   │       ├── Sidebar.tsx
 │   │   │       ├── Spinner.tsx
 │   │   │       ├── ThemeProvider.tsx
@@ -105,6 +125,9 @@ Insights/
 │   │   ├── loading.tsx
 │   │   ├── login
 │   │   │   └── page.tsx
+│   │   ├── manage-users
+│   │   │   ├── page.tsx
+│   │   │   └── page.tsx.backup
 │   │   ├── page.tsx
 │   │   ├── profile
 │   │   │   └── page.tsx
@@ -121,6 +144,7 @@ Insights/
 │   │       ├── GroupMemberManager.tsx
 │   │       └── GroupsManager.tsx
 │   ├── db-test.js
+│   ├── debug.js
 │   ├── next-env.d.ts
 │   ├── next.config.ts
 │   ├── node_modules
@@ -185,7 +209,16 @@ Insights/
 │   │   │   │   │   ├── index.d.ts
 │   │   │   │   │   └── index.mjs
 │   │   │   │   └── package.json
-│   │   │   └── media-query-list-parser
+│   │   │   ├── media-query-list-parser
+│   │   │   │   ├── CHANGELOG.md
+│   │   │   │   ├── LICENSE.md
+│   │   │   │   ├── README.md
+│   │   │   │   ├── dist
+│   │   │   │   │   ├── index.cjs
+│   │   │   │   │   ├── index.d.ts
+│   │   │   │   │   └── index.mjs
+│   │   │   │   └── package.json
+│   │   │   └── selector-specificity
 │   │   │       ├── CHANGELOG.md
 │   │   │       ├── LICENSE.md
 │   │   │       ├── README.md
@@ -303,6 +336,42 @@ Insights/
 │   │   │   │   │   └── lib
 │   │   │   │   │       └── index.js
 │   │   │   │   ├── index.mjs
+│   │   │   │   ├── node_modules
+│   │   │   │   │   ├── ansi-regex
+│   │   │   │   │   │   ├── index.d.ts
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   ├── license
+│   │   │   │   │   │   ├── package.json
+│   │   │   │   │   │   └── readme.md
+│   │   │   │   │   ├── emoji-regex
+│   │   │   │   │   │   ├── LICENSE-MIT.txt
+│   │   │   │   │   │   ├── README.md
+│   │   │   │   │   │   ├── RGI_Emoji.d.ts
+│   │   │   │   │   │   ├── RGI_Emoji.js
+│   │   │   │   │   │   ├── es2015
+│   │   │   │   │   │   │   ├── RGI_Emoji.d.ts
+│   │   │   │   │   │   │   ├── RGI_Emoji.js
+│   │   │   │   │   │   │   ├── index.d.ts
+│   │   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   │   ├── text.d.ts
+│   │   │   │   │   │   │   └── text.js
+│   │   │   │   │   │   ├── index.d.ts
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   ├── package.json
+│   │   │   │   │   │   ├── text.d.ts
+│   │   │   │   │   │   └── text.js
+│   │   │   │   │   ├── string-width
+│   │   │   │   │   │   ├── index.d.ts
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   ├── license
+│   │   │   │   │   │   ├── package.json
+│   │   │   │   │   │   └── readme.md
+│   │   │   │   │   └── strip-ansi
+│   │   │   │   │       ├── index.d.ts
+│   │   │   │   │       ├── index.js
+│   │   │   │   │       ├── license
+│   │   │   │   │       ├── package.json
+│   │   │   │   │       └── readme.md
 │   │   │   │   └── package.json
 │   │   │   └── fs-minipass
 │   │   │       ├── LICENSE
@@ -1031,6 +1100,116 @@ Insights/
 │   │   │   │           ├── timer.ts
 │   │   │   │           ├── transformers.ts
 │   │   │   │           └── version.ts
+│   │   │   ├── ssr
+│   │   │   │   ├── CHANGELOG.md
+│   │   │   │   ├── LICENSE
+│   │   │   │   ├── README.md
+│   │   │   │   ├── dist
+│   │   │   │   │   ├── main
+│   │   │   │   │   │   ├── cookies.d.ts
+│   │   │   │   │   │   ├── cookies.js
+│   │   │   │   │   │   ├── cookies.js.map
+│   │   │   │   │   │   ├── cookies.spec.d.ts
+│   │   │   │   │   │   ├── createBrowserClient.d.ts
+│   │   │   │   │   │   ├── createBrowserClient.js
+│   │   │   │   │   │   ├── createBrowserClient.js.map
+│   │   │   │   │   │   ├── createBrowserClient.spec.d.ts
+│   │   │   │   │   │   ├── createServerClient.d.ts
+│   │   │   │   │   │   ├── createServerClient.js
+│   │   │   │   │   │   ├── createServerClient.js.map
+│   │   │   │   │   │   ├── createServerClient.spec.d.ts
+│   │   │   │   │   │   ├── index.d.ts
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   ├── index.js.map
+│   │   │   │   │   │   ├── types.d.ts
+│   │   │   │   │   │   ├── types.js
+│   │   │   │   │   │   ├── types.js.map
+│   │   │   │   │   │   ├── utils
+│   │   │   │   │   │   │   ├── base64url.d.ts
+│   │   │   │   │   │   │   ├── base64url.js
+│   │   │   │   │   │   │   ├── base64url.js.map
+│   │   │   │   │   │   │   ├── base64url.test.d.ts
+│   │   │   │   │   │   │   ├── base64url.test.js
+│   │   │   │   │   │   │   ├── base64url.test.js.map
+│   │   │   │   │   │   │   ├── chunker.d.ts
+│   │   │   │   │   │   │   ├── chunker.js
+│   │   │   │   │   │   │   ├── chunker.js.map
+│   │   │   │   │   │   │   ├── chunker.spec.d.ts
+│   │   │   │   │   │   │   ├── constants.d.ts
+│   │   │   │   │   │   │   ├── constants.js
+│   │   │   │   │   │   │   ├── constants.js.map
+│   │   │   │   │   │   │   ├── helpers.d.ts
+│   │   │   │   │   │   │   ├── helpers.js
+│   │   │   │   │   │   │   ├── helpers.js.map
+│   │   │   │   │   │   │   ├── helpers.spec.d.ts
+│   │   │   │   │   │   │   ├── index.d.ts
+│   │   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   │   └── index.js.map
+│   │   │   │   │   │   ├── version.d.ts
+│   │   │   │   │   │   ├── version.js
+│   │   │   │   │   │   └── version.js.map
+│   │   │   │   │   └── module
+│   │   │   │   │       ├── cookies.d.ts
+│   │   │   │   │       ├── cookies.js
+│   │   │   │   │       ├── cookies.js.map
+│   │   │   │   │       ├── cookies.spec.d.ts
+│   │   │   │   │       ├── createBrowserClient.d.ts
+│   │   │   │   │       ├── createBrowserClient.js
+│   │   │   │   │       ├── createBrowserClient.js.map
+│   │   │   │   │       ├── createBrowserClient.spec.d.ts
+│   │   │   │   │       ├── createServerClient.d.ts
+│   │   │   │   │       ├── createServerClient.js
+│   │   │   │   │       ├── createServerClient.js.map
+│   │   │   │   │       ├── createServerClient.spec.d.ts
+│   │   │   │   │       ├── index.d.ts
+│   │   │   │   │       ├── index.js
+│   │   │   │   │       ├── index.js.map
+│   │   │   │   │       ├── types.d.ts
+│   │   │   │   │       ├── types.js
+│   │   │   │   │       ├── types.js.map
+│   │   │   │   │       ├── utils
+│   │   │   │   │       │   ├── base64url.d.ts
+│   │   │   │   │       │   ├── base64url.js
+│   │   │   │   │       │   ├── base64url.js.map
+│   │   │   │   │       │   ├── base64url.test.d.ts
+│   │   │   │   │       │   ├── base64url.test.js
+│   │   │   │   │       │   ├── base64url.test.js.map
+│   │   │   │   │       │   ├── chunker.d.ts
+│   │   │   │   │       │   ├── chunker.js
+│   │   │   │   │       │   ├── chunker.js.map
+│   │   │   │   │       │   ├── chunker.spec.d.ts
+│   │   │   │   │       │   ├── constants.d.ts
+│   │   │   │   │       │   ├── constants.js
+│   │   │   │   │       │   ├── constants.js.map
+│   │   │   │   │       │   ├── helpers.d.ts
+│   │   │   │   │       │   ├── helpers.js
+│   │   │   │   │       │   ├── helpers.js.map
+│   │   │   │   │       │   ├── helpers.spec.d.ts
+│   │   │   │   │       │   ├── index.d.ts
+│   │   │   │   │       │   ├── index.js
+│   │   │   │   │       │   └── index.js.map
+│   │   │   │   │       ├── version.d.ts
+│   │   │   │   │       ├── version.js
+│   │   │   │   │       └── version.js.map
+│   │   │   │   ├── docs
+│   │   │   │   │   └── design.md
+│   │   │   │   ├── package.json
+│   │   │   │   ├── src
+│   │   │   │   │   ├── cookies.ts
+│   │   │   │   │   ├── createBrowserClient.ts
+│   │   │   │   │   ├── createServerClient.ts
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   ├── types.ts
+│   │   │   │   │   ├── utils
+│   │   │   │   │   │   ├── base64url.test.ts
+│   │   │   │   │   │   ├── base64url.ts
+│   │   │   │   │   │   ├── chunker.ts
+│   │   │   │   │   │   ├── constants.ts
+│   │   │   │   │   │   ├── helpers.ts
+│   │   │   │   │   │   └── index.ts
+│   │   │   │   │   └── version.ts
+│   │   │   │   ├── tsconfig.json
+│   │   │   │   └── tsconfig.main.json
 │   │   │   ├── storage-js
 │   │   │   │   ├── LICENSE
 │   │   │   │   ├── README.md
@@ -2768,6 +2947,12 @@ Insights/
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
 │   │   │   ├── index.js
+│   │   │   ├── node_modules
+│   │   │   │   └── balanced-match
+│   │   │   │       ├── LICENSE.md
+│   │   │   │       ├── README.md
+│   │   │   │       ├── index.js
+│   │   │   │       └── package.json
 │   │   │   └── package.json
 │   │   ├── braces
 │   │   │   ├── LICENSE
@@ -3683,13 +3868,6 @@ Insights/
 │   │   │   │   ├── constants.js
 │   │   │   │   ├── fsevents-handler.js
 │   │   │   │   └── nodefs-handler.js
-│   │   │   ├── node_modules
-│   │   │   │   └── glob-parent
-│   │   │   │       ├── CHANGELOG.md
-│   │   │   │       ├── LICENSE
-│   │   │   │       ├── README.md
-│   │   │   │       ├── index.js
-│   │   │   │       └── package.json
 │   │   │   ├── package.json
 │   │   │   └── types
 │   │   │       └── index.d.ts
@@ -3714,6 +3892,18 @@ Insights/
 │   │   │   ├── error.js
 │   │   │   ├── index.js
 │   │   │   └── package.json
+│   │   ├── clsx
+│   │   │   ├── clsx.d.mts
+│   │   │   ├── clsx.d.ts
+│   │   │   ├── dist
+│   │   │   │   ├── clsx.js
+│   │   │   │   ├── clsx.min.js
+│   │   │   │   ├── clsx.mjs
+│   │   │   │   ├── lite.js
+│   │   │   │   └── lite.mjs
+│   │   │   ├── license
+│   │   │   ├── package.json
+│   │   │   └── readme.md
 │   │   ├── color
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
@@ -3791,6 +3981,14 @@ Insights/
 │   │   │   ├── package.json
 │   │   │   └── typings
 │   │   │       └── index.d.ts
+│   │   ├── cookie
+│   │   │   ├── LICENSE
+│   │   │   ├── README.md
+│   │   │   ├── dist
+│   │   │   │   ├── index.d.ts
+│   │   │   │   ├── index.js
+│   │   │   │   └── index.js.map
+│   │   │   └── package.json
 │   │   ├── cosmiconfig
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
@@ -3863,6 +4061,15 @@ Insights/
 │   │   │   │       ├── escape.js
 │   │   │   │       ├── readShebang.js
 │   │   │   │       └── resolveCommand.js
+│   │   │   ├── node_modules
+│   │   │   │   └── which
+│   │   │   │       ├── CHANGELOG.md
+│   │   │   │       ├── LICENSE
+│   │   │   │       ├── README.md
+│   │   │   │       ├── bin
+│   │   │   │       │   └── node-which
+│   │   │   │       ├── package.json
+│   │   │   │       └── which.js
 │   │   │   └── package.json
 │   │   ├── css-functions-list
 │   │   │   ├── CHANGELOG.md
@@ -4281,19 +4488,12 @@ Insights/
 │   │   ├── emoji-regex
 │   │   │   ├── LICENSE-MIT.txt
 │   │   │   ├── README.md
-│   │   │   ├── RGI_Emoji.d.ts
-│   │   │   ├── RGI_Emoji.js
 │   │   │   ├── es2015
-│   │   │   │   ├── RGI_Emoji.d.ts
-│   │   │   │   ├── RGI_Emoji.js
-│   │   │   │   ├── index.d.ts
 │   │   │   │   ├── index.js
-│   │   │   │   ├── text.d.ts
 │   │   │   │   └── text.js
 │   │   │   ├── index.d.ts
 │   │   │   ├── index.js
 │   │   │   ├── package.json
-│   │   │   ├── text.d.ts
 │   │   │   └── text.js
 │   │   ├── enhanced-resolve
 │   │   │   ├── LICENSE
@@ -4393,13 +4593,6 @@ Insights/
 │   │   ├── fast-glob
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
-│   │   │   ├── node_modules
-│   │   │   │   └── glob-parent
-│   │   │   │       ├── CHANGELOG.md
-│   │   │   │       ├── LICENSE
-│   │   │   │       ├── README.md
-│   │   │   │       ├── index.js
-│   │   │   │       └── package.json
 │   │   │   ├── out
 │   │   │   │   ├── index.d.ts
 │   │   │   │   ├── index.js
@@ -4684,6 +4877,7 @@ Insights/
 │   │   │   │       └── walker.js.map
 │   │   │   └── package.json
 │   │   ├── glob-parent
+│   │   │   ├── CHANGELOG.md
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
 │   │   │   ├── index.js
@@ -4697,15 +4891,6 @@ Insights/
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
 │   │   │   ├── index.js
-│   │   │   ├── node_modules
-│   │   │   │   └── which
-│   │   │   │       ├── CHANGELOG.md
-│   │   │   │       ├── LICENSE
-│   │   │   │       ├── README.md
-│   │   │   │       ├── bin
-│   │   │   │       │   └── which
-│   │   │   │       ├── package.json
-│   │   │   │       └── which.js
 │   │   │   └── package.json
 │   │   ├── globby
 │   │   │   ├── gitignore.js
@@ -9627,6 +9812,8 @@ Insights/
 │   │   │   │   │   │   ├── needs-experimental-react.js.map
 │   │   │   │   │   │   ├── non-nullable.js
 │   │   │   │   │   │   ├── non-nullable.js.map
+│   │   │   │   │   │   ├── normalize-path.js
+│   │   │   │   │   │   ├── normalize-path.js.map
 │   │   │   │   │   │   ├── oxford-comma-list.js
 │   │   │   │   │   │   ├── oxford-comma-list.js.map
 │   │   │   │   │   │   ├── page-types.js
@@ -11322,6 +11509,9 @@ Insights/
 │   │   │   │   │   ├── non-nullable.d.ts
 │   │   │   │   │   ├── non-nullable.js
 │   │   │   │   │   ├── non-nullable.js.map
+│   │   │   │   │   ├── normalize-path.d.ts
+│   │   │   │   │   ├── normalize-path.js
+│   │   │   │   │   ├── normalize-path.js.map
 │   │   │   │   │   ├── oxford-comma-list.d.ts
 │   │   │   │   │   ├── oxford-comma-list.js
 │   │   │   │   │   ├── oxford-comma-list.js.map
@@ -14013,6 +14203,47 @@ Insights/
 │   │   │   ├── README.md
 │   │   │   ├── index.d.ts
 │   │   │   ├── index.js
+│   │   │   ├── node_modules
+│   │   │   │   └── postcss-selector-parser
+│   │   │   │       ├── API.md
+│   │   │   │       ├── CHANGELOG.md
+│   │   │   │       ├── LICENSE-MIT
+│   │   │   │       ├── README.md
+│   │   │   │       ├── dist
+│   │   │   │       │   ├── index.js
+│   │   │   │       │   ├── parser.js
+│   │   │   │       │   ├── processor.js
+│   │   │   │       │   ├── selectors
+│   │   │   │       │   │   ├── attribute.js
+│   │   │   │       │   │   ├── className.js
+│   │   │   │       │   │   ├── combinator.js
+│   │   │   │       │   │   ├── comment.js
+│   │   │   │       │   │   ├── constructors.js
+│   │   │   │       │   │   ├── container.js
+│   │   │   │       │   │   ├── guards.js
+│   │   │   │       │   │   ├── id.js
+│   │   │   │       │   │   ├── index.js
+│   │   │   │       │   │   ├── namespace.js
+│   │   │   │       │   │   ├── nesting.js
+│   │   │   │       │   │   ├── node.js
+│   │   │   │       │   │   ├── pseudo.js
+│   │   │   │       │   │   ├── root.js
+│   │   │   │       │   │   ├── selector.js
+│   │   │   │       │   │   ├── string.js
+│   │   │   │       │   │   ├── tag.js
+│   │   │   │       │   │   ├── types.js
+│   │   │   │       │   │   └── universal.js
+│   │   │   │       │   ├── sortAscending.js
+│   │   │   │       │   ├── tokenTypes.js
+│   │   │   │       │   ├── tokenize.js
+│   │   │   │       │   └── util
+│   │   │   │       │       ├── ensureObject.js
+│   │   │   │       │       ├── getProp.js
+│   │   │   │       │       ├── index.js
+│   │   │   │       │       ├── stripComments.js
+│   │   │   │       │       └── unesc.js
+│   │   │   │       ├── package.json
+│   │   │   │       └── postcss-selector-parser.d.ts
 │   │   │   └── package.json
 │   │   ├── postcss-resolve-nested-selector
 │   │   │   ├── CHANGELOG.md
@@ -14568,13 +14799,6 @@ Insights/
 │   │   ├── slice-ansi
 │   │   │   ├── index.js
 │   │   │   ├── license
-│   │   │   ├── node_modules
-│   │   │   │   └── ansi-styles
-│   │   │   │       ├── index.d.ts
-│   │   │   │       ├── index.js
-│   │   │   │       ├── license
-│   │   │   │       ├── package.json
-│   │   │   │       └── readme.md
 │   │   │   ├── package.json
 │   │   │   └── readme.md
 │   │   ├── source-map-js
@@ -14614,29 +14838,6 @@ Insights/
 │   │   │   ├── index.d.ts
 │   │   │   ├── index.js
 │   │   │   ├── license
-│   │   │   ├── node_modules
-│   │   │   │   ├── ansi-regex
-│   │   │   │   │   ├── index.d.ts
-│   │   │   │   │   ├── index.js
-│   │   │   │   │   ├── license
-│   │   │   │   │   ├── package.json
-│   │   │   │   │   └── readme.md
-│   │   │   │   ├── emoji-regex
-│   │   │   │   │   ├── LICENSE-MIT.txt
-│   │   │   │   │   ├── README.md
-│   │   │   │   │   ├── es2015
-│   │   │   │   │   │   ├── index.js
-│   │   │   │   │   │   └── text.js
-│   │   │   │   │   ├── index.d.ts
-│   │   │   │   │   ├── index.js
-│   │   │   │   │   ├── package.json
-│   │   │   │   │   └── text.js
-│   │   │   │   └── strip-ansi
-│   │   │   │       ├── index.d.ts
-│   │   │   │       ├── index.js
-│   │   │   │       ├── license
-│   │   │   │       ├── package.json
-│   │   │   │       └── readme.md
 │   │   │   ├── package.json
 │   │   │   └── readme.md
 │   │   ├── strip-ansi
@@ -14649,13 +14850,6 @@ Insights/
 │   │   │   ├── index.d.ts
 │   │   │   ├── index.js
 │   │   │   ├── license
-│   │   │   ├── node_modules
-│   │   │   │   └── ansi-regex
-│   │   │   │       ├── index.d.ts
-│   │   │   │       ├── index.js
-│   │   │   │       ├── license
-│   │   │   │       ├── package.json
-│   │   │   │       └── readme.md
 │   │   │   ├── package.json
 │   │   │   └── readme.md
 │   │   ├── styled-jsx
@@ -15482,90 +15676,6 @@ Insights/
 │   │   │   │   ├── validateDisableSettings.mjs
 │   │   │   │   ├── writeOutputFile.cjs
 │   │   │   │   └── writeOutputFile.mjs
-│   │   │   ├── node_modules
-│   │   │   │   ├── @csstools
-│   │   │   │   │   └── selector-specificity
-│   │   │   │   │       ├── CHANGELOG.md
-│   │   │   │   │       ├── LICENSE.md
-│   │   │   │   │       ├── README.md
-│   │   │   │   │       ├── dist
-│   │   │   │   │       │   ├── index.cjs
-│   │   │   │   │       │   ├── index.d.ts
-│   │   │   │   │       │   └── index.mjs
-│   │   │   │   │       └── package.json
-│   │   │   │   ├── ansi-regex
-│   │   │   │   │   ├── index.d.ts
-│   │   │   │   │   ├── index.js
-│   │   │   │   │   ├── license
-│   │   │   │   │   ├── package.json
-│   │   │   │   │   └── readme.md
-│   │   │   │   ├── balanced-match
-│   │   │   │   │   ├── LICENSE.md
-│   │   │   │   │   ├── README.md
-│   │   │   │   │   ├── index.js
-│   │   │   │   │   └── package.json
-│   │   │   │   ├── emoji-regex
-│   │   │   │   │   ├── LICENSE-MIT.txt
-│   │   │   │   │   ├── README.md
-│   │   │   │   │   ├── es2015
-│   │   │   │   │   │   ├── index.js
-│   │   │   │   │   │   └── text.js
-│   │   │   │   │   ├── index.d.ts
-│   │   │   │   │   ├── index.js
-│   │   │   │   │   ├── package.json
-│   │   │   │   │   └── text.js
-│   │   │   │   ├── postcss-selector-parser
-│   │   │   │   │   ├── API.md
-│   │   │   │   │   ├── CHANGELOG.md
-│   │   │   │   │   ├── LICENSE-MIT
-│   │   │   │   │   ├── README.md
-│   │   │   │   │   ├── dist
-│   │   │   │   │   │   ├── index.js
-│   │   │   │   │   │   ├── parser.js
-│   │   │   │   │   │   ├── processor.js
-│   │   │   │   │   │   ├── selectors
-│   │   │   │   │   │   │   ├── attribute.js
-│   │   │   │   │   │   │   ├── className.js
-│   │   │   │   │   │   │   ├── combinator.js
-│   │   │   │   │   │   │   ├── comment.js
-│   │   │   │   │   │   │   ├── constructors.js
-│   │   │   │   │   │   │   ├── container.js
-│   │   │   │   │   │   │   ├── guards.js
-│   │   │   │   │   │   │   ├── id.js
-│   │   │   │   │   │   │   ├── index.js
-│   │   │   │   │   │   │   ├── namespace.js
-│   │   │   │   │   │   │   ├── nesting.js
-│   │   │   │   │   │   │   ├── node.js
-│   │   │   │   │   │   │   ├── pseudo.js
-│   │   │   │   │   │   │   ├── root.js
-│   │   │   │   │   │   │   ├── selector.js
-│   │   │   │   │   │   │   ├── string.js
-│   │   │   │   │   │   │   ├── tag.js
-│   │   │   │   │   │   │   ├── types.js
-│   │   │   │   │   │   │   └── universal.js
-│   │   │   │   │   │   ├── sortAscending.js
-│   │   │   │   │   │   ├── tokenTypes.js
-│   │   │   │   │   │   ├── tokenize.js
-│   │   │   │   │   │   └── util
-│   │   │   │   │   │       ├── ensureObject.js
-│   │   │   │   │   │       ├── getProp.js
-│   │   │   │   │   │       ├── index.js
-│   │   │   │   │   │       ├── stripComments.js
-│   │   │   │   │   │       └── unesc.js
-│   │   │   │   │   ├── package.json
-│   │   │   │   │   └── postcss-selector-parser.d.ts
-│   │   │   │   ├── string-width
-│   │   │   │   │   ├── index.d.ts
-│   │   │   │   │   ├── index.js
-│   │   │   │   │   ├── license
-│   │   │   │   │   ├── package.json
-│   │   │   │   │   └── readme.md
-│   │   │   │   └── strip-ansi
-│   │   │   │       ├── index.d.ts
-│   │   │   │       ├── index.js
-│   │   │   │       ├── license
-│   │   │   │       ├── package.json
-│   │   │   │       └── readme.md
 │   │   │   ├── package.json
 │   │   │   └── types
 │   │   │       └── stylelint
@@ -15943,35 +16053,6 @@ Insights/
 │   │   │   │       ├── wrapWord.d.ts
 │   │   │   │       ├── wrapWord.js
 │   │   │   │       └── wrapWord.js.map
-│   │   │   ├── node_modules
-│   │   │   │   ├── ansi-regex
-│   │   │   │   │   ├── index.d.ts
-│   │   │   │   │   ├── index.js
-│   │   │   │   │   ├── license
-│   │   │   │   │   ├── package.json
-│   │   │   │   │   └── readme.md
-│   │   │   │   ├── emoji-regex
-│   │   │   │   │   ├── LICENSE-MIT.txt
-│   │   │   │   │   ├── README.md
-│   │   │   │   │   ├── es2015
-│   │   │   │   │   │   ├── index.js
-│   │   │   │   │   │   └── text.js
-│   │   │   │   │   ├── index.d.ts
-│   │   │   │   │   ├── index.js
-│   │   │   │   │   ├── package.json
-│   │   │   │   │   └── text.js
-│   │   │   │   ├── string-width
-│   │   │   │   │   ├── index.d.ts
-│   │   │   │   │   ├── index.js
-│   │   │   │   │   ├── license
-│   │   │   │   │   ├── package.json
-│   │   │   │   │   └── readme.md
-│   │   │   │   └── strip-ansi
-│   │   │   │       ├── index.d.ts
-│   │   │   │       ├── index.js
-│   │   │   │       ├── license
-│   │   │   │       ├── package.json
-│   │   │   │       └── readme.md
 │   │   │   └── package.json
 │   │   ├── tailwindcss
 │   │   │   ├── CHANGELOG.md
@@ -16106,6 +16187,11 @@ Insights/
 │   │   │   │   ├── index.d.ts
 │   │   │   │   └── index.js
 │   │   │   ├── node_modules
+│   │   │   │   ├── glob-parent
+│   │   │   │   │   ├── LICENSE
+│   │   │   │   │   ├── README.md
+│   │   │   │   │   ├── index.js
+│   │   │   │   │   └── package.json
 │   │   │   │   ├── jiti
 │   │   │   │   │   ├── LICENSE
 │   │   │   │   │   ├── README.md
@@ -16125,16 +16211,56 @@ Insights/
 │   │   │   │   │   │   └── index.js
 │   │   │   │   │   ├── package.json
 │   │   │   │   │   └── register.js
-│   │   │   │   └── postcss-load-config
-│   │   │   │       ├── LICENSE
+│   │   │   │   ├── postcss-load-config
+│   │   │   │   │   ├── LICENSE
+│   │   │   │   │   ├── README.md
+│   │   │   │   │   ├── package.json
+│   │   │   │   │   └── src
+│   │   │   │   │       ├── index.d.ts
+│   │   │   │   │       ├── index.js
+│   │   │   │   │       ├── options.js
+│   │   │   │   │       ├── plugins.js
+│   │   │   │   │       └── req.js
+│   │   │   │   └── postcss-selector-parser
+│   │   │   │       ├── API.md
+│   │   │   │       ├── CHANGELOG.md
+│   │   │   │       ├── LICENSE-MIT
 │   │   │   │       ├── README.md
+│   │   │   │       ├── dist
+│   │   │   │       │   ├── index.js
+│   │   │   │       │   ├── parser.js
+│   │   │   │       │   ├── processor.js
+│   │   │   │       │   ├── selectors
+│   │   │   │       │   │   ├── attribute.js
+│   │   │   │       │   │   ├── className.js
+│   │   │   │       │   │   ├── combinator.js
+│   │   │   │       │   │   ├── comment.js
+│   │   │   │       │   │   ├── constructors.js
+│   │   │   │       │   │   ├── container.js
+│   │   │   │       │   │   ├── guards.js
+│   │   │   │       │   │   ├── id.js
+│   │   │   │       │   │   ├── index.js
+│   │   │   │       │   │   ├── namespace.js
+│   │   │   │       │   │   ├── nesting.js
+│   │   │   │       │   │   ├── node.js
+│   │   │   │       │   │   ├── pseudo.js
+│   │   │   │       │   │   ├── root.js
+│   │   │   │       │   │   ├── selector.js
+│   │   │   │       │   │   ├── string.js
+│   │   │   │       │   │   ├── tag.js
+│   │   │   │       │   │   ├── types.js
+│   │   │   │       │   │   └── universal.js
+│   │   │   │       │   ├── sortAscending.js
+│   │   │   │       │   ├── tokenTypes.js
+│   │   │   │       │   ├── tokenize.js
+│   │   │   │       │   └── util
+│   │   │   │       │       ├── ensureObject.js
+│   │   │   │       │       ├── getProp.js
+│   │   │   │       │       ├── index.js
+│   │   │   │       │       ├── stripComments.js
+│   │   │   │       │       └── unesc.js
 │   │   │   │       ├── package.json
-│   │   │   │       └── src
-│   │   │   │           ├── index.d.ts
-│   │   │   │           ├── index.js
-│   │   │   │           ├── options.js
-│   │   │   │           ├── plugins.js
-│   │   │   │           └── req.js
+│   │   │   │       └── postcss-selector-parser.d.ts
 │   │   │   ├── package.json
 │   │   │   ├── peers
 │   │   │   │   └── index.js
@@ -17001,16 +17127,11 @@ Insights/
 │   │   │   ├── LICENSE
 │   │   │   ├── README.md
 │   │   │   ├── bin
-│   │   │   │   └── node-which
+│   │   │   │   └── which
 │   │   │   ├── package.json
 │   │   │   └── which.js
 │   │   ├── wrap-ansi
 │   │   │   ├── index.d.ts
-│   │   │   ├── index.js
-│   │   │   ├── license
-│   │   │   ├── package.json
-│   │   │   └── readme.md
-│   │   ├── wrap-ansi-cjs
 │   │   │   ├── index.js
 │   │   │   ├── license
 │   │   │   ├── node_modules
@@ -17029,12 +17150,19 @@ Insights/
 │   │   │   │   ├── emoji-regex
 │   │   │   │   │   ├── LICENSE-MIT.txt
 │   │   │   │   │   ├── README.md
+│   │   │   │   │   ├── RGI_Emoji.d.ts
+│   │   │   │   │   ├── RGI_Emoji.js
 │   │   │   │   │   ├── es2015
+│   │   │   │   │   │   ├── RGI_Emoji.d.ts
+│   │   │   │   │   │   ├── RGI_Emoji.js
+│   │   │   │   │   │   ├── index.d.ts
 │   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   ├── text.d.ts
 │   │   │   │   │   │   └── text.js
 │   │   │   │   │   ├── index.d.ts
 │   │   │   │   │   ├── index.js
 │   │   │   │   │   ├── package.json
+│   │   │   │   │   ├── text.d.ts
 │   │   │   │   │   └── text.js
 │   │   │   │   ├── string-width
 │   │   │   │   │   ├── index.d.ts
@@ -17048,6 +17176,11 @@ Insights/
 │   │   │   │       ├── license
 │   │   │   │       ├── package.json
 │   │   │   │       └── readme.md
+│   │   │   ├── package.json
+│   │   │   └── readme.md
+│   │   ├── wrap-ansi-cjs
+│   │   │   ├── index.js
+│   │   │   ├── license
 │   │   │   ├── package.json
 │   │   │   └── readme.md
 │   │   ├── write-file-atomic
@@ -18003,6 +18136,7 @@ Insights/
 │   │   ├── file.svg
 │   │   ├── globe.svg
 │   │   ├── next.svg
+│   │   ├── user-listing.html
 │   │   ├── vercel.svg
 │   │   └── window.svg
 │   ├── schema
@@ -18010,10 +18144,14 @@ Insights/
 │   ├── styles
 │   │   └── globals.css
 │   ├── tailwind.config.js
+│   ├── test.txt
 │   ├── tsconfig.json
+│   ├── tsconfig.tsbuildinfo
 │   └── utils
+│       ├── cache.ts
 │       ├── hooks
 │       │   └── useRequireFeature.tsx
+│       ├── prefetch.ts
 │       ├── rbac.ts
 │       ├── supabase
 │       │   ├── browser.ts

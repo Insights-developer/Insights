@@ -1008,7 +1008,7 @@ export default function FeatureManagementClient() {
         title="Deactivate Feature"
         message={
           <div>
-            <p>Are you sure you want to deactivate the feature <strong>{deletingFeature?.name}</strong>?</p>
+            <p>Are you sure you want to deactivate the feature <strong>{deletingFeature ? deletingFeature.name : ''}</strong>?</p>
             <p className="mt-2 text-sm text-gray-500">
               This will mark the feature as inactive. Groups with this feature will no longer have access to it.
             </p>

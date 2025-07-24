@@ -165,6 +165,14 @@ export default function UserManagementClient() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        
+        // Special handling for authentication errors
+        if (response.status === 401) {
+          // Consider redirecting to login page or showing a specific auth error
+          showNotification('error', 'Your session has expired. Please login again.');
+          return;
+        }
+        
         throw new Error(errorData.error || 'Failed to save user');
       }
 

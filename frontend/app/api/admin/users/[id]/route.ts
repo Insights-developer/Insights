@@ -1,19 +1,21 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { checkAdmin } from '@/utils/rbac';
+import { checkAdmin, getUserFeatures } from '@/utils/rbac';
 
 export async function PATCH(request: Request, context: any) {
   const supabase = createRouteHandlerClient({ cookies });
-  const { data: { session } } = await supabase.auth.getSession();
+  
+  // Get user directly from auth
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
-  // Use the updated checkAdmin function which now returns a Promise
-  const isAdmin = await checkAdmin(session);
-  if (!isAdmin) {
+  // Use getUserFeatures directly instead of checkAdmin
+  const features = await getUserFeatures(user.id);
+  if (!features.includes('admin_dashboard')) {
     return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
   }
 
@@ -65,15 +67,17 @@ export async function PATCH(request: Request, context: any) {
 
 export async function DELETE(request: Request, context: any) {
   const supabase = createRouteHandlerClient({ cookies });
-  const { data: { session } } = await supabase.auth.getSession();
+  
+  // Get user directly from auth
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
-  // Use the updated checkAdmin function which now returns a Promise
-  const isAdmin = await checkAdmin(session);
-  if (!isAdmin) {
+  // Use getUserFeatures directly instead of checkAdmin
+  const features = await getUserFeatures(user.id);
+  if (!features.includes('admin_dashboard')) {
     return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
   }
 

@@ -4,18 +4,35 @@ import { NextResponse } from 'next/server';
 import { checkAdmin, getUserFeatures } from '@/utils/rbac';
 
 export async function PATCH(request: Request, context: any) {
-  const supabase = createRouteHandlerClient({ cookies });
+  // Initialize Supabase with explicit cookie handling
+  const cookieStore = cookies();
+  const supabase = createRouteHandlerClient({ 
+    cookies: () => cookieStore 
+  });
   
   try {
-    // Get user directly from auth with better error handling
-    const { data, error } = await supabase.auth.getUser();
+    // Get user session and improve error handling
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     
-    if (error || !data.user) {
-      console.error('Authentication error:', error?.message || 'No user found');
-      return NextResponse.json({ error: 'Unauthorized - Please login again' }, { status: 401 });
+    if (sessionError) {
+      console.error('Session error:', sessionError.message);
+      return NextResponse.json({ error: 'Authentication error: ' + sessionError.message }, { status: 401 });
+    }
+    
+    if (!sessionData?.session) {
+      console.error('No active session found');
+      return NextResponse.json({ error: 'No active session - Please login again' }, { status: 401 });
     }
 
-    const user = data.user;
+    // Get user details
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !userData?.user) {
+      console.error('User retrieval error:', userError?.message || 'No user found');
+      return NextResponse.json({ error: 'User authentication failed - Please login again' }, { status: 401 });
+    }
+
+    const user = userData.user;
   
   
     // Use getUserFeatures directly instead of checkAdmin
@@ -74,18 +91,35 @@ export async function PATCH(request: Request, context: any) {
 }
 
 export async function DELETE(request: Request, context: any) {
-  const supabase = createRouteHandlerClient({ cookies });
+  // Initialize Supabase with explicit cookie handling
+  const cookieStore = cookies();
+  const supabase = createRouteHandlerClient({ 
+    cookies: () => cookieStore 
+  });
   
   try {
-    // Get user directly from auth with better error handling
-    const { data, error } = await supabase.auth.getUser();
+    // Get user session and improve error handling
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     
-    if (error || !data.user) {
-      console.error('Authentication error:', error?.message || 'No user found');
-      return NextResponse.json({ error: 'Unauthorized - Please login again' }, { status: 401 });
+    if (sessionError) {
+      console.error('Session error:', sessionError.message);
+      return NextResponse.json({ error: 'Authentication error: ' + sessionError.message }, { status: 401 });
+    }
+    
+    if (!sessionData?.session) {
+      console.error('No active session found');
+      return NextResponse.json({ error: 'No active session - Please login again' }, { status: 401 });
     }
 
-    const user = data.user;
+    // Get user details
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !userData?.user) {
+      console.error('User retrieval error:', userError?.message || 'No user found');
+      return NextResponse.json({ error: 'User authentication failed - Please login again' }, { status: 401 });
+    }
+
+    const user = userData.user;
     
     // Use getUserFeatures directly instead of checkAdmin
     const features = await getUserFeatures(user.id);

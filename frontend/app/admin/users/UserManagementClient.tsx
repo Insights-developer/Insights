@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserProfile, AccessGroup } from '@/utils/types';
+import { supabase } from '@/utils/supabase/browser';
 import { 
   ChevronUpIcon, ChevronDownIcon, PencilIcon, TrashIcon, UserPlusIcon, 
   MagnifyingGlassIcon, XMarkIcon, CheckIcon, UserCircleIcon,
@@ -153,6 +154,14 @@ export default function UserManagementClient() {
 
     try {
       setLoading(true);
+      
+      // Try to refresh the session before making the request
+      const { error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.error('Session refresh failed:', refreshError);
+        // Continue with request anyway, the API will handle auth errors
+      }
+      
       const response = await fetch(`/api/admin/users/${editingUserId}`, {
         method: 'PATCH',
         headers: {
@@ -247,6 +256,14 @@ export default function UserManagementClient() {
 
     try {
       setLoading(true);
+      
+      // Try to refresh the session before making the request
+      const { error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.error('Session refresh failed:', refreshError);
+        // Continue with request anyway, the API will handle auth errors
+      }
+      
       const response = await fetch(`/api/admin/users/${deletingUser.id}`, {
         method: 'DELETE',
         credentials: 'include', // Add this to ensure cookies are sent

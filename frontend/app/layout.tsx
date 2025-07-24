@@ -27,17 +27,38 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     checkMobile();
     window.addEventListener('resize', checkMobile);
     
-    // Check initial auth state
-    supabase.auth.getUser().then(({ data }) => {
-      const isAuth = !!data?.user;
+    // Check initial auth state and set up refresh mechanism
+    const setupAuth = async () => {
+      // Get initial auth state
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      const isAuth = !!userData?.user;
       setIsAuthenticated(isAuth);
+      
+      if (userError) {
+        console.error('Auth error:', userError);
+      }
       
       // Initialize prefetch if authenticated
       if (isAuth) {
         const cleanup = initializePrefetch();
-        return cleanup;
+        
+        // Set up session refresh
+        const REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
+        const refreshInterval = setInterval(async () => {
+          const { error } = await supabase.auth.refreshSession();
+          if (error) {
+            console.error('Session refresh failed:', error);
+          }
+        }, REFRESH_INTERVAL);
+        
+        return () => {
+          clearInterval(refreshInterval);
+          cleanup();
+        };
       }
-    });
+    };
+    
+    setupAuth();
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {

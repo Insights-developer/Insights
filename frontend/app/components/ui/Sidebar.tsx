@@ -41,7 +41,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: Sid
     }
 
     try {
-      const resp = await fetch('/api/user/nav');
+      const resp = await fetch('/api/user/nav', { credentials: 'include' });
       const navRes = await resp.json();
       const navData = Array.isArray(navRes.nav) ? navRes.nav : [];
       

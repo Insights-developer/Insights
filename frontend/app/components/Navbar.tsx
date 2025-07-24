@@ -24,7 +24,7 @@ export default function Navbar() {
     const { data } = await supabase.auth.getUser();
     if (data?.user) {
       setUser({ email: data.user.email ?? '' });
-      const resp = await fetch('/api/user/nav');
+      const resp = await fetch('/api/user/nav', { credentials: 'include' });
       const navRes = await resp.json();
       setNavLinks(Array.isArray(navRes.nav) ? navRes.nav : []);
     }

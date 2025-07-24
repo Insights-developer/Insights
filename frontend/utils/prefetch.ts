@@ -6,7 +6,7 @@ export async function prefetchCriticalData() {
 
   // Prefetch navigation data
   promises.push(
-    fetch('/api/user/nav')
+    fetch('/api/user/nav', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data.nav)) {
@@ -18,7 +18,7 @@ export async function prefetchCriticalData() {
 
   // Prefetch user cards data
   promises.push(
-    fetch('/api/user/cards')
+    fetch('/api/user/cards', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data.cards)) {
@@ -30,7 +30,7 @@ export async function prefetchCriticalData() {
 
   // Prefetch user features data
   promises.push(
-    fetch('/api/user/features')
+    fetch('/api/user/features', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data.features)) {

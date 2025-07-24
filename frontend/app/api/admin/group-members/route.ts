@@ -1,67 +1,101 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { withApiHandler, ApiValidator } from '@/utils/api-handler';
 import { createClient } from '@/utils/supabase/server';
-import { getUserFeatures } from '@/utils/rbac';
 
-// GET: List all user/group memberships
-export async function GET(req: NextRequest) {
-  const supabase = createClient();
-  const { data } = await supabase.auth.getUser();
-  if (!data?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const supabase = createClient();
+    const url = new URL(request.url);
+    const groupId = url.searchParams.get('groupId');
+    
+    if (groupId) {
+      // Get members for specific group
+      const { data, error } = await api.handleDatabaseOperation(async () => {
+        return await supabase
+          .from('user_access_groups')
+          .select(`
+            user_id,
+            users (id, email, username)
+          `)
+          .eq('access_group_id', groupId);
+      });
 
-  const features = await getUserFeatures(data.user.id);
-  if (!features.includes('admin_dashboard')) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      if (error) return error;
+      
+      const members = data?.map(item => item.users) || [];
+      return api.success({ members });
+    } else {
+      // Get all group memberships
+      const { data, error } = await api.handleDatabaseOperation(async () => {
+        return await supabase
+          .from('user_access_groups')
+          .select(`
+            id,
+            user_id,
+            access_group_id,
+            users (id, email, username),
+            access_groups (id, name)
+          `)
+          .order('access_group_id');
+      });
 
-  const { data: memberships, error } = await supabase.from('user_access_groups').select('*');
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ memberships });
+      if (error) return error;
+      return api.success({ memberships: data || [] });
+    }
+  }, 'admin_dashboard');
 }
 
-// POST: Add user to group
-export async function POST(req: NextRequest) {
-  const supabase = createClient();
-  const { data } = await supabase.auth.getUser();
-  if (!data?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function POST(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const { data: body, error: parseError } = await api.parseBody();
+    if (parseError) return parseError;
 
-  const features = await getUserFeatures(data.user.id);
-  if (!features.includes('admin_dashboard')) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const userIdError = ApiValidator.required(body?.userId, 'userId');
+    if (userIdError) return api.error(userIdError, 400);
 
-  try {
-    const { userId, groupId } = await req.json();
-    if (!userId || !groupId) {
-      return NextResponse.json({ error: "userId and groupId required" }, { status: 400 });
-    }
-    const { error } = await supabase
-      .from('user_access_groups')
-      .insert([{ user_id: userId, group_id: groupId }]);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
+    const groupIdError = ApiValidator.required(body?.groupId, 'groupId');
+    if (groupIdError) return api.error(groupIdError, 400);
+
+    const supabase = createClient();
+    
+    const { data, error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('user_access_groups')
+        .insert({
+          user_id: body.userId,
+          access_group_id: body.groupId
+        })
+        .select()
+        .single();
+    });
+
+    if (error) return error;
+    return api.success(data, 'User added to group successfully', 201);
+  }, 'admin_dashboard');
 }
 
-// DELETE: Remove user from group
-export async function DELETE(req: NextRequest) {
-  const supabase = createClient();
-  const { data } = await supabase.auth.getUser();
-  if (!data?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function DELETE(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const { data: body, error: parseError } = await api.parseBody();
+    if (parseError) return parseError;
 
-  const features = await getUserFeatures(data.user.id);
-  if (!features.includes('admin_dashboard')) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const userIdError = ApiValidator.required(body?.userId, 'userId');
+    if (userIdError) return api.error(userIdError, 400);
 
-  try {
-    const { userId, groupId } = await req.json();
-    if (!userId || !groupId) {
-      return NextResponse.json({ error: "userId and groupId required" }, { status: 400 });
-    }
-    const { error } = await supabase
-      .from('user_access_groups')
-      .delete()
-      .eq('user_id', userId)
-      .eq('group_id', groupId);
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
+    const groupIdError = ApiValidator.required(body?.groupId, 'groupId');
+    if (groupIdError) return api.error(groupIdError, 400);
+
+    const supabase = createClient();
+    
+    const { error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('user_access_groups')
+        .delete()
+        .eq('user_id', body.userId)
+        .eq('access_group_id', body.groupId);
+    });
+
+    if (error) return error;
+    return api.success({ deleted: true }, 'User removed from group successfully');
+  }, 'admin_dashboard');
 }

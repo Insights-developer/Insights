@@ -1,50 +1,102 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
-import { getUserFeatures } from "@/utils/rbac";
+import { NextRequest } from 'next/server';
+import { withApiHandler, ApiValidator } from '@/utils/api-handler';
+import { createClient } from '@/utils/supabase/server';
 
-// Helper for admin RBAC guard, returns null for client if forbidden
-async function getAdminSupabase(req: NextRequest) {
-  const supabase = createClient();
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) return { supabase: null, response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
-  const features = await getUserFeatures(user.id);
-  if (!features.includes('admin_dashboard'))
-    return { supabase: null, response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
-  return { supabase, response: null };
+export async function GET(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const supabase = createClient();
+    
+    const { data, error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('features')
+        .select('*')
+        .order('name');
+    });
+
+    if (error) return error;
+    return api.success({ features: data || [] });
+  }, 'admin_dashboard');
 }
 
-// GET: fetch all features (admin)
-export async function GET(req: NextRequest) {
-  const { supabase, response } = await getAdminSupabase(req);
-  if (!supabase) return response!;
-  const { data: features, error } = await supabase.from('features').select('*');
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ features });
+export async function POST(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const { data: body, error: parseError } = await api.parseBody();
+    if (parseError) return parseError;
+
+    const nameError = ApiValidator.required(body?.name, 'name');
+    if (nameError) return api.error(nameError, 400);
+
+    const keyError = ApiValidator.required(body?.key, 'key');
+    if (keyError) return api.error(keyError, 400);
+
+    const supabase = createClient();
+    
+    const { data, error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('features')
+        .insert({
+          name: body.name,
+          key: body.key,
+          description: body.description || null,
+          active: body.active !== undefined ? body.active : true
+        })
+        .select()
+        .single();
+    });
+
+    if (error) return error;
+    return api.success(data, 'Feature created successfully', 201);
+  }, 'admin_dashboard');
 }
 
-// POST: create a new feature
-export async function POST(req: NextRequest) {
-  const { supabase, response } = await getAdminSupabase(req);
-  if (!supabase) return response!;
-  const { key, name, description, type, nav_name, icon_url, order, url, active } = await req.json();
-  if (!key || !name) return NextResponse.json({ error: 'Key and name are required' }, { status: 400 });
+export async function PATCH(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const { data: body, error: parseError } = await api.parseBody();
+    if (parseError) return parseError;
 
-  const { error } = await supabase.from('features').insert({
-    key, name, description, type, nav_name, icon_url, order, url, active
-  } as any);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ success: true });
+    const idError = ApiValidator.required(body?.id, 'id');
+    if (idError) return api.error(idError, 400);
+
+    const supabase = createClient();
+    
+    const updates: any = {};
+    if (body.name !== undefined) updates.name = body.name;
+    if (body.key !== undefined) updates.key = body.key;
+    if (body.description !== undefined) updates.description = body.description;
+    if (body.active !== undefined) updates.active = body.active;
+
+    const { data, error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('features')
+        .update(updates)
+        .eq('id', body.id)
+        .select()
+        .single();
+    });
+
+    if (error) return error;
+    return api.success(data, 'Feature updated successfully');
+  }, 'admin_dashboard');
 }
 
-// PATCH: update an existing feature (by id)
-export async function PATCH(req: NextRequest) {
-  const { supabase, response } = await getAdminSupabase(req);
-  if (!supabase) return response!;
-  const { id, ...fields } = await req.json();
-  if (!id) return NextResponse.json({ error: 'Missing feature ID' }, { status: 400 });
+export async function DELETE(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const { data: body, error: parseError } = await api.parseBody();
+    if (parseError) return parseError;
 
-  const { error } = await supabase.from('features').update(fields).eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ success: true });
+    const idError = ApiValidator.required(body?.id, 'id');
+    if (idError) return api.error(idError, 400);
+
+    const supabase = createClient();
+    
+    const { error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('features')
+        .delete()
+        .eq('id', body.id);
+    });
+
+    if (error) return error;
+    return api.success({ deleted: true }, 'Feature deleted successfully');
+  }, 'admin_dashboard');
 }

@@ -1,14 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { withApiHandler } from '@/utils/api-handler';
 
-export async function GET() {
-  // This endpoint will help debug Supabase configuration
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const hasAnonKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+export async function GET(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const config = {
+      environment: process.env.NODE_ENV || 'development',
+      supabase: {
+        url: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      },
+      features: api.getFeatures()
+    };
 
-  return NextResponse.json({
-    supabaseUrl: supabaseUrl ? `${supabaseUrl.substring(0, 8)}...` : null, // Show only first part for security
-    hasAnonKey,
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
+    return api.success(config);
   });
 }

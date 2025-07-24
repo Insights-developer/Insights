@@ -1,29 +1,56 @@
+import { NextRequest } from 'next/server';
+import { withApiHandler } from '@/utils/api-handler';
 import { createClient } from '@/utils/supabase/server';
-import { getUserFeatures } from '@/utils/rbac';
 
-export async function GET(req: Request) {
-  const supabase = createClient();
+export async function GET(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const supabase = createClient();
+    const user = api.getUser();
+    
+    // Get dashboard data based on user's features
+    const features = api.getFeatures();
+    const dashboardData: any = {
+      user: {
+        email: user.email,
+        features: features
+      }
+    };
 
-  // 1. Authenticate user
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  }
+    // If user has admin access, get admin stats
+    if (api.hasFeature('admin_dashboard')) {
+      try {
+        const [usersResult, groupsResult, featuresResult] = await Promise.all([
+          supabase.from('users').select('id'),
+          supabase.from('access_groups').select('id'),
+          supabase.from('features').select('id').eq('active', true)
+        ]);
+        
+        dashboardData.admin = {
+          users: usersResult.data?.length || 0,
+          groups: groupsResult.data?.length || 0,
+          features: featuresResult.data?.length || 0
+        };
+      } catch (error) {
+        console.error('Error fetching admin stats:', error);
+      }
+    }
 
-  // 2. RBAC: (Optional) - Require 'dashboard_page' feature
-  // const features = await getUserFeatures(user.id);
-  // if (!features.includes("dashboard_page")) {
-  //   return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
-  // }
+    // If user has insights access, get insights stats
+    if (api.hasFeature('insights_page')) {
+      try {
+        const { data: insightsData } = await supabase
+          .from('draws')
+          .select('id')
+          .eq('user_id', user.id);
+          
+        dashboardData.insights = {
+          count: insightsData?.length || 0
+        };
+      } catch (error) {
+        console.error('Error fetching insights stats:', error);
+      }
+    }
 
-  // 3. (Example) Return a welcome and their allowed features
-  const features = await getUserFeatures(user.id);
-  return new Response(
-    JSON.stringify({
-      message: `Welcome, ${user.email}!`,
-      features,
-    }),
-    { status: 200, headers: { "Content-Type": "application/json" } }
-  );
+    return api.success(dashboardData);
+  });
 }

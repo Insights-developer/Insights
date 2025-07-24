@@ -1,41 +1,46 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { withApiHandler } from '@/utils/api-handler';
 import { createClient } from '@/utils/supabase/server';
-import { getUserFeatures } from '@/utils/rbac';
 
-export async function GET(req: NextRequest) {
-  const supabase = createClient();
+export async function GET(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const supabase = createClient();
+    const user = api.getUser();
+    
+    const { data, error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('user_cards')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+    });
 
-  // 1. Authenticate user
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+    if (error) return error;
+    return api.success({ cards: data || [] });
+  });
+}
 
-  // 2. User's allowed feature keys
-  const featureKeys = await getUserFeatures(user.id);
-  if (!featureKeys || featureKeys.length === 0) {
-    return NextResponse.json({ cards: [] });
-  }
+export async function POST(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const { data: body, error: parseError } = await api.parseBody();
+    if (parseError) return parseError;
 
-  // 3. Query type='card' features this user is allowed
-  const { data: cardFeatures, error } = await supabase
-    .from('features')
-    .select('key, nav_name, url, icon_url, order, active, type')
-    .eq('active', true)
-    .eq('type', 'card')
-    .in('key', featureKeys)
-    .order('order', { ascending: true });
+    const supabase = createClient();
+    const user = api.getUser();
+    
+    const { data, error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('user_cards')
+        .insert({
+          ...body,
+          user_id: user.id,
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+    });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  const cards = (cardFeatures || []).map(f => ({
-    key: f.key,
-    label: f.nav_name || f.key,
-    url: f.url && f.url.trim().length > 0 ? f.url : `/${f.key}`,
-    icon: f.icon_url || null,
-    order: f.order ?? 0,
-  }));
-
-  return NextResponse.json({ cards });
+    if (error) return error;
+    return api.success(data, 'Card created successfully', 201);
+  });
 }

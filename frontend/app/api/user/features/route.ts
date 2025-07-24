@@ -1,14 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { NextRequest } from 'next/server';
+import { withApiHandler } from '@/utils/api-handler';
 import { getUserFeatures } from '@/utils/rbac';
 
-export async function GET(req: NextRequest) {
-  const supabase = createClient();
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const features = await getUserFeatures(user.id);
-  return NextResponse.json({ features });
+export async function GET(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const features = await getUserFeatures(api.getUser().id);
+    return api.success({ features });
+  });
 }

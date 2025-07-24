@@ -1,64 +1,103 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { withApiHandler, ApiValidator } from '@/utils/api-handler';
 import { createClient } from '@/utils/supabase/server';
-import { getUserFeatures } from '@/utils/rbac';
 
-// Helper for admin RBAC guard
-async function getAdminSupabase(req: NextRequest) {
-  const supabase = createClient();
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) return { supabase: null, response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
-  const features = await getUserFeatures(user.id);
-  if (!features.includes('admin_dashboard'))
-    return { supabase: null, response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
-  return { supabase, response: null };
+export async function GET(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const supabase = createClient();
+    
+    const { data, error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('insight_templates')
+        .select('*')
+        .eq('active', true)
+        .order('name');
+    });
+
+    if (error) return error;
+    return api.success({ templates: data || [] });
+  }, 'admin_dashboard');
 }
 
-// GET: fetch all insight templates (admin)
-export async function GET(req: NextRequest) {
-  const { supabase, response } = await getAdminSupabase(req);
-  if (!supabase) return response!;
-  const { data: templates, error } = await supabase.from('insight_templates').select('*');
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ templates });
+export async function POST(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const { data: body, error: parseError } = await api.parseBody();
+    if (parseError) return parseError;
+
+    const nameError = ApiValidator.required(body?.name, 'name');
+    if (nameError) return api.error(nameError, 400);
+
+    const supabase = createClient();
+    const user = api.getUser();
+    
+    const { data, error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('insight_templates')
+        .insert({
+          name: body.name,
+          description: body.description || null,
+          template_data: body.template_data || {},
+          created_by: user.id,
+          active: body.active !== undefined ? body.active : true,
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+    });
+
+    if (error) return error;
+    return api.success(data, 'Template created successfully', 201);
+  }, 'admin_dashboard');
 }
 
-// POST: create a new insight template
-export async function POST(req: NextRequest) {
-  const { supabase, response } = await getAdminSupabase(req);
-  if (!supabase) return response!;
-  const { template_name, description, config } = await req.json();
-  if (!template_name) return NextResponse.json({ error: 'Template name is required' }, { status: 400 });
+export async function PATCH(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const { data: body, error: parseError } = await api.parseBody();
+    if (parseError) return parseError;
 
-  const { error } = await supabase.from('insight_templates').insert({
-    template_name, 
-    description, 
-    config
-  });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ success: true });
+    const idError = ApiValidator.required(body?.id, 'id');
+    if (idError) return api.error(idError, 400);
+
+    const supabase = createClient();
+    
+    const updates: any = {};
+    if (body.name !== undefined) updates.name = body.name;
+    if (body.description !== undefined) updates.description = body.description;
+    if (body.template_data !== undefined) updates.template_data = body.template_data;
+    if (body.active !== undefined) updates.active = body.active;
+
+    const { data, error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('insight_templates')
+        .update(updates)
+        .eq('id', body.id)
+        .select()
+        .single();
+    });
+
+    if (error) return error;
+    return api.success(data, 'Template updated successfully');
+  }, 'admin_dashboard');
 }
 
-// PATCH: update an existing insight template
-export async function PATCH(req: NextRequest) {
-  const { supabase, response } = await getAdminSupabase(req);
-  if (!supabase) return response!;
-  const { id, ...fields } = await req.json();
-  if (!id) return NextResponse.json({ error: 'Missing template ID' }, { status: 400 });
+export async function DELETE(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const { data: body, error: parseError } = await api.parseBody();
+    if (parseError) return parseError;
 
-  const { error } = await supabase.from('insight_templates').update(fields).eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ success: true });
-}
+    const idError = ApiValidator.required(body?.id, 'id');
+    if (idError) return api.error(idError, 400);
 
-// DELETE: remove an insight template
-export async function DELETE(req: NextRequest) {
-  const { supabase, response } = await getAdminSupabase(req);
-  if (!supabase) return response!;
-  const { id } = await req.json();
-  if (!id) return NextResponse.json({ error: 'Missing template ID' }, { status: 400 });
+    const supabase = createClient();
+    
+    const { error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('insight_templates')
+        .delete()
+        .eq('id', body.id);
+    });
 
-  const { error } = await supabase.from('insight_templates').delete().eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ success: true });
+    if (error) return error;
+    return api.success({ deleted: true }, 'Template deleted successfully');
+  }, 'admin_dashboard');
 }

@@ -1,49 +1,21 @@
-import { Client } from "pg";
+import { NextRequest } from 'next/server';
+import { withApiHandler } from '@/utils/api-handler';
 import { createClient } from '@/utils/supabase/server';
-import { getUserFeatures } from '@/utils/rbac';
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+export async function GET(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const supabase = createClient();
+    const user = api.getUser();
+    
+    const { data, error } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('results')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+    });
 
-// GET: Fetch all results (draws) for the results page
-export async function GET(req: Request) {
-  const supabase = createClient();
-
-  // 1. Authenticate user
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) {
-    return new Response(
-      JSON.stringify({ error: "Unauthorized" }),
-      { status: 401, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  // 2. RBAC: Must have 'results_page' permission
-  const features = await getUserFeatures(user.id);
-  if (!features.includes("results_page")) {
-    return new Response(
-      JSON.stringify({ error: "Forbidden" }),
-      { status: 403, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  // 3. Query draws table for results
-  const client = new Client({
-    connectionString: process.env.POSTGRES_URL,
-    ssl: { rejectUnauthorized: false }
+    if (error) return error;
+    return api.success({ results: data || [] });
   });
-  try {
-    await client.connect();
-    const result = await client.query('SELECT * FROM draws ORDER BY draw_date DESC;');
-    await client.end();
-    return new Response(
-      JSON.stringify({ results: result.rows }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
-  } catch (error: any) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
-  }
 }

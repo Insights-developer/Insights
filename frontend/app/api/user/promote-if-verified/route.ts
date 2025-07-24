@@ -1,50 +1,54 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { NextRequest } from 'next/server';
+import { withApiHandler } from '@/utils/api-handler';
+import { createClient } from '@/utils/supabase/server';
 
-// SET YOUR GROUP IDS from the access_groups table:
-const GUEST_GROUP_ID = 5;   // Replace with actual ID for 'Guest'
-const MEMBER_GROUP_ID = 2;  // Replace with actual ID for 'Member' (or your default member group)
+export async function POST(request: NextRequest) {
+  return withApiHandler(request, async (api) => {
+    const supabase = createClient();
+    const user = api.getUser();
+    
+    // Check if user is verified and not already in a group
+    const { data: userData, error: userError } = await api.handleDatabaseOperation(async () => {
+      return await supabase
+        .from('users')
+        .select(`
+          id, email_confirmed_at,
+          user_access_groups (access_group_id)
+        `)
+        .eq('id', user.id)
+        .single();
+    });
 
-export async function POST(req: NextRequest) {
-  const supabase = createClient();
+    if (userError) return userError;
 
-  // 1. Authenticate
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth?.user;
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userInfo = userData as any;
+    
+    // If user is verified and has no groups, add to default group
+    if (userInfo?.email_confirmed_at && (!userInfo.user_access_groups || userInfo.user_access_groups.length === 0)) {
+      // Find default group (could be "Verified Users" or similar)
+      const { data: defaultGroup } = await supabase
+        .from('access_groups')
+        .select('id')
+        .eq('name', 'Verified Users')
+        .single();
 
-  // 2. See if user is in Guest group
-  const { data: userGroups, error: groupErr } = await supabase
-    .from('user_access_groups')
-    .select('group_id')
-    .eq('user_id', user.id);
+      if (defaultGroup) {
+        const { data, error } = await api.handleDatabaseOperation(async () => {
+          return await supabase
+            .from('user_access_groups')
+            .insert({
+              user_id: user.id,
+              access_group_id: defaultGroup.id
+            })
+            .select()
+            .single();
+        });
 
-  if (groupErr) return NextResponse.json({ error: groupErr.message }, { status: 500 });
-  const groupIds = (userGroups || []).map(g => g.group_id);
-  const isGuest = groupIds.includes(GUEST_GROUP_ID);
+        if (error) return error;
+        return api.success(data, 'User promoted to verified group');
+      }
+    }
 
-  if (!isGuest) {
-    return NextResponse.json({ promoted: false, alreadyPromoted: true });
-  }
-
-  // 3. Get freshest auth info for email verification
-  const { data: freshAuth } = await supabase.auth.getUser();
-  const verified = !!freshAuth?.user?.email_confirmed_at;
-
-  if (!verified) {
-    return NextResponse.json({ promoted: false, reason: "Email not confirmed" });
-  }
-
-  // 4. Promote: Remove from Guest, add to Member
-  await supabase
-    .from('user_access_groups')
-    .delete()
-    .eq('user_id', user.id)
-    .eq('group_id', GUEST_GROUP_ID);
-
-  await supabase
-    .from('user_access_groups')
-    .insert([{ user_id: user.id, group_id: MEMBER_GROUP_ID }]);
-
-  return NextResponse.json({ promoted: true });
+    return api.success({ message: 'No promotion needed' });
+  });
 }

@@ -2,12 +2,13 @@
 
 **Company**: Lottery Analytics  
 **Application**: Insights  
-**Generated**: 2025-07-24 01:17:17  
+**Generated**: 2025-07-24 03:32:36  
 
 > **Note**: This is a clean view excluding node_modules, build artifacts, and temporary files  
 
 ```
 Insights/
+├── 📝 AI_ENTRY.md
 ├── 📝 API_REFERENCE.md
 ├── 📝 BUSINESS_LOGIC.md
 ├── 📝 COMPONENT_PATTERNS.md
@@ -35,7 +36,6 @@ Insights/
 │       └── 📄 file-structure.txt
 ├── ⚙️ backend/
 ├── ⚙️ code_analysis.json
-├── 🐍 codebase_analyzer.py
 ├── 🌐 frontend/
 │   ├── 📝 README.md
 │   ├── 📁 app/
@@ -93,7 +93,6 @@ Insights/
 │       ├── 📁 supabase/
 │       └── 📄 types.ts
 ├── 🐍 insights_maintenance.py
-├── 🐍 menu_fix.py
 └── ⚙️ package.json
 ```
 

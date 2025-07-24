@@ -6,7 +6,7 @@ export type UserProfile = {
   email: string;
   username: string | null;
   phone: string | null;
-  role: string;
+  role: string; // DEPRECATED: Do not use. Access is determined by membership in access groups
   created_at: string;
   current_login_at: string | null;
   previous_login_at: string | null;

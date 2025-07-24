@@ -24,7 +24,6 @@ export default function UserManagementClient() {
     email: '',
     username: '',
     phone: '',
-    role: 'member',
     groups: []
   });
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
@@ -159,7 +158,6 @@ export default function UserManagementClient() {
           email: editForm.email,
           username: editForm.username,
           phone: editForm.phone,
-          role: editForm.role,
           groups: (editForm.groups || []).map(g => g.id),
         }),
       });
@@ -210,7 +208,6 @@ export default function UserManagementClient() {
         email: '',
         username: '',
         phone: '',
-        role: 'member',
         groups: []
       });
     } catch (err) {
@@ -716,7 +713,7 @@ export default function UserManagementClient() {
                             <h4 className="text-sm font-medium text-gray-500">Account Details</h4>
                             <p className="mt-1 text-sm text-gray-900">Username: {user.username || 'N/A'}</p>
                             <p className="text-sm text-gray-900">Member Since: {new Date(user.created_at).toLocaleDateString()}</p>
-                            <p className="text-sm text-gray-900">Role: {user.role || 'N/A'}</p>
+                            <p className="text-sm text-gray-900">Account Type: {user.groups && user.groups.length > 0 ? 'Active User' : 'Unassigned User'}</p>
                           </div>
                           <div>
                             <h4 className="text-sm font-medium text-gray-500">Login Activity</h4>

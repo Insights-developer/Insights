@@ -50,6 +50,14 @@ export async function getUserFeatures(userId: string): Promise<string[]> {
   return [...new Set(featuresData.map((f: { feature: string }) => f.feature))];
 }
 
-export function checkAdmin(session: Session): boolean {
-  return session.user?.role === 'admin';
+// Helper function to check if a user has admin permissions
+// Note: This is now using the feature-based permissions system instead of roles
+export async function checkAdmin(session: Session): Promise<boolean> {
+  if (!session || !session.user) return false;
+  
+  // Get the user's features through the access group system
+  const features = await getUserFeatures(session.user.id);
+  
+  // Check if the user has the admin_dashboard feature which indicates admin access
+  return features.includes('admin_dashboard');
 }

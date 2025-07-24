@@ -7,8 +7,14 @@ export async function PATCH(request: Request, context: any) {
   const supabase = createRouteHandlerClient({ cookies });
   const { data: { session } } = await supabase.auth.getSession();
 
-  if (!session || !checkAdmin(session)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  // Use the updated checkAdmin function which now returns a Promise
+  const isAdmin = await checkAdmin(session);
+  if (!isAdmin) {
+    return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
   }
 
   const userId = context.params.id;
@@ -18,13 +24,13 @@ export async function PATCH(request: Request, context: any) {
   console.log('Received User ID:', userId);
   console.log('Received Request Body:', JSON.stringify(body, null, 2));
 
-  const { email, username, phone, role, groups } = body;
+  const { email, username, phone, groups } = body;
 
   try {
     // Update user details
     const { error: userError } = await supabase
       .from('users')
-      .update({ email, username, phone, role })
+      .update({ email, username, phone })
       .eq('id', userId);
 
     if (userError) throw userError;
@@ -61,8 +67,14 @@ export async function DELETE(request: Request, context: any) {
   const supabase = createRouteHandlerClient({ cookies });
   const { data: { session } } = await supabase.auth.getSession();
 
-  if (!session || !checkAdmin(session)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  // Use the updated checkAdmin function which now returns a Promise
+  const isAdmin = await checkAdmin(session);
+  if (!isAdmin) {
+    return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
   }
 
   const userId = context.params.id;

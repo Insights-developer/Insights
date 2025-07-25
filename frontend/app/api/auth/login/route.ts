@@ -40,12 +40,32 @@ export async function POST(request: NextRequest) {
       }
       
       // Verify password
+      // Make sure we're passing parameters in the right order for verify_password function
+      // The function expects (plaintext_password, stored_hash)
       const passwordResult = await client.query(
         'SELECT verify_password($1, $2) AS valid',
         [password, user.password_hash]
       );
       
-      const isValid = passwordResult.rows[0].valid;
+      let isValid = passwordResult.rows[0].valid;
+      
+      // For debugging
+      console.log(`Password verification result: ${isValid}`);
+      
+      // If verification fails, try direct comparison with bcrypt in Node.js
+      if (!isValid) {
+        const bcrypt = require('bcrypt');
+        try {
+          const nodeVerification = await bcrypt.compare(password, user.password_hash);
+          console.log(`Node.js bcrypt verification: ${nodeVerification}`);
+          if (nodeVerification) {
+            // If Node.js verification succeeds but Postgres failed, use this result instead
+            isValid = nodeVerification;
+          }
+        } catch (bcryptErr) {
+          console.error('bcrypt verification error:', bcryptErr);
+        }
+      }
       
       if (!isValid) {
         // Increment failed login attempts

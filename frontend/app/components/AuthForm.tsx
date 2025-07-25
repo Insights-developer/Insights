@@ -286,12 +286,30 @@ export default function AuthForm() {
         onSubmit={async e => {
           e.preventDefault();
           setLoading(true); setError(null); setMessage(null); setResetEmailSent(false);
-          const { error } = await supabase.auth.resetPasswordForEmail(verifyEmail || email);
-          setLoading(false);
-          if (error) setError('We could not send the reset email. ' + error.message);
-          else {
-            setResetEmailSent(true);
-            setMessage('If this email is in our system, a password reset link has been sent.');
+          
+          try {
+            // Use our custom password reset request API
+            const response = await fetch('/api/auth/reset-password-request', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: verifyEmail || email })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+              setError('We could not send the reset email. ' + (data.error || 'Please try again.'));
+            } else {
+              setResetEmailSent(true);
+              setMessage(data.message || 'If this email is in our system, a password reset link has been sent.');
+              // Clear the email field for security
+              setVerifyEmail('');
+            }
+          } catch (error) {
+            console.error('Password reset error:', error);
+            setError('An unexpected error occurred. Please try again.');
+          } finally {
+            setLoading(false);
           }
         }}
         style={{ display: 'flex', flexDirection: 'column', gap: 16 }}

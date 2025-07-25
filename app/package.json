@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@stackframe/stack": "^2.8.25",
     "bcryptjs": "^3.0.2",
     "crypto-random-string": "^5.0.0",
     "dotenv": "^17.2.1",

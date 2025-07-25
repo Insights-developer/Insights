@@ -48,6 +48,7 @@ export default function AuthForm() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
   const [showVerifyNotice, setShowVerifyNotice] = useState(false);
 
   // --- RENDERERS ---
@@ -396,6 +397,95 @@ export default function AuthForm() {
             </Button>
           </>
         </SystemNotice>
+      )}
+
+      {/* Debug Info Panel Component */}
+      {debugInfo && process.env.NODE_ENV !== 'production' && (
+        <div style={{
+          margin: '12px 0',
+          padding: '12px',
+          border: '1px solid #ddd',
+          borderLeft: `4px solid ${
+            debugInfo.type === 'custom_auth_success' || debugInfo.type === 'supabase_auth_success' ? '#0a0' :
+            debugInfo.type === 'db_connection_error' || debugInfo.type === 'password_verify_error' ? '#c00' :
+            debugInfo.type === 'supabase_auth_error' ? '#f90' :
+            debugInfo.type === 'supabase_exception' || debugInfo.type === 'critical_error' ? '#f00' : '#666'
+          }`,
+          borderRadius: '4px',
+          backgroundColor: '#f9f9f9',
+          fontSize: '14px',
+          marginBottom: '16px'
+        }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+            Debug Information:
+            <span style={{ 
+              color: 'white', 
+              backgroundColor: debugInfo.type === 'custom_auth_success' || debugInfo.type === 'supabase_auth_success' ? '#0a0' :
+                debugInfo.type === 'db_connection_error' || debugInfo.type === 'password_verify_error' ? '#c00' :
+                debugInfo.type === 'supabase_auth_error' ? '#f90' :
+                debugInfo.type === 'supabase_exception' || debugInfo.type === 'critical_error' ? '#f00' : '#666',
+              padding: '2px 6px', 
+              borderRadius: '4px',
+              fontSize: '12px',
+              marginLeft: '8px'
+            }}>
+              {debugInfo.type.replace(/_/g, ' ').toUpperCase()}
+            </span>
+          </div>
+          
+          <div style={{ fontFamily: 'monospace', fontSize: '13px' }}>
+            {debugInfo.error && (
+              <>
+                <div>Error: {debugInfo.error.message || 'Unknown error'}</div>
+                {debugInfo.error.name && <div>Type: {debugInfo.error.name}</div>}
+                {debugInfo.error.code && <div>Code: {debugInfo.error.code}</div>}
+                {debugInfo.error.status && <div>Status: {debugInfo.error.status}</div>}
+              </>
+            )}
+            
+            {debugInfo.message && (
+              <div>Message: {debugInfo.message}</div>
+            )}
+            
+            {debugInfo.userId && (
+              <div>User ID: {debugInfo.userId}</div>
+            )}
+            
+            <div style={{ color: '#666', marginTop: '8px', fontSize: '12px' }}>
+              Timestamp: {new Date(debugInfo.timestamp).toLocaleString()}
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '8px', fontSize: '12px' }}>
+            <button 
+              onClick={() => console.log('Debug Info:', debugInfo)}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: '#4953fe', 
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                padding: '0'
+              }}
+            >
+              Log full details to console
+            </button>
+            <button 
+              onClick={() => setDebugInfo(null)}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: '#666', 
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                padding: '0',
+                marginLeft: '12px'
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Debug Info Panel Component */}

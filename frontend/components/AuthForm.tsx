@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/browser';
-import Button from './ui/Buttons';
-import Icon from './ui/Icon';
-import Card from './ui/Cards';
+import Button from '@/app/components/ui/Buttons';
+import Icon from '@/app/components/ui/Icon';
+import Card from '@/app/components/ui/Cards';
 
 type Tab = 'login' | 'register' | 'forgot';
 

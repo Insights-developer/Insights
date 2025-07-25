@@ -1,31 +1,91 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+import { jwtVerify } from 'jose';
 
+// Create a secure JWT secret from environment variable
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+);
+
+/**
+ * Middleware to protect certain routes and handle authentication
+ */
 export async function middleware(req: NextRequest) {
-  // Initialize response that we'll pass into the supabase client
+  // Initialize response
   const res = NextResponse.next();
   
+  // Skip auth for public API routes
+  if (
+    req.nextUrl.pathname.startsWith('/api/auth/login') ||
+    req.nextUrl.pathname.startsWith('/api/auth/register') ||
+    req.nextUrl.pathname.startsWith('/api/auth/reset-password') ||
+    req.nextUrl.pathname.startsWith('/api/auth/verify-email')
+  ) {
+    return res;
+  }
+  
   try {
-    // Initialize Supabase with middleware client
-    const supabase = createMiddlewareClient({ req, res });
-
-    // Refresh session if possible
-    await supabase.auth.getSession();
+    // Get the session cookie
+    const sessionCookie = req.cookies.get('session');
     
-    // IMPORTANT: We no longer block requests here, individual API routes
-    // will handle their own auth requirements. This prevents issues with
-    // session cookie handling and timing problems.
+    if (!sessionCookie?.value) {
+      // For API routes, return 401
+      if (req.nextUrl.pathname.startsWith('/api/')) {
+        return NextResponse.json(
+          { error: 'Unauthorized - Authentication required' },
+          { status: 401 }
+        );
+      }
+      
+      // For protected pages, redirect to login
+      const redirectUrl = new URL('/login', req.url);
+      redirectUrl.searchParams.set('from', req.nextUrl.pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
     
-    // Return the modified response
+    // Verify the JWT token
+    await jwtVerify(
+      sessionCookie.value,
+      JWT_SECRET,
+      {
+        algorithms: ['HS256'],
+      }
+    );
+    
+    // If verification passes, continue
     return res;
-  } catch (err) {
-    console.error('Middleware error:', err);
-    // Continue anyway and let the API routes handle auth
-    return res;
+    
+  } catch (error) {
+    console.error('Authentication middleware error:', error);
+    
+    // Delete the invalid cookie
+    res.cookies.set('session', '', {
+      httpOnly: true,
+      expires: new Date(0),
+      path: '/',
+    });
+    
+    // For API routes, return 401
+    if (req.nextUrl.pathname.startsWith('/api/')) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid session' },
+        { status: 401 }
+      );
+    }
+    
+    // For protected pages, redirect to login
+    const redirectUrl = new URL('/login', req.url);
+    redirectUrl.searchParams.set('from', req.nextUrl.pathname);
+    return NextResponse.redirect(redirectUrl);
   }
 }
 
-// Only run middleware on API routes
+// Configure which routes require authentication
+// Exclude authentication endpoints and public routes
 export const config = {
-  matcher: ['/api/admin/:path*'],
+  matcher: [
+    '/api/:path*',
+    '/dashboard/:path*',
+    '/profile/:path*',
+    '/admin/:path*',
+  ],
 };

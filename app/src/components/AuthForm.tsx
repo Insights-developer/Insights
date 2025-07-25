@@ -61,12 +61,13 @@ const EyeOffIcon = () => (
   </svg>
 );
 
+
 export default function AuthForm() {
   const user = useUser();
   const stackApp = useStackApp();
   const router = useRouter();
   const config = useAppConfig();
-  
+
   const [mode, setMode] = useState<'login' | 'register' | 'recover'>("login");
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
@@ -78,8 +79,20 @@ export default function AuthForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // If user is still loading (undefined), show loading spinner
+  if (typeof user === "undefined") {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect logged-in users to dashboard
   useEffect(() => {
-    // Redirect logged-in users to dashboard
     if (user) {
       router.push('/dashboard');
     }

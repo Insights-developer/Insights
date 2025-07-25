@@ -17,6 +17,7 @@ export async function middleware(req: NextRequest) {
   if (
     req.nextUrl.pathname.startsWith('/api/auth/login') ||
     req.nextUrl.pathname.startsWith('/api/auth/direct-login') ||
+    req.nextUrl.pathname.startsWith('/api/auth/bypass-login') ||
     req.nextUrl.pathname.startsWith('/api/auth/register') ||
     req.nextUrl.pathname.startsWith('/api/auth/reset-password') ||
     req.nextUrl.pathname.startsWith('/api/auth/verify-email') ||

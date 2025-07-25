@@ -44,6 +44,56 @@ const FEATURE_CACHE_DURATION = 5 * 60 * 1000;
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   
+  // Check for bypass login cookie
+  useEffect(() => {
+    const checkBypassLogin = () => {
+      const userEmail = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('user_email='))
+        ?.split('=')[1];
+      
+      if (userEmail) {
+        console.log('Found bypass login cookie for:', userEmail);
+        // Create a minimal user object for the bypass login
+        return {
+          id: 'bypass-user',
+          email: userEmail,
+          user_metadata: {
+            name: userEmail.split('@')[0],
+            role: 'admin'
+          },
+          app_metadata: {},
+          aud: 'bypass',
+          created_at: new Date().toISOString(),
+          role: 'authenticated',
+          updated_at: new Date().toISOString()
+        };
+      }
+      return null;
+    };
+    
+    const bypassUser = checkBypassLogin();
+    if (bypassUser) {
+      // Create a mock session with all required fields
+      const mockSession = {
+        user: bypassUser as unknown as User,
+        access_token: 'bypass-token',
+        refresh_token: 'bypass-refresh',
+        expires_in: 86400, // 24 hours
+        expires_at: Math.floor(Date.now() / 1000) + 86400,
+        token_type: 'bearer'
+      };
+      
+      setAuthState(prev => ({
+        ...prev,
+        user: bypassUser as unknown as User,
+        session: mockSession as Session,
+        initialized: true,
+        loading: false
+      }));
+    }
+  }, []);
+
   // Core auth state
   const [authState, setAuthState] = useState<AuthState>({
     user: null,

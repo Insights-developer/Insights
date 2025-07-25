@@ -74,16 +74,15 @@ export default function AuthForm() {
           setError(null); setMessage(null); setShowVerifyNotice(false);
           
           try {
-            // Use our direct login endpoint that handles both auth and test user creation
-            // Try direct authentication with debug info
-            console.log('Attempting login with:', email);
+            // Use our development bypass login endpoint (completely skips Supabase)
+            console.log('Attempting bypass login with:', email);
             setDebugInfo({
               type: 'login_attempt',
               timestamp: Date.now(),
-              message: `Login attempt for ${email}`
+              message: `Bypass login attempt for ${email}`
             });
             
-            const response = await fetch('/api/auth/direct-login', {
+            const response = await fetch('/api/auth/bypass-login', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -107,42 +106,38 @@ export default function AuthForm() {
             
             if (!response.ok) {
               console.error('Auth error:', result.error, result.details || '');
-              
-              if (result.error?.toLowerCase().includes('email not confirmed')) {
-                setShowVerifyNotice(true);
-                setMessage(null);
-              } else if (result.error?.includes('Invalid login credentials')) {
-                setError('Invalid email or password');
-              } else {
-                setError(result.error || 'Authentication failed');
-              }
+              setError(result.error || 'Authentication failed');
               
               // Set debug info for developer insights
-              if (process.env.NODE_ENV !== 'production') {
-                setDebugInfo({
-                  type: 'auth_error',
-                  error: { message: result.error, details: result.details },
-                  timestamp: Date.now(),
-                  message: 'Authentication failed'
-                });
-              }
+              setDebugInfo({
+                type: 'auth_error',
+                error: { message: result.error, details: result.details },
+                timestamp: Date.now(),
+                message: 'Authentication failed'
+              });
             } else if (result.success) {
-              // Show message if we created a test user
-              if (result.message?.includes('Created')) {
-                setMessage(result.message);
-              }
+              // Successfully logged in with bypass
+              console.log('Login success:', result);
+              setMessage(result.message || 'Login successful');
               
-              // Success - update login record and navigate
-              try {
-                await fetch('/api/user/update-login', { method: 'POST' });
-              } catch (updateError) {
-                console.error('Failed to update login timestamp:', updateError);
-              }
+              // Set debug info
+              setDebugInfo({
+                type: 'auth_success',
+                timestamp: Date.now(),
+                message: result.message || 'Bypass login successful',
+                userId: result.user?.id
+              });
               
-              // Set a short delay to show any success message before redirecting
+              // Force reload to pick up the new cookies
               setTimeout(() => {
+                // First try to navigate
                 router.replace('/dashboard');
-              }, result.message ? 1500 : 0);
+                
+                // As a fallback, force a reload after a short delay
+                setTimeout(() => {
+                  window.location.href = '/dashboard';
+                }, 500);
+              }, 1000);
             }
           } catch (unexpectedError) {
             console.error('Login error:', unexpectedError);

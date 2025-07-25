@@ -13,23 +13,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
     const userId = userRes.rows[0].id;
-    // Find verification code
+    // Find verification token
     const verRes = await pool.query(
-      `SELECT id, expires_at, used FROM verifications WHERE user_id = $1 AND code = $2 AND type = 'email'`,
+      `SELECT id, expires_at FROM verification_tokens WHERE user_id = $1 AND token = $2 AND type = 'email'`,
       [userId, code]
     );
     if (verRes.rows.length === 0) {
       return NextResponse.json({ error: "Invalid code." }, { status: 400 });
     }
     const ver = verRes.rows[0];
-    if (ver.used) {
-      return NextResponse.json({ error: "Code already used." }, { status: 400 });
-    }
     if (new Date(ver.expires_at) < new Date()) {
       return NextResponse.json({ error: "Code expired." }, { status: 400 });
     }
-    // Mark code as used and user as verified
-    await pool.query('UPDATE verifications SET used = true WHERE id = $1', [ver.id]);
+    // Delete used token and mark user as verified
+    await pool.query('DELETE FROM verification_tokens WHERE id = $1', [ver.id]);
     await pool.query('UPDATE users SET is_verified = true WHERE id = $1', [userId]);
     return NextResponse.json({ message: "Email verified. You can now sign in." });
   } catch (error) {

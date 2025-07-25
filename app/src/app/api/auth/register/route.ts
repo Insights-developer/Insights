@@ -7,7 +7,7 @@ import { Resend } from "resend";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, name, phone } = await req.json();
+    const { email, password, name } = await req.json();
     if (!email || !password || !name) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
     }
@@ -20,19 +20,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email already registered." }, { status: 409 });
     }
 
-    // Create user (email_verified false)
+    // Create user (is_verified false) - removed phone since it's not in schema
     const userRes = await pool.query(
-      `INSERT INTO users (email, password_hash, full_name, phone, is_verified) VALUES ($1, $2, $3, $4, false) RETURNING id`,
-      [email, password_hash, name, phone || null]
+      `INSERT INTO users (email, password_hash, full_name, is_verified) VALUES ($1, $2, $3, false) RETURNING id`,
+      [email, password_hash, name]
     );
     const userId = userRes.rows[0].id;
 
-    // Generate verification code
-    const code = cryptoRandomString({ length: 6, type: 'alphanumeric' });
+    // Generate verification token (6 chars alphanumeric)
+    const token = cryptoRandomString({ length: 6, type: 'alphanumeric' });
     const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 min
     await pool.query(
-      `INSERT INTO verifications (user_id, code, type, expires_at, used) VALUES ($1, $2, 'email', $3, false)`,
-      [userId, code, expires]
+      `INSERT INTO verification_tokens (user_id, token, type, expires_at) VALUES ($1, $2, 'email', $3)`,
+      [userId, token, expires]
     );
 
     // Send verification email
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       from: process.env.EMAIL_FROM!,
       to: email,
       subject: "Verify your email",
-      html: `<p>Your verification code is: <b>${code}</b></p><p>This code expires in 15 minutes.</p>`
+      html: `<p>Your verification code is: <b>${token}</b></p><p>This code expires in 15 minutes.</p>`
     });
 
     return NextResponse.json({ message: "Registration successful. Verification email sent." });

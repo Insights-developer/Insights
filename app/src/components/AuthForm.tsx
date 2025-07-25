@@ -35,12 +35,6 @@ const UserIcon = () => (
   </svg>
 );
 
-const PhoneIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-  </svg>
-);
-
 const EmailIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
@@ -74,8 +68,7 @@ export default function AuthForm() {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    name: "",
-    phone: ""
+    name: ""
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -96,7 +89,11 @@ export default function AuthForm() {
         const res = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify({
+            email: form.email,
+            password: form.password,
+            name: form.name
+          }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Registration failed");
@@ -232,25 +229,6 @@ export default function AuthForm() {
                           onChange={handleChange}
                           className="w-full border border-gray-300 pl-10 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-sm sm:text-base"
                           required
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                        Phone Number <span className="text-gray-400">(optional)</span>
-                      </label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                          <PhoneIcon />
-                        </div>
-                        <input
-                          type="text"
-                          id="phone"
-                          name="phone"
-                          placeholder="Enter your phone number"
-                          value={form.phone}
-                          onChange={handleChange}
-                          className="w-full border border-gray-300 pl-10 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-sm sm:text-base"
                         />
                       </div>
                     </div>

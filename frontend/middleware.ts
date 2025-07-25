@@ -26,6 +26,13 @@ export async function middleware(req: NextRequest) {
     return res;
   }
   
+  // Check for bypass login cookie
+  const userEmail = req.cookies.get('user_email');
+  if (userEmail?.value) {
+    console.log('Middleware: Found bypass user cookie, allowing access');
+    return res;
+  }
+  
   try {
     // Get the session cookie
     const sessionCookie = req.cookies.get('session');

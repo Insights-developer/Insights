@@ -3,6 +3,41 @@ import { withApiHandler } from '@/utils/api-handler';
 import { createClient } from '@/utils/supabase/server';
 
 export async function GET(request: NextRequest) {
+  // Check for bypass login cookie first
+  const userEmail = request.cookies.get('user_email')?.value;
+  if (userEmail) {
+    console.log('Using bypass user profile for:', decodeURIComponent(userEmail));
+    
+    // Create a mock profile for development
+    const mockProfile = {
+      id: 'bypass-user-123',
+      email: decodeURIComponent(userEmail),
+      username: decodeURIComponent(userEmail).split('@')[0],
+      created_at: '2023-01-01T00:00:00.000Z',
+      current_login_at: new Date().toISOString(),
+      previous_login_at: new Date(Date.now() - 86400000).toISOString(),
+      login_count: 5,
+      phone: null,
+      groups: [
+        { id: 'admin-group', name: 'Administrators', description: 'Full system access' }
+      ],
+      features: [
+        'dashboard_access',
+        'admin_access',
+        'users_manage',
+        'groups_manage',
+        'reports_access',
+        'insights_access',
+        'results_access',
+        'draws_access',
+        'games_access'
+      ]
+    };
+    
+    return Response.json({ profile: mockProfile });
+  }
+  
+  // Normal authentication flow
   return withApiHandler(request, async (api) => {
     const supabase = createClient();
     const user = api.getUser();

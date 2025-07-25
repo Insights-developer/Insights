@@ -3,6 +3,53 @@ import { withApiHandler } from '@/utils/api-handler';
 import { createClient } from '@/utils/supabase/server';
 
 export async function GET(request: NextRequest) {
+  // Check for bypass login cookie first
+  const userEmail = request.cookies.get('user_email')?.value;
+  if (userEmail) {
+    console.log('Using bypass user dashboard for:', decodeURIComponent(userEmail));
+    
+    // Mock dashboard data
+    const mockDashboardData = {
+      user: {
+        email: decodeURIComponent(userEmail),
+        features: [
+          'dashboard_access',
+          'admin_access',
+          'users_manage',
+          'groups_manage',
+          'reports_access',
+          'insights_access',
+          'results_access',
+          'draws_access',
+          'games_access',
+          'admin_dashboard',
+          'insights_page'
+        ]
+      },
+      admin: {
+        users: 15,
+        groups: 5,
+        features: 25
+      },
+      insights: {
+        count: 12
+      },
+      stats: {
+        draws: 245,
+        results: 2340,
+        games: 37
+      },
+      recentActivity: [
+        { type: 'login', date: new Date().toISOString() },
+        { type: 'result_view', date: new Date(Date.now() - 3600000).toISOString() },
+        { type: 'insight_create', date: new Date(Date.now() - 86400000).toISOString() }
+      ]
+    };
+    
+    return Response.json(mockDashboardData);
+  }
+  
+  // Normal authentication flow
   return withApiHandler(request, async (api) => {
     const supabase = createClient();
     const user = api.getUser();

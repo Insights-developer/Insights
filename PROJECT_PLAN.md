@@ -1,6 +1,6 @@
 # Insights Application Project Design Document
 
-## Project Overview
+## Project Overview --
 
 This document outlines the design and implementation plan for rebuilding the Insights application. The new system will use Vercel Postgres (Neon) for database operations, custom JWT-based authentication, and Tailwind CSS for styling.
 

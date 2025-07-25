@@ -74,47 +74,41 @@ export default function AuthForm() {
           setError(null); setMessage(null); setShowVerifyNotice(false);
           
           try {
-            // 1. Try our custom authentication endpoint first
-            const response = await fetch('/api/auth/login', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ 
-                email: email.trim(), 
-                password: pw 
-              }),
+            // Use Supabase auth directly (simpler approach)
+            const { data, error } = await supabase.auth.signInWithPassword({ 
+              email: email.trim(), 
+              password: pw 
             });
             
-            const result = await response.json();
-            
-            if (!response.ok) {
-              console.warn('Custom auth failed:', response.status);
+            if (error) {
+              console.error('Auth error:', error);
               
-              // 2. Fall back to Supabase auth if our custom auth fails
-              try {
-                const { data, error } = await supabase.auth.signInWithPassword({ 
-                  email: email.trim(), 
-                  password: pw 
-                });
-                
-                if (error) {
-                  if (error.message.toLowerCase().includes('email not confirmed')) {
-                    setShowVerifyNotice(true);
-                    setMessage(null);
-                  } else if (error.message.includes('Invalid login credentials')) {
-                    setError('Invalid email or password');
-                  } else {
-                    setError(error.message);
-                  }
-                } else if (data.user) {
-                  router.replace('/dashboard');
-                }
-              } catch (supabaseError) {
-                console.error('Supabase auth error:', supabaseError);
-                setError('Login failed. Please try again.');
+              if (error.message.toLowerCase().includes('email not confirmed')) {
+                setShowVerifyNotice(true);
+                setMessage(null);
+              } else if (error.message.includes('Invalid login credentials')) {
+                setError('Invalid email or password');
+              } else {
+                setError(error.message);
               }
-            } else {
+              
+              // Set debug info for developer insights
+              if (process.env.NODE_ENV !== 'production') {
+                setDebugInfo({
+                  type: 'supabase_auth_error',
+                  error: error,
+                  timestamp: Date.now(),
+                  message: 'Direct Supabase auth failed'
+                });
+              }
+            } else if (data.user) {
+              // Success - update login record and navigate
+              try {
+                await fetch('/api/user/update-login', { method: 'POST' });
+              } catch (updateError) {
+                console.error('Failed to update login timestamp:', updateError);
+              }
+              
               router.replace('/dashboard');
             }
           } catch (unexpectedError) {

@@ -10,10 +10,12 @@ export const pool = new Pool({
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  ssl: process.env.NODE_ENV === 'production' || true, // Always use SSL with Supabase
+  ssl: true, // Always use SSL with Supabase
   // Use connection options to force IPv4
-  connectionTimeoutMillis: 10000,
-  options: '-c statement_timeout=10000'
+  connectionTimeoutMillis: 15000, // Extended timeout
+  options: '-c statement_timeout=15000',
+  max: 10, // Maximum number of clients in the pool
+  idleTimeoutMillis: 30000 // How long a client is allowed to remain idle before being closed
 });
 
 /**

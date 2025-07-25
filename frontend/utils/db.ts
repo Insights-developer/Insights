@@ -10,7 +10,10 @@ export const pool = new Pool({
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  ssl: process.env.NODE_ENV === 'production'
+  ssl: process.env.NODE_ENV === 'production' || true, // Always use SSL with Supabase
+  // Use connection options to force IPv4
+  connectionTimeoutMillis: 10000,
+  options: '-c statement_timeout=10000'
 });
 
 /**

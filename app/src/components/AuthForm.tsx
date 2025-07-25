@@ -1,6 +1,14 @@
 "use client";
 import { useState } from "react";
 import VerifyEmailForm from "./VerifyEmailForm";
+import { useAppConfig } from "../lib/config";
+
+// App Icon Component
+const AppIcon = () => (
+  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+  </svg>
+);
 
 // Icons as SVG components
 const LoginIcon = () => (
@@ -45,9 +53,24 @@ const PasswordIcon = () => (
   </svg>
 );
 
+const EyeIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+  </svg>
+);
+
 
 export default function AuthForm() {
   const [mode, setMode] = useState<'login' | 'register' | 'recover'>("login");
+  const [showPassword, setShowPassword] = useState(false);
+  const appConfig = useAppConfig();
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -107,11 +130,11 @@ export default function AuthForm() {
   const getTabSubtitle = () => {
     switch (mode) {
       case 'login':
-        return 'Sign in to your account';
+        return `Welcome to ${appConfig.appName}`;
       case 'register':
-        return 'Join us today';
+        return appConfig.tagline;
       case 'recover':
-        return 'Enter your email to reset password';
+        return 'We\'ll help you get back in';
       default:
         return '';
     }
@@ -131,8 +154,7 @@ export default function AuthForm() {
             }`}
           >
             <LoginIcon />
-            <span className="hidden sm:inline">Sign In</span>
-            <span className="sm:hidden">Login</span>
+            <span>Login</span>
           </button>
           <button
             onClick={() => setMode("register")}
@@ -143,8 +165,7 @@ export default function AuthForm() {
             }`}
           >
             <RegisterIcon />
-            <span className="hidden sm:inline">Register</span>
-            <span className="sm:hidden">Join</span>
+            <span>Join</span>
           </button>
           <button
             onClick={() => setMode("recover")}
@@ -155,21 +176,36 @@ export default function AuthForm() {
             }`}
           >
             <ResetIcon />
-            <span className="hidden sm:inline">Reset</span>
-            <span className="sm:hidden">Reset</span>
+            <span>Reset</span>
           </button>
         </div>
 
         {/* Content Area */}
         <div className="p-6 sm:p-8">
-          {/* Header */}
+          {/* App Branding Header */}
           <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-              {mode === "login" ? "Sign In" : mode === "register" ? "Create Account" : "Reset Password"}
+            <div className="flex items-center justify-center mb-4">
+              <div className={`p-3 rounded-2xl ${
+                mode === "login" 
+                  ? "bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-600"
+                  : mode === "register"
+                  ? "bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-600"
+                  : "bg-gradient-to-br from-orange-100 to-red-100 text-orange-600"
+              }`}>
+                <AppIcon />
+              </div>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              {appConfig.appName}
             </h1>
             <p className="text-gray-600 text-sm">
               {getTabSubtitle()}
             </p>
+            {appConfig.productionState === 'development' && (
+              <span className="inline-block mt-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
+                v{appConfig.version} • Development
+              </span>
+            )}
           </div>
 
           {showVerify && mode === "register" ? (
@@ -256,19 +292,26 @@ export default function AuthForm() {
                         <PasswordIcon />
                       </div>
                       <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         id="password"
                         name="password"
                         placeholder="Enter your password"
                         value={form.password}
                         onChange={handleChange}
-                        className={`w-full border border-gray-300 pl-10 pr-4 py-3 rounded-lg transition-colors text-sm sm:text-base ${
+                        className={`w-full border border-gray-300 pl-10 pr-12 py-3 rounded-lg transition-colors text-sm sm:text-base ${
                           mode === "login" 
                             ? "focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             : "focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                         }`}
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                      </button>
                     </div>
                   </div>
                 )}
@@ -289,7 +332,7 @@ export default function AuthForm() {
                       Please wait...
                     </div>
                   ) : (
-                    mode === "login" ? "Sign In" : mode === "register" ? "Create Account" : "Send Reset Email"
+                    mode === "login" ? "Login" : mode === "register" ? "Create Account" : "Send Reset Link"
                   )}
                 </button>
                 
@@ -305,19 +348,6 @@ export default function AuthForm() {
                   </div>
                 )}
               </form>
-
-              {/* Footer Links */}
-              {mode === "login" && (
-                <div className="mt-6 text-center">
-                  <button
-                    onClick={() => setMode("recover")}
-                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
-                    type="button"
-                  >
-                    Forgot your password?
-                  </button>
-                </div>
-              )}
             </>
           )}
         </div>

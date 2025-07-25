@@ -79,6 +79,13 @@ export default function AuthForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Redirect logged-in users to dashboard
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
   // If user is still loading (undefined), show loading spinner
   if (typeof user === "undefined") {
     return (
@@ -90,13 +97,6 @@ export default function AuthForm() {
       </div>
     );
   }
-
-  // Redirect logged-in users to dashboard
-  useEffect(() => {
-    if (user) {
-      router.push('/dashboard');
-    }
-  }, [user, router]);
 
   // If user is logged in, show loading or redirect
   if (user) {

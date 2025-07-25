@@ -16,9 +16,11 @@ export async function middleware(req: NextRequest) {
   // Skip auth for public API routes
   if (
     req.nextUrl.pathname.startsWith('/api/auth/login') ||
+    req.nextUrl.pathname.startsWith('/api/auth/direct-login') ||
     req.nextUrl.pathname.startsWith('/api/auth/register') ||
     req.nextUrl.pathname.startsWith('/api/auth/reset-password') ||
-    req.nextUrl.pathname.startsWith('/api/auth/verify-email')
+    req.nextUrl.pathname.startsWith('/api/auth/verify-email') ||
+    req.nextUrl.pathname.startsWith('/api/debug/config')
   ) {
     return res;
   }

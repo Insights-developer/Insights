@@ -75,18 +75,35 @@ export default function AuthForm() {
           
           try {
             // Use our direct login endpoint that handles both auth and test user creation
+            // Try direct authentication with debug info
+            console.log('Attempting login with:', email);
+            setDebugInfo({
+              type: 'login_attempt',
+              timestamp: Date.now(),
+              message: `Login attempt for ${email}`
+            });
+            
             const response = await fetch('/api/auth/direct-login', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
               },
               body: JSON.stringify({ 
                 email: email.trim(), 
                 password: pw 
               }),
+              credentials: 'include'
             });
             
-            const result = await response.json();
+            let result;
+            try {
+              result = await response.json();
+              console.log('Login response:', response.status, result);
+            } catch (parseError) {
+              console.error('Error parsing response:', parseError);
+              throw new Error(`Server returned ${response.status} with invalid JSON`);
+            }
             
             if (!response.ok) {
               console.error('Auth error:', result.error, result.details || '');

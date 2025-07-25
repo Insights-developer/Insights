@@ -1,9 +1,39 @@
 // /frontend/app/api/auth/direct-login/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { createBrowserClient } from '@supabase/ssr';
+
+// Bypass server client since it might be using middleware
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
+// Enforce no authentication check for this route
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
+}
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient();
+  // Create a direct browser client without server-side checks
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.json(
+      { error: 'Supabase configuration missing' },
+      { status: 500 }
+    );
+  }
+
+  const supabase = createBrowserClient(
+    supabaseUrl,
+    supabaseAnonKey
+  );
   
   try {
     const { email, password } = await request.json();

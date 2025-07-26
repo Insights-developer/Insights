@@ -35,11 +35,11 @@ export default function UserInfoBox() {
   const { name, email, role, lastLogin } = getUserDisplayInfo(dbUser || user);
 
   const handleLogout = async () => {
-    // Remove the auth token cookie
-    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; path=/";
+    // Call the logout API to clear the cookie server-side
+    await fetch("/api/auth/logout", { method: "POST" });
     setDbUser(null);
-    router.push("/"); // Home page (AuthForm)
-    router.refresh();
+    // Reload the page to reset Stack context and user state
+    window.location.href = "/";
   };
 
   return (

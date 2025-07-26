@@ -6,6 +6,7 @@ import { LogOut, Bell, User2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+
 export default function UserInfoBox() {
   const user = useUser();
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function UserInfoBox() {
     // Remove the auth token cookie
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; path=/";
     setDbUser(null);
-    router.push("/");
+    router.push("/"); // Home page (AuthForm)
     router.refresh();
   };
 

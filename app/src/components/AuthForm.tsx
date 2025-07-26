@@ -13,8 +13,8 @@ import { useAppConfig } from "../lib/config";
 import { LogIn, UserPlus, RefreshCcw, User2, Mail, KeyRound, Eye, EyeOff } from "lucide-react";
 
 const AppIcon = () => (
-  <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg">
-    <User2 className="w-8 h-8 text-white" />
+  <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 shadow-lg">
+    <User2 className="w-8 h-8 text-gray-500" />
   </span>
 );
 
@@ -121,10 +121,10 @@ export default function AuthForm() {
       <div className="w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto">
         <div className="bg-[var(--card-bg)] rounded-3xl shadow-2xl border border-[var(--card-border)] p-0 overflow-hidden max-w-2xl mx-auto">
           {/* Header */}
-          <div className="text-center pt-10 pb-6 px-6" style={{ background: 'linear-gradient(90deg, var(--primary), var(--primary-light))' }}>
+          <div className="text-center pt-10 pb-6 px-6">
             <AppIcon />
-            <h2 className="mt-4 text-3xl font-bold text-white drop-shadow">Welcome to {config.appName}</h2>
-            <p className="mt-2 text-sm text-blue-100">
+            <h2 className="mt-4 text-3xl font-bold text-[var(--primary-dark)]">Welcome to {config.appName}</h2>
+            <p className="mt-2 text-sm text-[var(--primary-dark)]">
               {mode === 'login' ? 'Sign in to your account' :
                 mode === 'register' ? 'Create your new account' :
                 'Reset your password'}

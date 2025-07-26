@@ -37,7 +37,13 @@ export async function POST(req: NextRequest) {
     // Bypass type error for expiresIn (runtime is correct)
     const options: jwt.SignOptions = { expiresIn: expiresIn as unknown as string & number };
     const token = jwt.sign(payload, jwtSecret as string, options);
-    return NextResponse.json({ token });
+    // Set token as HTTP-only cookie
+    const response = NextResponse.json({ success: true });
+    response.headers.set(
+      "Set-Cookie",
+      `token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${process.env.NODE_ENV === "production" ? "; Secure" : ""}`
+    );
+    return response;
   } catch {
     return NextResponse.json({ error: "Login failed." }, { status: 500 });
   }

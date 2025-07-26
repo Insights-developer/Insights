@@ -3,15 +3,13 @@
 import { useUser } from "@stackframe/stack";
 import { getUserDisplayInfo } from "../lib/user-info";
 import { LogOut, Bell, User2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 
 export default function UserInfoBox() {
   const user = useUser();
-  const router = useRouter();
   const [dbUser, setDbUser] = useState<Record<string, unknown> | null>(null);
-  const [debugInfo, setDebugInfo] = useState<{ cookies: string; user: any; dbUser: any }>({ cookies: '', user: null, dbUser: null });
+  const [debugInfo, setDebugInfo] = useState<{ cookies: string; user: unknown; dbUser: unknown }>({ cookies: '', user: null, dbUser: null });
 
   useEffect(() => {
     async function fetchDbUser() {

@@ -23,6 +23,9 @@ export async function POST(req: NextRequest) {
     if (!valid) {
       return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
     }
+    // Update last_login timestamp
+    await pool.query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
+
     // Issue JWT
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {

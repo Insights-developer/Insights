@@ -15,8 +15,8 @@ export function getUserDisplayInfo(user: unknown) {
   const u = user as UserLike | null | undefined;
   if (!u) return { name: "Guest", email: "", role: "", lastLogin: "", raw: null };
   return {
-    name: u.name || u.displayName || u.email || "User",
-    email: u.email || "",
+    name: u.name || u.displayName || u.email || (u as any).primaryEmail || "User",
+    email: u.email || (u as any).primaryEmail || "",
     role: u.role || u.accessGroup || "",
     lastLogin: u.lastLogin || u.last_login || u.lastLoginAt || "",
     raw: u,

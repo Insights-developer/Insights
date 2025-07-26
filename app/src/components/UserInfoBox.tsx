@@ -106,7 +106,16 @@ export default function UserInfoBox() {
         {showDebug ? 'Hide Debug Info' : 'Show Debug Info'}
       </button>
       {showDebug && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 mt-1 text-xs text-gray-700 max-w-full max-h-72 overflow-auto shadow-inner">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 mt-1 text-xs text-gray-700 max-w-full max-h-72 overflow-auto shadow-inner relative">
+          <button
+            className="absolute top-2 right-2 text-xs text-blue-600 hover:underline focus:outline-none bg-white/80 px-2 py-1 rounded"
+            title="Copy all debug info"
+            onClick={() => {
+              const all = `Path: ${debugInfo.path}\nTimestamp: ${debugInfo.timestamp}\nCookies:\n${debugInfo.cookies}\nQueried Email: ${debugInfo.queriedEmail}\n/api/users Result:\n${debugInfo.userApiResult}\nuser (useUser):\n${JSON.stringify(debugInfo.user, null, 2)}\ndbUser (from /api/users):\n${JSON.stringify(debugInfo.dbUser, null, 2)}`;
+              navigator.clipboard.writeText(all);
+            }}
+            type="button"
+          >Copy All</button>
           <div><b>Path:</b> <code>{debugInfo.path}</code></div>
           <div><b>Timestamp:</b> <code>{debugInfo.timestamp}</code></div>
           <div className="mt-1"><b>Cookies:</b> <pre className="whitespace-pre-wrap break-all">{debugInfo.cookies || '(none)'}</pre></div>

@@ -4,6 +4,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAppConfig } from "../lib/config";
 
+//
+// NOTE: AuthForm uses the `stackApp` abstraction to handle authentication actions (login, registration, password recovery).
+// These methods call the app's own API endpoints, which store and authorize user records in the local PostgreSQL `users` table.
+// No user data is stored or managed by any third-party auth provider.
+//
 // App Icon Component
 const AppIcon = () => (
   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

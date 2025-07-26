@@ -8,7 +8,7 @@ This document outlines the design and implementation plan for rebuilding the Ins
 
 - **Frontend**: Next.js with React and Tailwind CSS
 - **Database**: Vercel Postgres (Neon) with the serverless driver
-- **Authentication**: Custom JWT with bcrypt password hashing
+- **Authentication**: Neo Auth backend.
 - **Email Service**: Resend.com
 - **Deployment**: Vercel
 

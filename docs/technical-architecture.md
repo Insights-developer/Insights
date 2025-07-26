@@ -51,26 +51,31 @@ The app uses PostgreSQL with the following key tables:
 
 ## 🔐 **Authentication System**
 
-### **JWT Implementation**
-- **Library**: `jsonwebtoken`
-- **Password Hashing**: `bcryptjs`
-- **Token Generation**: `crypto-random-string`
+### **Authentication & User Management**
+Authentication and user management are handled internally by the Insights app, not by an external NEO Auth provider. All user records are stored in the local PostgreSQL database (`users` table). The authentication system uses:
 
-### **API Endpoints**
+> **Note:**
+> The `AuthForm` component in the frontend uses the `stackApp` abstraction to handle login, registration, and password recovery. These methods call the app's own API endpoints (`/api/auth/login`, `/api/auth/register`, `/api/auth/verify`), which store and authorize user records in the local PostgreSQL database. No user data is stored or managed by any third-party auth provider.
+
+- **JWT** for session management (`jsonwebtoken`)
+- **Password hashing** with `bcryptjs`
+- **Email verification** with codes sent via Resend
+
+#### **API Endpoints**
 ```
-POST /api/auth/login      # User login
-POST /api/auth/register   # User registration  
-POST /api/auth/verify     # Email verification
+POST /api/auth/login      # User login (checks credentials against local DB)
+POST /api/auth/register   # User registration (creates user in local DB)
+POST /api/auth/verify     # Email verification (marks user as verified in local DB)
 ```
 
-### **Authentication Flow**
+#### **Authentication Flow**
 1. User submits credentials via AuthForm
-2. API validates against database
-3. JWT token generated and returned
-4. Token stored client-side (TODO: implement storage)
-5. Token validated on protected routes
+2. API endpoints validate credentials and user status against the local database
+3. JWT token is generated and returned to the client
+4. Token is stored client-side (TODO: implement storage)
+5. Token is validated on protected routes
 
-### **Security Features**
+#### **Security Features**
 - Password hashing with bcrypt
 - JWT token expiration
 - Email verification required

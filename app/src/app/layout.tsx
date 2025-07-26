@@ -2,7 +2,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ConditionalNavBar from "@/components/ConditionalNavBar";
 import StackAuthProvider from "@/components/StackAuthProvider";
 
 const geistSans = Geist({
@@ -31,7 +30,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <StackAuthProvider>
-          <ConditionalNavBar />
           {children}
         </StackAuthProvider>
       </body>

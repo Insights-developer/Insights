@@ -5,9 +5,9 @@ import { getUserDisplayInfo } from "../lib/user-info";
 import { LogOut, Bell, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useDebugInfo } from "./DebugInfoContext";
 
-
-export default function UserInfoBox() {
+function UserInfoBox() {
   const user = useUser();
   const [dbUser, setDbUser] = useState<Record<string, unknown> | null>(null);
   const [debugInfo, setDebugInfo] = useState<{
@@ -21,6 +21,7 @@ export default function UserInfoBox() {
   }>({ cookies: '', user: null, dbUser: null, timestamp: '', path: '', queriedEmail: '', userApiResult: '' });
   const [showDebug, setShowDebug] = useState(false);
   const pathname = usePathname();
+  const { debugEntries } = useDebugInfo();
 
   useEffect(() => {
     async function fetchDbUser() {
@@ -111,20 +112,23 @@ export default function UserInfoBox() {
             className="absolute top-2 right-2 text-xs text-blue-600 hover:underline focus:outline-none bg-white/80 px-2 py-1 rounded"
             title="Copy all debug info"
             onClick={() => {
-              const all = `Path: ${debugInfo.path}\nTimestamp: ${debugInfo.timestamp}\nCookies:\n${debugInfo.cookies}\nQueried Email: ${debugInfo.queriedEmail}\n/api/users Result:\n${debugInfo.userApiResult}\nuser (useUser):\n${JSON.stringify(debugInfo.user, null, 2)}\ndbUser (from /api/users):\n${JSON.stringify(debugInfo.dbUser, null, 2)}`;
+              const all = debugEntries.map(e => `Source: ${e.source}\nTimestamp: ${e.timestamp}\n${typeof e.info === 'string' ? e.info : JSON.stringify(e.info, null, 2)}`).join('\n\n---\n\n');
               navigator.clipboard.writeText(all);
             }}
             type="button"
           >Copy All</button>
-          <div><b>Path:</b> <code>{debugInfo.path}</code></div>
-          <div><b>Timestamp:</b> <code>{debugInfo.timestamp}</code></div>
-          <div className="mt-1"><b>Cookies:</b> <pre className="whitespace-pre-wrap break-all">{debugInfo.cookies || '(none)'}</pre></div>
-          <div className="mt-1"><b>Queried Email:</b> <code>{debugInfo.queriedEmail || '(none)'}</code></div>
-          <div className="mt-1"><b>/api/users Result:</b> <pre className="whitespace-pre-wrap break-all">{debugInfo.userApiResult}</pre></div>
-          <div className="mt-1"><b>user (useUser):</b> <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugInfo.user, null, 2)}</pre></div>
-          <div className="mt-1"><b>dbUser (from /api/users):</b> <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugInfo.dbUser, null, 2)}</pre></div>
+          {debugEntries.length === 0 && <div>No debug info reported yet.</div>}
+          {debugEntries.map((entry, idx) => (
+            <div key={idx} className="mb-3 pb-2 border-b last:border-b-0 last:mb-0 last:pb-0">
+              <div><b>Source:</b> <code>{entry.source}</code></div>
+              <div><b>Timestamp:</b> <code>{entry.timestamp}</code></div>
+              <div className="mt-1"><b>Info:</b> <pre className="whitespace-pre-wrap break-all">{typeof entry.info === 'string' ? entry.info : JSON.stringify(entry.info, null, 2)}</pre></div>
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
 }
+
+export default UserInfoBox;

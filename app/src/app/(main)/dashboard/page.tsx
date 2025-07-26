@@ -1,12 +1,22 @@
 "use client";
-import React from "react";
+
+import React, { useEffect } from "react";
 import { useUser } from "@stackframe/stack";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useDebugInfo } from "@/components/DebugInfoContext";
 
 export default function DashboardPage() {
   const user = useUser();
   const router = useRouter();
+  const { reportDebugInfo } = useDebugInfo();
+
+  useEffect(() => {
+    reportDebugInfo({
+      source: "DashboardPage",
+      timestamp: new Date().toISOString(),
+      info: { user, message: "Dashboard page loaded" },
+    });
+  }, [reportDebugInfo, user]);
 
   useEffect(() => {
     if (typeof user === "undefined") return; // still loading

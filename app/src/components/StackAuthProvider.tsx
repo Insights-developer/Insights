@@ -2,15 +2,14 @@
 
 import { StackProvider } from "@stackframe/stack";
 import { stackApp } from "@/lib/stack-client";
+import { DebugInfoProvider } from "./DebugInfoContext";
 
-export default function StackAuthProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function StackAuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <StackProvider app={stackApp}>
-      {children}
+      <DebugInfoProvider>
+        {children}
+      </DebugInfoProvider>
     </StackProvider>
   );
 }

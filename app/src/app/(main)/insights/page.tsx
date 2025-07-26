@@ -1,4 +1,16 @@
+"use client";
+import { useEffect } from "react";
+import { useDebugInfo } from "@/components/DebugInfoContext";
+
 export default function InsightsPage() {
+  const { reportDebugInfo } = useDebugInfo();
+  useEffect(() => {
+    reportDebugInfo({
+      source: "InsightsPage",
+      timestamp: new Date().toISOString(),
+      info: { message: "Insights page loaded" },
+    });
+  }, [reportDebugInfo]);
   return (
     <div
       className="max-w-2xl mx-auto mt-20 p-8 rounded-3xl shadow-2xl text-center"

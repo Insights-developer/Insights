@@ -41,7 +41,7 @@ const defaultConfig: Partial<AppConfig> = {
   privacy_url: "",
 };
 
-export default function AppConfigManager() {
+export default function AppConfigManager(): React.ReactElement {
   const [configs, setConfigs] = useState<AppConfig[]>([]);
   const [editing, setEditing] = useState<AppConfig | null>(null);
   const [form, setForm] = useState<Partial<AppConfig>>(defaultConfig);
@@ -50,8 +50,8 @@ export default function AppConfigManager() {
 
   // TODO: Replace with real API calls
   useEffect(() => {
-    // Simulate fetch
     setLoading(true);
+    setError(null);
     setTimeout(() => {
       setConfigs([
         {
@@ -60,12 +60,12 @@ export default function AppConfigManager() {
           company_name: "Insights Inc.",
           support_email: "support@example.com",
           logo_url: "https://placehold.co/100x100",
-          primary_color: "#2563eb",
-          accent_color: "#fbbf24",
+          primary_color: "#0070f3",
+          accent_color: "#ff4081",
           theme: "light",
           landing_page_message: "Welcome to Insights!",
           maintenance_mode: false,
-          feature_toggles: { dashboard: true, games: false },
+          feature_toggles: { featureA: true },
           analytics_enabled: true,
           default_timezone: "UTC",
           currency: "USD",
@@ -79,31 +79,17 @@ export default function AppConfigManager() {
     }, 500);
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value, type } = e.target;
-    let fieldValue: string | boolean = value;
     if (type === "checkbox") {
-      fieldValue = (e.target as HTMLInputElement).checked;
+      // Only HTMLInputElement has 'checked'
+      setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
     }
-    setForm((prev) => ({
-      ...prev,
-      [name]: fieldValue,
-    }));
-  };
+  }
 
-
-  const handleEdit = (config: AppConfig) => {
-    setEditing(config);
-    setForm(config);
-  };
-
-  const handleDelete = (id: number) => {
-    setConfigs((prev) => prev.filter((c) => c.id !== id));
-    setEditing(null);
-    setForm(defaultConfig);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -111,38 +97,54 @@ export default function AppConfigManager() {
       if (editing) {
         setConfigs((prev) => prev.map((c) => (c.id === editing.id ? { ...editing, ...form } as AppConfig : c)));
       } else {
-        setConfigs((prev) => [...prev, { ...form, id: Date.now() } as AppConfig]);
+        setConfigs((prev) => [
+          ...prev,
+          { ...form, id: Date.now() } as AppConfig,
+        ]);
       }
       setEditing(null);
       setForm(defaultConfig);
       setLoading(false);
     }, 500);
-  };
+  }
+
+  function handleEdit(config: AppConfig) {
+    setEditing(config);
+    setForm(config);
+  }
+
+  function handleDelete(id: number) {
+    setConfigs((prev) => prev.filter((c) => c.id !== id));
+    if (editing && editing.id === id) {
+      setEditing(null);
+      setForm(defaultConfig);
+    }
+  }
 
   return (
-    <div className="max-w-3xl mx-auto p-8">
-      <h2 className="text-2xl font-bold mb-6">App Configuration</h2>
-      {error && <div className="mb-4 text-red-600">{error}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4 bg-[var(--card-bg)] p-6 rounded-lg shadow">
+    <div className="max-w-4xl mx-auto p-8">
+      <h2 className="text-2xl font-bold mb-6 text-center">App Configuration</h2>
+      {error && <div className="mb-4 p-3 bg-red-100 text-red-800 rounded border border-red-300">{error}</div>}
+      <form className="space-y-4 bg-[var(--card-bg)] p-6 rounded-lg shadow mb-8" onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input name="app_name" value={form.app_name || ""} onChange={handleChange} placeholder="App Name" className="input" required />
-          <input name="company_name" value={form.company_name || ""} onChange={handleChange} placeholder="Company Name" className="input" required />
-          <input name="support_email" value={form.support_email || ""} onChange={handleChange} placeholder="Support Email" className="input" required />
+          <input name="company_name" value={form.company_name || ""} onChange={handleChange} placeholder="Company Name" className="input" />
+          <input name="support_email" value={form.support_email || ""} onChange={handleChange} placeholder="Support Email" className="input" />
           <input name="logo_url" value={form.logo_url || ""} onChange={handleChange} placeholder="Logo URL" className="input" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input name="primary_color" value={form.primary_color || ""} onChange={handleChange} placeholder="Primary Color" className="input" />
           <input name="accent_color" value={form.accent_color || ""} onChange={handleChange} placeholder="Accent Color" className="input" />
-          <select name="theme" value={form.theme || "light"} onChange={handleChange} className="input">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-            <option value="auto">Auto</option>
-          </select>
-          <input name="default_timezone" value={form.default_timezone || "UTC"} onChange={handleChange} placeholder="Default Timezone" className="input" />
-          <input name="currency" value={form.currency || "USD"} onChange={handleChange} placeholder="Currency" className="input" />
+          <input name="theme" value={form.theme || ""} onChange={handleChange} placeholder="Theme (light/dark)" className="input" />
+          <input name="default_timezone" value={form.default_timezone || ""} onChange={handleChange} placeholder="Default Timezone" className="input" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input name="currency" value={form.currency || ""} onChange={handleChange} placeholder="Currency" className="input" />
           <input name="terms_url" value={form.terms_url || ""} onChange={handleChange} placeholder="Terms URL" className="input" />
           <input name="privacy_url" value={form.privacy_url || ""} onChange={handleChange} placeholder="Privacy URL" className="input" />
         </div>
         <textarea name="landing_page_message" value={form.landing_page_message || ""} onChange={handleChange} placeholder="Landing Page Message" className="input" />
-        <div className="flex items-center gap-4">
+        <div className="flex gap-4 items-center">
           <label className="flex items-center gap-2">
             <input type="checkbox" name="maintenance_mode" checked={!!form.maintenance_mode} onChange={handleChange} />
             Maintenance Mode
@@ -176,7 +178,9 @@ export default function AppConfigManager() {
       </form>
       <div className="mt-8">
         <h3 className="text-xl font-semibold mb-4">Existing Configurations</h3>
-        {loading ? <div>Loading...</div> : (
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
           <table className="w-full text-left border">
             <thead>
               <tr>

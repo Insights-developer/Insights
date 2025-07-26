@@ -117,11 +117,11 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-2 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl">
-        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100/80 p-0 sm:p-0 md:p-0 overflow-hidden max-w-2xl mx-auto">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--background)] py-8 px-2 sm:px-4 lg:px-8">
+      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto">
+        <div className="bg-[var(--card-bg)] rounded-3xl shadow-2xl border border-[var(--card-border)] p-0 overflow-hidden max-w-2xl mx-auto">
           {/* Header */}
-          <div className="text-center pt-10 pb-6 px-6 bg-gradient-to-r from-blue-600 to-purple-600">
+          <div className="text-center pt-10 pb-6 px-6" style={{ background: 'linear-gradient(90deg, var(--primary), var(--primary-light))' }}>
             <AppIcon />
             <h2 className="mt-4 text-3xl font-bold text-white drop-shadow">Welcome to {config.appName}</h2>
             <p className="mt-2 text-sm text-blue-100">
@@ -132,14 +132,14 @@ export default function AuthForm() {
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex bg-gray-50/80 px-2 pt-4 pb-2 gap-2">
+          <div className="flex bg-[var(--gray-light)] px-2 pt-4 pb-2 gap-2">
             <button
               onClick={() => setMode('login')}
               className={`flex-1 px-4 py-2 text-base font-semibold flex items-center justify-center gap-2 rounded-xl transition-all duration-200
                 ${mode === 'login'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md'}
-              focus:outline-none focus:ring-2 focus:ring-blue-300`}
+                  ? 'bg-[var(--primary)] text-white shadow-md'
+                  : 'text-[var(--foreground)] hover:bg-[var(--primary-light)] hover:text-[var(--primary-dark)] hover:shadow-md'}
+              focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)]`}
             >
               <LogIn className="w-6 h-6" />
               Sign In
@@ -148,9 +148,9 @@ export default function AuthForm() {
               onClick={() => setMode('register')}
               className={`flex-1 px-4 py-2 text-base font-semibold flex items-center justify-center gap-2 rounded-xl transition-all duration-200
                 ${mode === 'register'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:shadow-md'}
-              focus:outline-none focus:ring-2 focus:ring-blue-300`}
+                  ? 'bg-[var(--primary)] text-white shadow-md'
+                  : 'text-[var(--foreground)] hover:bg-[var(--primary-light)] hover:text-[var(--primary-dark)] hover:shadow-md'}
+              focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)]`}
             >
               <UserPlus className="w-6 h-6" />
               Sign Up
@@ -160,7 +160,7 @@ export default function AuthForm() {
               className={`flex-1 px-4 py-2 text-base font-semibold flex items-center justify-center gap-2 rounded-xl transition-all duration-200
                 ${mode === 'recover'
                   ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-red-50 hover:text-red-600 hover:shadow-md'}
+                  : 'text-[var(--foreground)] hover:bg-red-50 hover:text-red-600 hover:shadow-md'}
               focus:outline-none focus:ring-2 focus:ring-red-300`}
             >
               <RefreshCcw className="w-6 h-6" />
@@ -169,7 +169,7 @@ export default function AuthForm() {
           </div>
 
           {/* Form */}
-          <div className="p-6 sm:p-8 md:p-10">
+          <div className="p-4 sm:p-6 md:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {mode === 'register' && (
                 <div>

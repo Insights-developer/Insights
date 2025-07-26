@@ -1,14 +1,43 @@
 "use client";
-import { useUser } from "@stackframe/stack";
+
+import { useUser, useStackApp } from "@stackframe/stack";
 import { getUserDisplayInfo } from "../lib/user-info";
 import { LogOut, Bell, User2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function UserInfoBox() {
   const user = useUser();
+  const stackApp = useStackApp();
   const router = useRouter();
+  const [dbUser, setDbUser] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchDbUser() {
+      const { email } = getUserDisplayInfo(user);
+      if (!email) return;
+      try {
+        const res = await fetch(`/api/users?email=${encodeURIComponent(email)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setDbUser(data.user || null);
+        }
+      } catch {
+        setDbUser(null);
+      }
+    }
+    fetchDbUser();
+  }, [user]);
+
   if (!user) return null;
-  const { name, email, role, lastLogin } = getUserDisplayInfo(user);
+  const { name, email, role, lastLogin } = getUserDisplayInfo(dbUser || user);
+
+  const handleLogout = async () => {
+    // Remove the auth token cookie
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <div className="fixed top-6 right-6 z-50 bg-white rounded-3xl shadow-2xl px-8 py-5 flex items-center gap-6 min-w-[320px] border border-gray-100/80">
@@ -26,7 +55,7 @@ export default function UserInfoBox() {
       <button
         className="text-gray-400 hover:text-red-500 text-2xl ml-2"
         title="Log out"
-        onClick={() => { router.push("/"); }}
+        onClick={handleLogout}
       >
         <LogOut className="w-7 h-7" />
       </button>

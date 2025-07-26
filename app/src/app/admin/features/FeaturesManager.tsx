@@ -22,16 +22,29 @@ export default function FeaturesManager() {
   const [filter, setFilter] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     setLoading(true);
-    setTimeout(() => {
-      setFeatures([
-        { id: 1, name: "Dashboard", description: "Main dashboard", route: "/dashboard", created_at: new Date().toISOString() },
-        { id: 2, name: "Admin", description: "Admin panel", route: "/admin", created_at: new Date().toISOString() },
-      ]);
-      setLoading(false);
-    }, 500);
+    setError("");
+    fetch("/api/features")
+      .then(async res => {
+        if (!res.ok) {
+          const err = await res.text();
+          setError(`Failed to fetch features: ${err}`);
+          setLoading(false);
+          return;
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data)) setFeatures(data);
+        setLoading(false);
+      })
+      .catch(e => {
+        setError(`Fetch error: ${e}`);
+        setLoading(false);
+      });
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -44,25 +57,67 @@ export default function FeaturesManager() {
     setForm(feature);
   };
 
-  const handleDelete = (id: number) => {
-    setFeatures((prev) => prev.filter((f) => f.id !== id));
-    setEditing(null);
-    setForm(defaultFeature);
+  const handleDelete = async (id: number) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/features/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const err = await res.text();
+        setError(`Delete error: ${err}`);
+      } else {
+        setFeatures((prev) => prev.filter((f) => f.id !== id));
+        setEditing(null);
+        setForm(defaultFeature);
+      }
+    } catch (e) {
+      setError(`Delete fetch error: ${e}`);
+    }
+    setLoading(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      if (editing) {
-        setFeatures((prev) => prev.map((f) => (f.id === editing.id ? { ...editing, ...form } as Feature : f)));
-      } else {
-        setFeatures((prev) => [...prev, { ...form, id: Date.now() } as Feature]);
+    setError("");
+    if (editing) {
+      try {
+        const res = await fetch(`/api/features/${editing.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: form.name, description: form.description, route: form.route }),
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          setFeatures((prev) => prev.map((f) => (f.id === editing.id ? updated : f)));
+        } else {
+          const err = await res.text();
+          setError(`Update error: ${err}`);
+        }
+      } catch (e) {
+        setError(`Update fetch error: ${e}`);
       }
-      setEditing(null);
-      setForm(defaultFeature);
-      setLoading(false);
-    }, 500);
+    } else {
+      try {
+        const res = await fetch("/api/features", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: form.name, description: form.description, route: form.route }),
+        });
+        if (res.ok) {
+          const created = await res.json();
+          setFeatures((prev) => [...prev, created]);
+        } else {
+          const err = await res.text();
+          setError(`Create error: ${err}`);
+        }
+      } catch (e) {
+        setError(`Create fetch error: ${e}`);
+      }
+    }
+    setEditing(null);
+    setForm(defaultFeature);
+    setLoading(false);
   };
 
   const filteredFeatures = features.filter(f =>
@@ -73,6 +128,11 @@ export default function FeaturesManager() {
 
   return (
     <div className="max-w-4xl mx-auto p-8">
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-800 rounded border border-red-300">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h2 className="text-2xl font-bold">Features</h2>
         <input

@@ -28,21 +28,34 @@ export default function AccessGroupsManager() {
   const [filter, setFilter] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     setLoading(true);
-    setTimeout(() => {
-      setFeatures([
-        { id: 1, name: "Dashboard" },
-        { id: 2, name: "Admin" },
-        { id: 3, name: "Insights" },
-      ]);
-      setGroups([
-        { id: 1, name: "Admins", description: "Full access", features: [1, 2, 3], created_at: new Date().toISOString() },
-        { id: 2, name: "Users", description: "Standard users", features: [1, 3], created_at: new Date().toISOString() },
-      ]);
-      setLoading(false);
-    }, 500);
+    setError("");
+    setFeatures([
+      { id: 1, name: "Dashboard" },
+      { id: 2, name: "Admin" },
+      { id: 3, name: "Insights" },
+    ]);
+    fetch("/api/access-groups")
+      .then(async res => {
+        if (!res.ok) {
+          const err = await res.text();
+          setError(`Failed to fetch access groups: ${err}`);
+          setLoading(false);
+          return;
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data)) setGroups(data);
+        setLoading(false);
+      })
+      .catch(e => {
+        setError(`Fetch error: ${e}`);
+        setLoading(false);
+      });
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -67,25 +80,67 @@ export default function AccessGroupsManager() {
     setForm(group);
   };
 
-  const handleDelete = (id: number) => {
-    setGroups((prev) => prev.filter((g) => g.id !== id));
-    setEditing(null);
-    setForm(defaultGroup);
+  const handleDelete = async (id: number) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/access-groups/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const err = await res.text();
+        setError(`Delete error: ${err}`);
+      } else {
+        setGroups((prev) => prev.filter((g) => g.id !== id));
+        setEditing(null);
+        setForm(defaultGroup);
+      }
+    } catch (e) {
+      setError(`Delete fetch error: ${e}`);
+    }
+    setLoading(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      if (editing) {
-        setGroups((prev) => prev.map((g) => (g.id === editing.id ? { ...editing, ...form, features: form.features || [] } as AccessGroup : g)));
-      } else {
-        setGroups((prev) => [...prev, { ...form, id: Date.now(), features: form.features || [] } as AccessGroup]);
+    setError("");
+    if (editing) {
+      try {
+        const res = await fetch(`/api/access-groups/${editing.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: form.name, description: form.description }),
+        });
+        if (res.ok) {
+          const updated = await res.json();
+          setGroups((prev) => prev.map((g) => (g.id === editing.id ? updated : g)));
+        } else {
+          const err = await res.text();
+          setError(`Update error: ${err}`);
+        }
+      } catch (e) {
+        setError(`Update fetch error: ${e}`);
       }
-      setEditing(null);
-      setForm(defaultGroup);
-      setLoading(false);
-    }, 500);
+    } else {
+      try {
+        const res = await fetch("/api/access-groups", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: form.name, description: form.description }),
+        });
+        if (res.ok) {
+          const created = await res.json();
+          setGroups((prev) => [...prev, created]);
+        } else {
+          const err = await res.text();
+          setError(`Create error: ${err}`);
+        }
+      } catch (e) {
+        setError(`Create fetch error: ${e}`);
+      }
+    }
+    setEditing(null);
+    setForm(defaultGroup);
+    setLoading(false);
   };
 
   const filteredGroups = groups.filter(g =>
@@ -95,6 +150,11 @@ export default function AccessGroupsManager() {
 
   return (
     <div className="max-w-4xl mx-auto p-8">
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-800 rounded border border-red-300">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h2 className="text-2xl font-bold">Access Groups</h2>
         <input

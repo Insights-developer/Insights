@@ -165,32 +165,30 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg">
-            <AppIcon />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-2 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl">
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100/80 p-0 sm:p-0 md:p-0 overflow-hidden">
+          {/* Header */}
+          <div className="text-center pt-10 pb-6 px-6 bg-gradient-to-r from-blue-600 to-purple-600">
+            <div className="mx-auto h-16 w-16 bg-white rounded-full flex items-center justify-center text-blue-600 shadow-lg border-4 border-white">
+              <AppIcon />
+            </div>
+            <h2 className="mt-4 text-3xl font-bold text-white drop-shadow">Welcome to {config.appName}</h2>
+            <p className="mt-2 text-sm text-blue-100">
+              {mode === 'login' ? 'Sign in to your account' :
+                mode === 'register' ? 'Create your new account' :
+                'Reset your password'}
+            </p>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Welcome to {config.appName}
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {mode === 'login' ? 'Sign in to your account' : 
-             mode === 'register' ? 'Create your new account' : 
-             'Reset your password'}
-          </p>
-        </div>
 
-        {/* Tab Navigation */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-          <div className="flex bg-gray-50/50">
+          {/* Tab Navigation */}
+          <div className="flex bg-gray-50/80 px-2 pt-4 pb-2 gap-2">
             <button
               onClick={() => setMode('login')}
-              className={`flex-1 px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 ${
+              className={`flex-1 px-4 py-2 text-sm font-medium flex items-center justify-center gap-2 rounded-xl transition-all duration-200 ${
                 mode === 'login'
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/70'
               }`}
             >
               <LoginIcon />
@@ -198,10 +196,10 @@ export default function AuthForm() {
             </button>
             <button
               onClick={() => setMode('register')}
-              className={`flex-1 px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 ${
+              className={`flex-1 px-4 py-2 text-sm font-medium flex items-center justify-center gap-2 rounded-xl transition-all duration-200 ${
                 mode === 'register'
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/70'
               }`}
             >
               <RegisterIcon />
@@ -209,10 +207,10 @@ export default function AuthForm() {
             </button>
             <button
               onClick={() => setMode('recover')}
-              className={`flex-1 px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 ${
+              className={`flex-1 px-4 py-2 text-sm font-medium flex items-center justify-center gap-2 rounded-xl transition-all duration-200 ${
                 mode === 'recover'
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/70'
               }`}
             >
               <ResetIcon />
@@ -221,7 +219,7 @@ export default function AuthForm() {
           </div>
 
           {/* Form */}
-          <div className="p-8">
+          <div className="p-6 sm:p-8 md:p-10">
             <form onSubmit={handleSubmit} className="space-y-6">
               {mode === 'register' && (
                 <div>
@@ -237,7 +235,7 @@ export default function AuthForm() {
                       required
                       value={form.name}
                       onChange={handleInputChange}
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
                       placeholder="Full Name"
                     />
                   </div>
@@ -257,7 +255,7 @@ export default function AuthForm() {
                     required
                     value={form.email}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
                     placeholder="Email address"
                   />
                 </div>
@@ -277,7 +275,7 @@ export default function AuthForm() {
                       required
                       value={form.password}
                       onChange={handleInputChange}
-                      className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
                       placeholder="Password"
                     />
                     <button
@@ -313,22 +311,15 @@ export default function AuthForm() {
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   ) : (
                     <>
-                      {mode === 'login' ? 'Sign In' : 
-                       mode === 'register' ? 'Create Account' : 
-                       'Send Reset Email'}
+                      {mode === 'login' ? 'Sign In' :
+                        mode === 'register' ? 'Create Account' :
+                        'Send Reset Email'}
                     </>
                   )}
                 </button>
               </div>
             </form>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">
-            Secure authentication powered by Stack Auth
-          </p>
         </div>
       </div>
     </div>

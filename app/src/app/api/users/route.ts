@@ -12,8 +12,22 @@ export async function GET(req: NextRequest) {
     }
     const res = await pool.query('SELECT id, email, full_name, access_group_id FROM users ORDER BY email');
     return NextResponse.json(res.rows);
-  } catch {
-    return NextResponse.json({ error: 'Failed to fetch users.' }, { status: 500 });
+  } catch (err) {
+    // Log error to server console for debugging
+    console.error('API /api/users error:', err);
+    let details = '';
+    if (err && typeof err === 'object' && 'message' in err && typeof (err as { message?: unknown }).message === 'string') {
+      details = (err as { message: string }).message;
+    } else if (typeof err === 'string') {
+      details = err;
+    } else {
+      try {
+        details = JSON.stringify(err);
+      } catch {
+        details = String(err);
+      }
+    }
+    return NextResponse.json({ error: 'Failed to fetch users.', details }, { status: 500 });
   }
 }
 

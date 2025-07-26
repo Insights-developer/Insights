@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export type DebugEntry = {
   source: string;
@@ -12,16 +13,23 @@ type DebugInfoContextType = {
   clearDebugInfo: () => void;
 };
 
+
 const DebugInfoContext = createContext<DebugInfoContextType | undefined>(undefined);
 
 export function DebugInfoProvider({ children }: { children: React.ReactNode }) {
   const [debugEntries, setDebugEntries] = useState<DebugEntry[]>([]);
+  const pathname = usePathname();
 
   const reportDebugInfo = (entry: DebugEntry) => {
     setDebugEntries((prev) => [...prev, entry]);
   };
 
   const clearDebugInfo = () => setDebugEntries([]);
+
+  // Clear debug info whenever the route changes
+  useEffect(() => {
+    setDebugEntries([]);
+  }, [pathname]);
 
   return (
     <DebugInfoContext.Provider value={{ debugEntries, reportDebugInfo, clearDebugInfo }}>

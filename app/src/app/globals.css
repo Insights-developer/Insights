@@ -1,30 +1,67 @@
+
 @import "tailwindcss";
 
+/* Centralized Theme System */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #18181b;
   --primary: #2563eb;
   --primary-light: #60a5fa;
   --primary-dark: #1e40af;
-  --secondary: #a21caf;
-  --secondary-light: #f472b6;
-  --secondary-dark: #701a75;
+  --accent: #fbbf24;
+  --accent-light: #fef3c7;
+  --accent-dark: #b45309;
+  --success: #22c55e;
+  --success-light: #bbf7d0;
+  --success-dark: #166534;
   --danger: #ef4444;
-  --danger-light: #fca5a5;
+  --danger-light: #fee2e2;
   --danger-dark: #b91c1c;
+  --info: #38bdf8;
+  --info-light: #e0f2fe;
+  --info-dark: #0369a1;
   --gray-light: #f3f4f6;
   --gray: #6b7280;
   --gray-dark: #374151;
+  --card-bg: #fff;
+  --card-border: #e5e7eb;
+  --navbar-bg: #f1f5f9;
+  --sidebar-bg: #f3f4f6;
+  --icon-color: #2563eb;
+  --icon-bg: #e0e7ff;
+  --shadow: 0 4px 24px 0 rgba(30, 64, 175, 0.08);
+  --radius: 1.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --gray-light: #1f2937;
-    --gray: #d1d5db;
-    --gray-dark: #f3f4f6;
-  }
+[data-theme="dark"] {
+  --background: #18181b;
+  --foreground: #f3f4f6;
+  --primary: #60a5fa;
+  --primary-light: #2563eb;
+  --primary-dark: #1e40af;
+  --accent: #fbbf24;
+  --accent-light: #fef3c7;
+  --accent-dark: #b45309;
+  --success: #22c55e;
+  --success-light: #bbf7d0;
+  --success-dark: #166534;
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+  --danger-dark: #b91c1c;
+  --info: #38bdf8;
+  --info-light: #e0f2fe;
+  --info-dark: #0369a1;
+  --gray-light: #1f2937;
+  --gray: #d1d5db;
+  --gray-dark: #f3f4f6;
+  --card-bg: #23272f;
+  --card-border: #374151;
+  --navbar-bg: #18181b;
+  --sidebar-bg: #23272f;
+  --icon-color: #60a5fa;
+  --icon-bg: #1e293b;
+  --shadow: 0 4px 24px 0 rgba(96, 165, 250, 0.08);
+  --radius: 1.5rem;
 }
 
 body {

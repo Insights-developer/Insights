@@ -19,8 +19,8 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style={{ borderColor: 'var(--primary)', borderBottomColor: 'var(--primary-dark)' }}></div>
+          <p className="mt-4" style={{ color: 'var(--gray)' }}>Loading...</p>
         </div>
       </div>
     );
@@ -31,10 +31,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto mt-16 p-10 bg-white rounded-2xl shadow-xl text-center border border-gray-100">
-      <h1 className="text-4xl font-bold mb-4 text-blue-700">Dashboard</h1>
-      <p className="mb-4 text-lg text-gray-700">Welcome to your dashboard. Use the sidebar to navigate through the app features.</p>
-      <div className="mt-8 text-gray-500">More features coming soon.</div>
+    <div
+      className="max-w-3xl mx-auto mt-16 p-10 rounded-2xl shadow-xl text-center"
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', color: 'var(--foreground)' }}
+    >
+      <h1 className="text-4xl font-bold mb-4" style={{ color: 'var(--primary-dark)' }}>Dashboard</h1>
+      <p className="mb-4 text-lg" style={{ color: 'var(--gray-dark)' }}>Welcome to your dashboard. Use the sidebar to navigate through the app features.</p>
+      <div className="mt-8" style={{ color: 'var(--gray)' }}>More features coming soon.</div>
     </div>
   );
 }

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     await pool.query('DELETE FROM verification_tokens WHERE id = $1', [ver.id]);
     await pool.query('UPDATE users SET is_verified = true WHERE id = $1', [userId]);
     return NextResponse.json({ message: "Email verified. You can now sign in." });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Verification failed." }, { status: 500 });
   }
 }

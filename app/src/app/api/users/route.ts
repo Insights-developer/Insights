@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     }
     const res = await pool.query('SELECT id, email, full_name, access_group_id FROM users ORDER BY email');
     return NextResponse.json(res.rows);
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch users.' }, { status: 500 });
   }
 }
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       [email, full_name, access_group_id]
     );
     return NextResponse.json(res.rows[0]);
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create user.' }, { status: 500 });
   }
 }

@@ -91,12 +91,6 @@ export default function AppConfigManager() {
     }));
   };
 
-  const handleFeatureToggleChange = (key: string, value: boolean) => {
-    setForm((prev) => ({
-      ...prev,
-      feature_toggles: { ...prev.feature_toggles, [key]: value },
-    }));
-  };
 
   const handleEdit = (config: AppConfig) => {
     setEditing(config);

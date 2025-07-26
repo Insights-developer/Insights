@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       [access_group_id, user_id]
     );
     return NextResponse.json({ success: true });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to assign access group.' }, { status: 500 });
   }
 }

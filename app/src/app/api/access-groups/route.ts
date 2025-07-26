@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const res = await pool.query('SELECT * FROM access_groups ORDER BY name');
     return NextResponse.json(res.rows);
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch access groups.' }, { status: 500 });
   }
 }
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       [name, description || null]
     );
     return NextResponse.json(res.rows[0]);
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create access group.' }, { status: 500 });
   }
 }

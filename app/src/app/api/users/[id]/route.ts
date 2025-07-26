@@ -13,7 +13,7 @@ export async function PUT(req: NextRequest) {
     );
     if (res.rows.length === 0) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(res.rows[0]);
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update user.' }, { status: 500 });
   }
 }
@@ -25,7 +25,7 @@ export async function DELETE(req: NextRequest) {
     const id = url.pathname.split("/").pop();
     await pool.query('DELETE FROM users WHERE id = $1', [id]);
     return NextResponse.json({ success: true });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete user.' }, { status: 500 });
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaTachometerAlt, FaUsers, FaLayerGroup, FaChartBar, FaCogs, FaEnvelope, FaGamepad, FaUser } from "react-icons/fa";
+import { FaTachometerAlt, FaUsers, FaChartBar, FaCogs, FaEnvelope, FaGamepad, FaUser } from "react-icons/fa";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard", icon: <FaTachometerAlt /> },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser, useStackApp } from "@stackframe/stack";
+import { useUser } from "@stackframe/stack";
 import { getUserDisplayInfo } from "../lib/user-info";
 import { LogOut, Bell, User2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -8,9 +8,8 @@ import { useEffect, useState } from "react";
 
 export default function UserInfoBox() {
   const user = useUser();
-  const stackApp = useStackApp();
   const router = useRouter();
-  const [dbUser, setDbUser] = useState<any>(null);
+  const [dbUser, setDbUser] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     async function fetchDbUser() {

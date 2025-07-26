@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     const options: jwt.SignOptions = { expiresIn: expiresIn as unknown as string & number };
     const token = jwt.sign(payload, jwtSecret as string, options);
     return NextResponse.json({ token });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Login failed." }, { status: 500 });
   }
 }

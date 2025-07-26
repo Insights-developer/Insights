@@ -1,15 +1,22 @@
 # Insights App Documentation Library
 ## Complete Documentation System
 
----
 
-## 📚 **Documentation Overview**
+Track daily development progress and changes.
 
-This documentation library provides comprehensive information about the Insights lottery analytics platform. It's designed to help future AI assistants and developers quickly understand the system architecture, current state, and development progress.
+- **[Session Log - July 26, 2025](./session-log-2025-07-26.md)**
+  - Centralized theme and card design applied to all main pages
+  - AuthForm and UserInfoBox modernized and fixed
+  - JWT cookie/session management implemented
+  - All build errors/warnings resolved
+  - Documentation updated
 
----
-
-## 📋 **Documentation Structure**
+- **[Session Log - July 25, 2025](./session-log-2025-07-25.md)**
+  - Vercel deployment fixes
+  - AuthForm complete redesign  
+  - Navigation system updates
+  - Configuration management system
+  - All changes and improvements made today
 
 ### **1. Session Logs**
 Track daily development progress and changes.

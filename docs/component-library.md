@@ -7,11 +7,12 @@
 
 ### **AuthForm.tsx**
 **Location**: `/src/components/AuthForm.tsx`  
-**Purpose**: Main authentication interface with tabbed design  
+**Purpose**: Main authentication interface with tabbed design and centralized theme/card system  
 
 **Features**:
 - Three modes: Login, Register, Password Reset
-- Gradient tab design with color themes
+- Card design with theme variables (no gradients or purple)
+- Company icon is now grey, not purple
 - Password visibility toggle
 - Mobile-responsive layout
 - App branding integration
@@ -21,9 +22,8 @@
 **State**:
 - `mode`: 'login' | 'register' | 'recover'
 - `showPassword`: boolean
-- `form`: object with email, password, name, phone
+- `form`: object with email, password, name
 - `loading`, `error`, `success`: UI states
-- `showVerify`: boolean for email verification
 
 **Usage**:
 ```tsx
@@ -32,6 +32,22 @@ import AuthForm from '@/components/AuthForm';
 export default function HomePage() {
   return <AuthForm />;
 }
+```
+### **UserInfoBox.tsx**
+**Location**: `/src/components/UserInfoBox.tsx`
+**Purpose**: Displays user info and provides logout functionality
+
+**Features**:
+- Reads user info from JWT cookie (set by login API)
+- Displays name, email, role, last login
+- Logout button clears the token cookie and session
+- Uses theme variables for styling
+
+**Usage**:
+```tsx
+import UserInfoBox from '@/components/UserInfoBox';
+
+<UserInfoBox />
 ```
 
 ### **VerifyEmailForm.tsx**

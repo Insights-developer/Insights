@@ -71,13 +71,15 @@ POST /api/auth/verify     # Email verification (marks user as verified in local 
 #### **Authentication Flow**
 1. User submits credentials via AuthForm
 2. API endpoints validate credentials and user status against the local database
-3. JWT token is generated and returned to the client
-4. Token is stored client-side (TODO: implement storage)
+3. JWT token is generated and set as an HTTP-only cookie ("token") in the login API response
+4. Token is read by the frontend and used for session management (UserInfoBox, StackAuthProvider, etc.)
 5. Token is validated on protected routes
 
 #### **Security Features**
 - Password hashing with bcrypt
 - JWT token expiration
+- JWT cookie is HTTP-only, SameSite=Lax, Secure in production
+- Logout clears the token cookie and session
 - Email verification required
 - Input validation and sanitization
 
@@ -122,19 +124,22 @@ Components/
 ### **Styling System**
 - **Framework**: Tailwind CSS
 - **Approach**: Mobile-first responsive design
-- **Themes**: Gradient-based color system
-- **Components**: Utility-first with custom components
+- **Theme System**: Centralized CSS variables for background, border, foreground, and primary colors. All cards, forms, and main UI elements use these variables for a consistent, modern look.
+- **Card Design**: All main pages (Settings, Contact, Games, Profile, etc.) use a rounded card with shadow, border, and theme colors. No legacy gradients or purple highlights remain.
+- **Components**: Utility-first with custom components, all themed.
 
----
-
-## 🚀 **Deployment Architecture**
-
-### **Vercel Configuration**
-- **Root Directory**: `/app` (not project root)
-- **Build Command**: `npm run build`
-- **Framework**: Next.js (auto-detected)
-- **Environment**: Production deployment ready
-
+```
+Components/
+├── Layout Components
+│   ├── ConditionalNavBar  # Smart navigation
+│   └── NavBar            # Main navigation
+├── Authentication
+│   ├── AuthForm          # Main auth interface (now uses theme, card, and grey icon)
+│   └── VerifyEmailForm   # Email verification
+├── UserInfoBox           # User info display and logout (reads JWT cookie)
+└── Utility
+    └── AppInfo           # App information display
+```
 ### **Environment Variables Required**
 ```bash
 # Database

@@ -11,6 +11,7 @@ export default function UserInfoBox() {
   const user = useUser();
   const router = useRouter();
   const [dbUser, setDbUser] = useState<Record<string, unknown> | null>(null);
+  const [debugInfo, setDebugInfo] = useState<{ cookies: string; user: any; dbUser: any }>({ cookies: '', user: null, dbUser: null });
 
   useEffect(() => {
     async function fetchDbUser() {
@@ -31,6 +32,15 @@ export default function UserInfoBox() {
     if (user) fetchDbUser();
   }, [user]);
 
+  // Debug info: cookies, user, dbUser
+  useEffect(() => {
+    setDebugInfo({
+      cookies: typeof document !== 'undefined' ? document.cookie : '',
+      user,
+      dbUser,
+    });
+  }, [user, dbUser]);
+
   if (!user && !dbUser) return null;
   const { name, email, role, lastLogin } = getUserDisplayInfo(dbUser || user);
 
@@ -44,25 +54,33 @@ export default function UserInfoBox() {
   };
 
   return (
-    <div className="fixed top-6 right-6 z-50 bg-white rounded-3xl shadow-2xl px-8 py-5 flex items-center gap-6 min-w-[320px] border border-gray-100/80">
-      <div className="flex flex-col flex-1">
-        <span className="font-bold text-gray-900 text-lg flex items-center gap-2">
-          <User2 className="text-blue-500 w-7 h-7" /> {name}
-        </span>
-        <span className="text-xs text-gray-500 mt-1">{email}</span>
-        {role && <span className="text-xs text-purple-600 font-semibold mt-1">{role}</span>}
-        {lastLogin && <span className="text-xs text-gray-400 mt-1">Last login: {lastLogin}</span>}
+    <div className="fixed top-6 right-6 z-50 bg-white rounded-3xl shadow-2xl px-8 py-5 flex flex-col gap-4 min-w-[340px] border border-gray-100/80">
+      <div className="flex items-center gap-6">
+        <div className="flex flex-col flex-1">
+          <span className="font-bold text-gray-900 text-lg flex items-center gap-2">
+            <User2 className="text-blue-500 w-7 h-7" /> {name}
+          </span>
+          <span className="text-xs text-gray-500 mt-1">{email}</span>
+          {role && <span className="text-xs text-purple-600 font-semibold mt-1">{role}</span>}
+          {lastLogin && <span className="text-xs text-gray-400 mt-1">Last login: {lastLogin}</span>}
+        </div>
+        <button className="text-gray-400 hover:text-blue-500 text-2xl" title="Notifications">
+          <Bell className="w-7 h-7" />
+        </button>
+        <button
+          className="text-gray-400 hover:text-red-500 text-2xl ml-2"
+          title="Log out"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-7 h-7" />
+        </button>
       </div>
-      <button className="text-gray-400 hover:text-blue-500 text-2xl" title="Notifications">
-        <Bell className="w-7 h-7" />
-      </button>
-      <button
-        className="text-gray-400 hover:text-red-500 text-2xl ml-2"
-        title="Log out"
-        onClick={handleLogout}
-      >
-        <LogOut className="w-7 h-7" />
-      </button>
+      {/* Debug Info Box */}
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 mt-2 text-xs text-gray-700 max-w-full overflow-x-auto">
+        <div><b>Cookies:</b> <code>{debugInfo.cookies || '(none)'}</code></div>
+        <div className="mt-1"><b>user (useUser):</b> <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugInfo.user, null, 2)}</pre></div>
+        <div className="mt-1"><b>dbUser (from /api/users):</b> <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugInfo.dbUser, null, 2)}</pre></div>
+      </div>
     </div>
   );
 }

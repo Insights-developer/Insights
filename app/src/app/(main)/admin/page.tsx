@@ -11,10 +11,8 @@ export default async function AdminPage() {
     const token = cookieStore.get("token")?.value;
     if (!token) throw new Error("No token");
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    // @ts-expect-error Server component needs async cookies
-    userEmail = decoded.email;
-    // @ts-expect-error Server component needs async cookies
-    isAdmin = decoded.role === "admin";
+    userEmail = typeof decoded === 'object' && decoded.email ? decoded.email : "";
+    isAdmin = typeof decoded === 'object' && decoded.role === "admin";
   } catch {
     redirect("/");
   }

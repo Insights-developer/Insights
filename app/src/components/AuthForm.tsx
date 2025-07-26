@@ -118,8 +118,8 @@ export default function AuthForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--background)] py-8 px-2 sm:px-4 lg:px-8">
-      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto">
-        <div className="bg-[var(--card-bg)] rounded-3xl shadow-2xl border border-[var(--card-border)] p-0 overflow-hidden max-w-2xl mx-auto">
+      <div className="w-full max-w-lg mx-auto">
+        <div className="bg-[var(--card-bg)] rounded-3xl shadow-2xl border border-[var(--card-border)] p-0 overflow-hidden w-full min-w-[350px] max-w-lg mx-auto min-h-[540px] flex flex-col justify-between">
           {/* Header */}
           <div className="text-center pt-10 pb-6 px-6">
             <AppIcon />
@@ -170,7 +170,7 @@ export default function AuthForm() {
 
           {/* Form */}
           <div className="p-4 sm:p-6 md:p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 justify-between space-y-6 min-h-[320px]">
               {mode === 'register' && (
                 <div>
                   <label htmlFor="name" className="sr-only">Full Name</label>

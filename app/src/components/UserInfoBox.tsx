@@ -20,20 +20,23 @@ export default function UserInfoBox() {
         if (res.ok) {
           const data = await res.json();
           setDbUser(data.user || null);
+        } else {
+          setDbUser(user);
         }
       } catch {
-        setDbUser(null);
+        setDbUser(user);
       }
     }
-    fetchDbUser();
+    if (user) fetchDbUser();
   }, [user]);
 
-  if (!user) return null;
+  if (!user && !dbUser) return null;
   const { name, email, role, lastLogin } = getUserDisplayInfo(dbUser || user);
 
   const handleLogout = async () => {
     // Remove the auth token cookie
-    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; path=/";
+    setDbUser(null);
     router.push("/");
     router.refresh();
   };

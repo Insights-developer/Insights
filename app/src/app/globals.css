@@ -3,19 +3,27 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --primary: #2563eb;
+  --primary-light: #60a5fa;
+  --primary-dark: #1e40af;
+  --secondary: #a21caf;
+  --secondary-light: #f472b6;
+  --secondary-dark: #701a75;
+  --danger: #ef4444;
+  --danger-light: #fca5a5;
+  --danger-dark: #b91c1c;
+  --gray-light: #f3f4f6;
+  --gray: #6b7280;
+  --gray-dark: #374151;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --gray-light: #1f2937;
+    --gray: #d1d5db;
+    --gray-dark: #f3f4f6;
   }
 }
 
@@ -24,3 +32,6 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+/* Use Tailwind utility classes directly in JSX. If you need to use these as classes, define them in a Tailwind layer or use a CSS-in-JS solution. */

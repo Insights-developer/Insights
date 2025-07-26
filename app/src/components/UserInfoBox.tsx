@@ -4,41 +4,64 @@ import { useUser } from "@stackframe/stack";
 import { getUserDisplayInfo } from "../lib/user-info";
 import { LogOut, Bell, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 
 export default function UserInfoBox() {
   const user = useUser();
   const [dbUser, setDbUser] = useState<Record<string, unknown> | null>(null);
-  const [debugInfo, setDebugInfo] = useState<{ cookies: string; user: unknown; dbUser: unknown }>({ cookies: '', user: null, dbUser: null });
+  const [debugInfo, setDebugInfo] = useState<{
+    cookies: string;
+    user: unknown;
+    dbUser: unknown;
+    timestamp: string;
+    path: string;
+    queriedEmail: string;
+    userApiResult: string;
+  }>({ cookies: '', user: null, dbUser: null, timestamp: '', path: '', queriedEmail: '', userApiResult: '' });
   const [showDebug, setShowDebug] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     async function fetchDbUser() {
       const { email } = getUserDisplayInfo(user);
-      if (!email) return;
+      if (!email) {
+        setDebugInfo((d) => ({ ...d, queriedEmail: '', userApiResult: 'No email to query' }));
+        return;
+      }
+      let apiResult = '';
       try {
         const res = await fetch(`/api/users?email=${encodeURIComponent(email)}`);
+        apiResult = `Status: ${res.status}`;
         if (res.ok) {
           const data = await res.json();
           setDbUser(data.user || null);
+          apiResult += `, user: ${JSON.stringify(data.user)}`;
         } else {
           setDbUser(user);
+          const err = await res.text();
+          apiResult += `, error: ${err}`;
         }
-      } catch {
+      } catch (e) {
         setDbUser(user);
+        apiResult += `, fetch error: ${e}`;
       }
+      setDebugInfo((d) => ({ ...d, queriedEmail: email, userApiResult: apiResult }));
     }
     if (user) fetchDbUser();
   }, [user]);
 
-  // Debug info: cookies, user, dbUser
+  // Debug info: cookies, user, dbUser, timestamp, path
   useEffect(() => {
-    setDebugInfo({
+    setDebugInfo((d) => ({
+      ...d,
       cookies: typeof document !== 'undefined' ? document.cookie : '',
       user,
       dbUser,
-    });
-  }, [user, dbUser]);
+      timestamp: new Date().toLocaleString(),
+      path: pathname,
+    }));
+  }, [user, dbUser, pathname]);
 
   if (!user && !dbUser) return null;
   const { name, email, role, lastLogin } = getUserDisplayInfo(dbUser || user);
@@ -83,8 +106,12 @@ export default function UserInfoBox() {
         {showDebug ? 'Hide Debug Info' : 'Show Debug Info'}
       </button>
       {showDebug && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 mt-1 text-xs text-gray-700 max-w-full max-h-48 overflow-auto shadow-inner">
-          <div><b>Cookies:</b> <code>{debugInfo.cookies || '(none)'}</code></div>
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 mt-1 text-xs text-gray-700 max-w-full max-h-72 overflow-auto shadow-inner">
+          <div><b>Path:</b> <code>{debugInfo.path}</code></div>
+          <div><b>Timestamp:</b> <code>{debugInfo.timestamp}</code></div>
+          <div className="mt-1"><b>Cookies:</b> <pre className="whitespace-pre-wrap break-all">{debugInfo.cookies || '(none)'}</pre></div>
+          <div className="mt-1"><b>Queried Email:</b> <code>{debugInfo.queriedEmail || '(none)'}</code></div>
+          <div className="mt-1"><b>/api/users Result:</b> <pre className="whitespace-pre-wrap break-all">{debugInfo.userApiResult}</pre></div>
           <div className="mt-1"><b>user (useUser):</b> <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugInfo.user, null, 2)}</pre></div>
           <div className="mt-1"><b>dbUser (from /api/users):</b> <pre className="whitespace-pre-wrap break-all">{JSON.stringify(debugInfo.dbUser, null, 2)}</pre></div>
         </div>

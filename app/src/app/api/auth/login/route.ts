@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing email or password." }, { status: 400 });
     }
     // Find user
-    const userRes = await pool.query('SELECT id, password_hash, is_verified FROM users WHERE email = $1', [email]);
+    const userRes = await pool.query('SELECT id, password_hash, is_verified, role FROM users WHERE email = $1', [email]);
     if (userRes.rows.length === 0) {
       return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
     }
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     if (!jwtSecret) {
       return NextResponse.json({ error: "JWT secret not configured." }, { status: 500 });
     }
-    const payload: { userId: number; email: string } = { userId: user.id, email };
+    const payload: { userId: number; email: string; role?: string } = { userId: user.id, email, role: user.role };
     let expiresIn: string | number = "24h";
     if (process.env.JWT_EXPIRY) {
       const val = process.env.JWT_EXPIRY;

@@ -9,6 +9,7 @@ export default function DashboardPage() {
   const user = useUser();
   const router = useRouter();
   const { reportDebugInfo } = useDebugInfo();
+  console.log('DashboardPage user:', user);
 
   useEffect(() => {
     reportDebugInfo({

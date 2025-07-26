@@ -38,8 +38,9 @@ export default function UserInfoBox() {
     // Call the logout API to clear the cookie server-side
     await fetch("/api/auth/logout", { method: "POST" });
     setDbUser(null);
-    // Reload the page to reset Stack context and user state
-    window.location.href = "/";
+    // Force a full page reload to reset Stack context and user state
+    window.location.replace("/");
+    window.location.reload();
   };
 
   return (
